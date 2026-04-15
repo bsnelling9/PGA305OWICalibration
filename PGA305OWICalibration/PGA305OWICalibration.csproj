@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<PlatformTarget>x86</PlatformTarget>
+		<Platforms>x86</Platforms>
+		<RuntimeIdentifier>win-x86</RuntimeIdentifier>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="libs\USB2ANY.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Data\" />
+		<Folder Include="Protocol\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="IviFoundation.Visa" Version="8.0.2" />
+		<PackageReference Include="NationalInstruments.Visa" Version="25.5.0.13" />
+		<PackageReference Include="System.IO.Ports" Version="10.0.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="USB2ANY_CS">
+			<HintPath>libs\USB2ANY_CS.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="libs\USB2ANY.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<Link>USB2ANY.dll</Link>
+		</Content>
+		<Content Include="libs\USB2ANY_2.7.0.9.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="libs\USB2ANY_2.8.2.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="libs\USB2ANY_CS.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<Link>USB2ANY_CS.dll</Link>
+		</Content>
+	</ItemGroup>
+
+</Project>
