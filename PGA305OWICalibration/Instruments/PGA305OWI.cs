@@ -139,6 +139,7 @@ namespace PGA305OWICalibration.PGA305EVM
             
             _u2a.UART_Write(unlockReg9, (byte)unlockReg9.Length);
 
+
            Debug.WriteLine("Activate complete - 3 Pulses sent and Interface Unlocked");
             return true;
         }

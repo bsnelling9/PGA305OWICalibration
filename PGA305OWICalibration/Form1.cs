@@ -48,14 +48,32 @@ namespace PGA305OWICalibration
 
         private async void btnConnectSTM32_Click(object sender, EventArgs e)
         {
+            try { _stm32.Close(); } catch { }
+            _stm32 = new STM32Controller();
+
+            _selectedPort = comboBox1.SelectedItem?.ToString() ?? "";
+            Log($"Attempting open on: '{_selectedPort}'");
+
             bool stm32Connected = _stm32.Open(_selectedPort);
+            
+            Debug.WriteLine($"Port open result: {stm32Connected}");
+
             if (!stm32Connected)
             {
-                listBox1.Items.Add($"Failed to open STM32 on {_selectedPort}.");
+                Log("Failed to open port — is another app using it?");
                 return;
             }
+
             string identity = await _stm32.GetIdentity();
-            listBox1.Items.Add($"STM32 identity: {identity}");
+            
+            Debug.WriteLine($"STM32 identity: '{identity}'");
+            
+            Log($"STM32 identity: '{identity}'");
+
+            /*string raw = await _stm32.RawTest();
+            Log($"Raw result: {raw}");
+            
+            Debug.WriteLine($"Raw result: {raw}");*/
         }
 
         //For production PCB
@@ -98,13 +116,16 @@ namespace PGA305OWICalibration
             try
             {
                 bool channelOk = await _stm32.SelectChannel(0);
+
                 Log($"STM32 channel 0 select: {(channelOk ? "OK" : "FAILED")}");
+
                 if (!channelOk) return;
 
                 await Task.Delay(10);
 
-                bool relayOk = await _stm32.ConfigureRelays(owiClosed: true, maClosed: false, voClosed: false);
+                bool relayOk = await _stm32.ConfigureRelays(owiClosed: true, maClosed: false, voClosed: false, vcomp0High: true, vcomp1High: true);
                 Log($"OWI relay closed: {(relayOk ? "OK" : "FAILED")}");
+
                 if (!relayOk) return;
 
                 await Task.Delay(10);
@@ -118,7 +139,7 @@ namespace PGA305OWICalibration
         }
 
         //For production PCB
-        private async void btnInitPGA305_Click(object sender, EventArgs e)
+        private void btnInitPGA305_Click(object sender, EventArgs e)
         {
             try
             {
@@ -131,19 +152,11 @@ namespace PGA305OWICalibration
                 if (initOk)
                     listBox1.Items.Add("Ready — click Read.");
 
-                bool activated = await _pga305.Activate();
+                bool activated = _pga305.Activate();
                 Log($"PGA305 activate: {(activated ? "OK" : "FAILED")}");
                 if (!activated) return;
 
-                await Task.Delay(10);
-
-                await _pga305.LoadEepromCache(0x00);
-
-                string partNumber = await _pga305.ReadPartNumber();
-                string serialNumber = await _pga305.ReadSerialNumber();
-
-                Log($"Part number:   {partNumber}");
-                Log($"Serial number: {serialNumber}");
+                //_pga305.LoadEepromCache(0x0E);
 
             }
             catch (Exception ex)
@@ -151,6 +164,30 @@ namespace PGA305OWICalibration
                 listBox1.Items.Add($"Error: {ex.Message}");
             }
         }
+
+        private void btnGetMetaData_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Debug.WriteLine("Reading metadata...");
+                var (partNumber, serialNumber, prange) = _pga305.ReadMetadata();
+                Log($"Part number: {partNumber}");
+                Log($"Serial number: {serialNumber}");
+                Log($"Pressure range: {prange}");
+
+                /*string partNumber = _pga305.ReadPartNumber();
+                string serialNumber = _pga305.ReadSerialNumber();
+
+                Log($"Part number:   {partNumber}");
+                Log($"Serial number: {serialNumber}");*/
+
+            }
+            catch (Exception ex)
+            {
+                listBox1.Items.Add($"Error: {ex.Message}");
+            }
+        }
+
 
         //For EVM
         private void u2a_Click(object sender, EventArgs e)
@@ -218,20 +255,20 @@ namespace PGA305OWICalibration
         private void btnPartSerial_Click(object sender, EventArgs e)
         {
             //string partNumber =  _pga305OWI.ReadPartNumber();
-            string serialNumber =  _pga305OWI.ReadSerialNumber();
+            string serialNumber = _pga305OWI.ReadSerialNumber();
 
-           // listBox1.Items.Add($"Part number:   {partNumber}");
+            // listBox1.Items.Add($"Part number:   {partNumber}");
             listBox1.Items.Add($"Serial number: {serialNumber}");
         }
 
-      /*  private async void btnPartSerial_Click(object sender, EventArgs e)
-        {
-            string partNumber = await _pga305OWI.ReadPartNumberAsync();
-            string serialNumber = await _pga305OWI.ReadSerialNumberAsync();
+        /*  private async void btnPartSerial_Click(object sender, EventArgs e)
+          {
+              string partNumber = await _pga305OWI.ReadPartNumberAsync();
+              string serialNumber = await _pga305OWI.ReadSerialNumberAsync();
 
-            listBox1.Items.Add($"Part number:   {partNumber}");
-            listBox1.Items.Add($"Serial number: {serialNumber}");
-        }*/
+              listBox1.Items.Add($"Part number:   {partNumber}");
+              listBox1.Items.Add($"Serial number: {serialNumber}");
+          }*/
 
         private async void btnRead_Click(object sender, EventArgs e)
         {
@@ -411,5 +448,6 @@ namespace PGA305OWICalibration
             _u2a.Close();
             base.OnFormClosing(e);
         }
+
     }
 }

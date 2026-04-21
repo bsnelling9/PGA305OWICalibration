@@ -25,6 +25,9 @@ namespace PGA305OWICalibration.PGA305
         GPIO10 is used for OWI VDD control (GPIO_OWI_VDD)
         GPIO11 is used for OWI TX control (GPIO_OWI_TX)
         */
+       
+        public const byte GPIO4 = 4;
+        public const byte GPIO5 = 5;
         public const byte GPIO7 = 7;
         public const byte GPIO10 = 10;
         public const byte GPIO11 = 11;
@@ -40,19 +43,33 @@ namespace PGA305OWICalibration.PGA305
 
         // PGA305 OWI commands
         private const byte SYNC_BYTE = 0x55;
+        private const byte CMD_WRITE_PAGE0 = 0x01;
         private const byte CMD_WRITE = 0x51;
         private const byte CMD_READ_INIT = 0x52;
         private const byte CMD_READ_RESPONSE = 0x73;
 
-        // EEPROM addresses, why are the EEPRON Memory different?
-        public const byte ADDR_PN_LSB = 0x60;
-        public const byte ADDR_PN_MID = 0x61;
-        public const byte ADDR_PN_MSB = 0x62;
+        // EEPROM addresses
+        public const byte ADDR_PN_LSB = 0x70;
+        public const byte ADDR_PN_MID = 0x71;
+        public const byte ADDR_PN_MSB = 0x72;
 
-        public const byte ADDR_SERIAL_BYTE0 = 0x64;
-        public const byte ADDR_SERIAL_BYTE1 = 0x65;
-        public const byte ADDR_SERIAL_BYTE2 = 0x66;
-        public const byte ADDR_SERIAL_BYTE3 = 0x67;
+        public const byte ADDR_SERIAL_LSB = 0x73;
+        public const byte ADDR_SERIAL_MID = 0x74;
+        public const byte ADDR_SERIAL_MSB = 0x75;
+        
+        // EEPROM cache address
+        // Part number
+        public const byte CACHE_00 = 0x80;
+        public const byte CACHE_01 = 0x81;
+        public const byte CACHE_02 = 0x82;
+        //Serial number
+        public const byte CACHE_03 = 0x83;
+        public const byte CACHE_04 = 0x84;
+        public const byte CACHE_05 = 0x85;
+
+        //Pressure range
+        public const byte CACHE_06 = 0x86;
+        public const byte CACHE_07 = 0x87;
 
         // OWI response frame structure (confirmed from Saleae captures)
         // [echo] [0xF6] [DATA] [0xFF] [0xF7]
@@ -67,7 +84,7 @@ namespace PGA305OWICalibration.PGA305
 
         public PGA305Device(USB2AnyDevice device) => _u2a = device;
 
-        public bool Initialize()
+        public  bool Initialize()
         {
             Debug.WriteLine("Initialise() called");
             _u2a.EnableDebugLogging();
@@ -96,8 +113,6 @@ namespace PGA305OWICalibration.PGA305
             if (result < 0) return false;*/
 
             // Per OWI documentation: 25ms timeout for >4800 bps
-
-            //_u2a.UART_SetMode(2);
             _u2a.SetReceiveTimeout(25);
 
             Thread.Sleep(20);
@@ -106,208 +121,222 @@ namespace PGA305OWICalibration.PGA305
             _u2a.GPIO_WritePort(GPIO7, STATE_LOW);
 
             _u2a.GPIO_SetPort(GPIO11, FN_OUTPUT);
-            _u2a.GPIO_WritePort(GPIO11, STATE_HIGH);
+            _u2a.GPIO_WritePort(GPIO11, STATE_LOW);
 
             _u2a.GPIO_SetPort(GPIO10, FN_OUTPUT);
             _u2a.GPIO_WritePort(GPIO10, STATE_LOW);
-
+                       
             _u2a.DACs_Write(DAC_OWI_OFFSET, DACs_OperatingMode.Normal, DAC_OFFSET_ZERO);
-            Thread.Sleep(10);
+            //Thread.Sleep(10);
 
             return true;
         }
 
-        public bool Activate()
+        public  bool Activate()
         {
             Debug.WriteLine("Activate() called");
 
+            // Note: this sets GPIO4 on U2A to High to setup the pulse time
             _u2a.OneWire_PulseSetup(TIME_SETUP, ACT_TIME_LOW, ACT_TIME_HIGH, TIME_STORE, FLAGS);
 
             int result = _u2a.OneWire_PulseWriteEx(0, 2);
             Debug.WriteLine($"OneWire_PulseWriteEx result: {result}");
 
-            byte[] unlockReg8 = new byte[] { 0x55, 0x01, 0x08, 0x55 };
-            byte[] unlockReg9 = new byte[] { 0x55, 0x01, 0x09, 0x55 };
+            Thread.Sleep(20);
 
-            //_u2a.OneWire_PulseSetup(TIME_SETUP, TIME_LOW, TIME_HIGH, TIME_STORE, FLAGS);
+            result = _u2a.OneWire_PulseWriteEx(0, 2);
+            Debug.WriteLine($"OneWire_PulseWriteEx result 2: {result}");
+
+            byte[] unlockReg8 = new byte[] { 0x55, CMD_WRITE_PAGE0, 0x08, 0x55 };
+            byte[] unlockReg9 = new byte[] { 0x55, CMD_WRITE_PAGE0, 0x09, 0x55 };
+
+            _u2a.OneWire_PulseSetup(TIME_SETUP, TIME_LOW, TIME_HIGH, TIME_STORE, FLAGS);
 
             _u2a.UART_Control();
-            //_u2a.UART_SetMode(2);
+            
+            _u2a.GPIO_WritePort(GPIO11, STATE_HIGH);
             _u2a.UART_Write(unlockReg8, (byte)unlockReg8.Length);
 
             _u2a.UART_Write(unlockReg9, (byte)unlockReg9.Length);
-
+            
             Debug.WriteLine("Activate complete - 3 Pulses sent and Interface Unlocked");
+
+            //_u2a.UART_SetMode(2);
+            //_u2a.GPIO_WritePort(GPIO10, STATE_LOW);
+
             return true;
         }
 
+        public void SetPins()
+        {
+            _u2a.GPIO_WritePort(GPIO11, STATE_HIGH);
+    
+            _u2a.GPIO_WritePort(GPIO10, STATE_HIGH);              
+        }
+       
+            
+        public int ReadRegister(byte registerAddress)
+        {
+            byte[] flush = new byte[54];
+            byte[] response = new byte[54];
 
+            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, registerAddress, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
+
+            int responseCount = _u2a.UART_Read(response, 54);
+                   
+
+            Debug.WriteLine($"Response count: {responseCount}");
+            for (int i = 0; i < responseCount; i++)
+                Debug.WriteLine($"  response[{i}] = 0x{response[i]:X2}");
+
+            return response[0];
+        }
+
+
+        public byte[] ReadEepromCache()
+        {
+            byte[] flush = new byte[54];
+            byte[] data = new byte[54];
+
+            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, 0x70 }, 3);
+            _u2a.UART_Read(flush, 54);
+
+            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_RESPONSE }, 2);
+            _u2a.UART_Read(data, 54);
+
+            for (int i = 0; i < 8; i++)
+                Debug.WriteLine($"  cache[{i}] = 0x{data[i]:X2}");
+
+            return data;
+        }
+
+        public (string partNumber, string serialNumber, int prange) ReadMetadata()
+        {
+            byte[] data = new byte[54];
+
+            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, 0x70 }, 3);
+            _u2a.UART_Write(new byte[] { SYNC_BYTE, 0xD3 }, 2);
+            int count = _u2a.UART_Read(data, 54);
+
+            Debug.WriteLine($"Cache read count: {count}");
+            for (int i = 0; i < count; i++)
+                Debug.WriteLine($"  cache[{i}] = 0x{data[i]:X2}");
+
+            // Parse part number
+            int pn_lsb = data[0];
+            int pn_mid = data[1];
+            int pn_msb = data[2];
+            string partNumber = $"0x{pn_msb:X2}{pn_mid:X2}{pn_lsb:X2}";
+
+
+            // Parse serial number
+            long serialValue = ((long)data[5] << 16) | ((long)data[4] << 8) | (long)data[3];
+            string serialNumber = serialValue.ToString("D6");
+
+            // Parse pressure range
+            int prange = data[6] | (data[7] << 8);
+
+            return (partNumber, serialNumber, prange);
+        }
+
+        public string ReadPartNumber()
+        {
+            byte[] cache = ReadEepromCache();
+
+            int lsb = cache[0];
+            int mid = cache[1];
+            int msb = cache[2];
+
+            long partNumberValue = ((long)msb << 16) | ((long)mid << 8) | (long)lsb;
+            Debug.WriteLine($"Part number: msb:0x{msb:X2} mid:0x{mid:X2} lsb:0x{lsb:X2}");
+            Debug.WriteLine($"Part number value: {partNumberValue} (0x{partNumberValue:X6})");
+
+            return $"0x{msb:X2}{mid:X2}{lsb:X2}";
+        }
+
+        public string ReadSerialNumber()
+        {
+            byte[] cache = ReadEepromCache();
+
+            int b0 = cache[3];
+            int b1 = cache[4];
+            int b2 = cache[5];
+
+            long serialValue = ((long)b2 << 16) | ((long)b1 << 8) | (long)b0;
+            Debug.WriteLine($"Serial: b2:0x{b2:X2} b1:0x{b1:X2} b0:0x{b0:X2}");
+
+            return serialValue.ToString("D6");
+        }
+                       
         public void LoadEepromCache(byte page)
         {
             byte[] buffer = new byte[54];
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_WRITE, 0x88, page }, 4);
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_WRITE, 0x89, 0x01 }, 4);
-            _u2a.UART_Read(buffer, 54);
+                        
+            _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x21, 0x88, page }, 4);
+            _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x21, 0x89, 0x01 }, 4);
+
+            Thread.Sleep(20);
+            //_u2a.GPIO_WritePort(GPIO11, STATE_LOW);
+
+            //_u2a.UART_Read(buffer, 54);
+
             Debug.WriteLine($"EEPROM cache loaded for page {page}");
-        }
-
-        private async Task ConsumeResponse()
-        {
-            using var cts = new CancellationTokenSource(OWI_READ_TIMEOUT_MS);
-            try
-            {
-                while (!cts.Token.IsCancellationRequested)
-                {
-                    byte[] b = new byte[1];
-                    int read = _u2a.UART_Read(b, 1);
-                    if (read > 0)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"  Drain: 0x{b[0]:X2}");
-                        if (b[0] == OWI_STOP_BYTE) break;
-                    }
-                    else
-                        await Task.Delay(1, cts.Token);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                System.Diagnostics.Debug.WriteLine("DrainBuffer safety timeout");
-            }
-        }
-
-
-        public async Task<int> ReadRegister(byte registerAddress)
-        {
-            // Frame 1 — Read Init
-            byte[] owiRequest = new byte[] {
-                SYNC_BYTE, CMD_READ_INIT, registerAddress,
-                SYNC_BYTE, CMD_READ_RESPONSE
-            };
-            int writeResponse = _u2a.UART_Write(owiRequest, (byte)owiRequest.Length);
-            System.Diagnostics.Debug.WriteLine($"UART response {writeResponse}");
-
-            // Skip 5 echo bytes (3 from frame1 + 2 from frame2)
-            int echoSkipped = 0;
-            using var echoCts = new CancellationTokenSource(OWI_READ_TIMEOUT_MS);
-            try
-            {
-                while (echoSkipped < 5 && !echoCts.Token.IsCancellationRequested)
-                {
-                    byte[] dummy = new byte[1];
-                    int read = _u2a.UART_Read(dummy, 1);
-                    if (read > 0)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"  Echo skip: 0x{dummy[0]:X2}");
-                        echoSkipped++;
-                    }
-                    else
-                        await Task.Delay(1, echoCts.Token);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"Echo skip timeout — only skipped {echoSkipped} bytes");
-            }
-
-            // Now read actual PGA305 response
-            var response = new List<byte>();
-            using var cts = new CancellationTokenSource(OWI_READ_TIMEOUT_MS);
-
-            try
-            {
-                while (!cts.Token.IsCancellationRequested)
-                {
-                    byte[] oneByte = new byte[1];
-                    int read = _u2a.UART_Read(oneByte, 1);
-
-                    if (read > 0)
-                    {
-                        System.Diagnostics.Debug.WriteLine(
-                            $"  RX byte: 0x{oneByte[0]:X2} at index={response.Count}");
-                        response.Add(oneByte[0]);
-
-                        if (response.Count >= OWI_MIN_RESPONSE_LEN &&
-                            response[response.Count - 2] == OWI_PRE_STOP_BYTE &&
-                            response[response.Count - 1] == OWI_STOP_BYTE)
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        await Task.Delay(1, cts.Token);
-                    }
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"Reg 0x{registerAddress:X2} — safety timeout triggered");
-            }
-
-            string rawHex = string.Join(" ", response.Select(b => $"0x{b:X2}"));
-            System.Diagnostics.Debug.WriteLine(
-                $"Reg 0x{registerAddress:X2} Raw Data: [{rawHex}] (Count: {response.Count})");
-
-            if (response.Count >= OWI_DATA_INDEX + 1)
-                return response[OWI_DATA_INDEX];
-
-            return -1;
-        }
-
-        public async Task<string> ReadPartNumber()
-        {
-            int lsb = await ReadRegister(ADDR_PN_LSB);
-
-            int mid = await ReadRegister(ADDR_PN_MID);
-
-            int msb = await ReadRegister(ADDR_PN_MSB);
-            System.Diagnostics.Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
-            System.Diagnostics.Debug.WriteLine($"Part number: {msb:X2}{mid:X2}{lsb:X2}");
-
-            return (lsb < 0 || mid < 0 || msb < 0) ? "Read error"
-            : $"0x{msb:X2}{mid:X2}{lsb:X2}";
-        }
-
-        public async Task<string> ReadSerialNumber()
-        {
-            int b0 = await ReadRegister(ADDR_SERIAL_BYTE0);
-
-            int b1 = await ReadRegister(ADDR_SERIAL_BYTE1);
-
-            int b2 = await ReadRegister(ADDR_SERIAL_BYTE2);     
-            int b3 = await ReadRegister(ADDR_SERIAL_BYTE3);
-
-            System.Diagnostics.Debug.WriteLine($"Serial Number: {b3:X2}{b2:X2}{b1:X2}{b0:X2}");
-
-            return (b0 < 0 || b1 < 0 || b2 < 0 || b3 < 0)
-                ? "Read error"
-                : $"{b3:X2}{b2:X2}{b1:X2}{b0:X2}";
         }
     }
 }
 
+/* public string ReadPartNumber()
+{
+    //int lsb = ReadRegister(ADDR_PN_LSB);
+    //int mid = ReadRegister(ADDR_PN_MID);
+    //int msb = ReadRegister(ADDR_PN_MSB);
+
+    int lsb = ReadRegister(CACHE_00);
+    int mid = ReadRegister(CACHE_01);
+    int msb = ReadRegister(CACHE_02);
+
+    Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
+
+    Debug.WriteLine($"Part number: msb:0x{msb:X2} mid:0x{mid:X2} lsb:0x{lsb:X2}");
+
+    long partNumberValue = ((long)msb << 16) | ((long)mid << 8) | (long)lsb;
+    Debug.WriteLine($"Part number value: {partNumberValue} (0x{partNumberValue:X6})");
+
+    if (lsb < 0 || mid < 0 || msb < 0) return "Read error";
+
+    return $"0x{msb:X2}{mid:X2}{lsb:X2}";
+}
+*/
+
+       /* public string ReadSerialNumber()
+        {
+            int b0 = ReadRegister(ADDR_SERIAL_LSB);
+            int b1 = ReadRegister(ADDR_SERIAL_MID);
+            int b2 = ReadRegister(ADDR_SERIAL_MSB);
+            
+            Debug.WriteLine($"Serial Number: b2: {b2} | b1: {b1} | b0: {b0}");
+
+            Debug.WriteLine($"Serial Number: b2:0x{b2:X2} b1:0x{b1:X2} b0:0x{b0:X2}");
+                      
+            if (b0 < 0 || b1 < 0 || b2 < 0  )
+                return "Read error";
+                        
+            long serialValue = ((long)b2 << 16) | ((long)b1 << 8) | (long)b0;
+            Debug.WriteLine($"{serialValue}");
+
+            return serialValue.ToString("D6");
+        }*/
 
 
-/*public async Task<bool> ActivateAsync()
-       {
-           System.Diagnostics.Debug.WriteLine("Activate() called");
+/*
+ * Other code for the read resgister
+ * _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, registerAddress }, 3);
+        Thread.Sleep(50);  // wait for TX to complete and PGA305 to respond
+        int flushCount = _u2a.UART_Read(flush, 54);
+        Debug.WriteLine($"Flush count: {flushCount}");
+        for (int i = 0; i < flushCount; i++)
+            Debug.WriteLine($"  flush[{i}] = 0x{flush[i]:X2}");
 
-           for (int i = 0; i < 3; i++)
-           {
-               _u2a.OneWire_SetOutput(1);
-
-               _u2a.OneWire_SetOutput(0);
-           }
-
-           byte[] unlockReg8 = new byte[] { 0x55, 0x21, 0x08, 0x55 };
-           byte[] unlockReg9 = new byte[] { 0x55, 0x21, 0x09, 0x55 };
-
-           _u2a.UART_Write(unlockReg8, (byte)unlockReg8.Length);
-
-           _u2a.UART_Write(unlockReg9, (byte)unlockReg9.Length);
-
-           System.Diagnostics.Debug.WriteLine("Activate complete - 3 Pulses sent and Interface Unlocked");
-           return true;
-       }*/
+        _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_RESPONSE }, 2);
+        Thread.Sleep(50);  // wait for TX to complete and PGA305 to respond
+        int responseCount = _u2a.UART_Read(response, 54);*/
