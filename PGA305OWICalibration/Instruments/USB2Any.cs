@@ -24,7 +24,6 @@ namespace PGA305OWICalibration.Instruments
 
         public int UART_DisableReceiver() => NativeUART_DisableReceiver(_u2a.u2aHandle);
 
-
         public int GetHandle() => _u2a.u2aHandle;
         public int FindControllers() => _u2a.FindControllers();
 

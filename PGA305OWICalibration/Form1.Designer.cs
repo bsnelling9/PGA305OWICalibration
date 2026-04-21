@@ -33,6 +33,7 @@
             btnInitUSB2ANY = new Button();
             btnInitPGA305 = new Button();
             btnFindDUT = new Button();
+            btnGetMetaData = new Button();
             SuspendLayout();
             // 
             // listBox1
@@ -193,11 +194,22 @@
             btnFindDUT.UseVisualStyleBackColor = true;
             btnFindDUT.Click += btnFindDUT_Click;
             // 
+            // btnGetMetaData
+            // 
+            btnGetMetaData.Location = new Point(51, 552);
+            btnGetMetaData.Name = "btnGetMetaData";
+            btnGetMetaData.Size = new Size(118, 66);
+            btnGetMetaData.TabIndex = 17;
+            btnGetMetaData.Text = "Get Meta Data";
+            btnGetMetaData.UseVisualStyleBackColor = true;
+            btnGetMetaData.Click += btnGetMetaData_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1341, 653);
+            Controls.Add(btnGetMetaData);
             Controls.Add(btnFindDUT);
             Controls.Add(btnInitPGA305);
             Controls.Add(btnInitUSB2ANY);
@@ -237,5 +249,6 @@
         private Button btnInitPGA305;
         private Button btnFindDUT;
         private Label label1;
+        private Button btnGetMetaData;
     }
 }
