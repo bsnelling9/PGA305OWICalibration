@@ -26,10 +26,10 @@ namespace PGA305OWICalibration.Instruments
                 _serialPort = new SerialPort(portName)
                 {
                     BaudRate = 115200,
-                    Parity = System.IO.Ports.Parity.None,
-                    StopBits = System.IO.Ports.StopBits.One,
+                    Parity = Parity.None,
+                    StopBits = StopBits.One,
                     DataBits = 8,
-                    Handshake = System.IO.Ports.Handshake.None,
+                    Handshake = Handshake.None,
                     NewLine = "\n",
                     ReadTimeout = 2000,
                     WriteTimeout = 2000
@@ -97,9 +97,9 @@ namespace PGA305OWICalibration.Instruments
                 bool isAck = response.Length > 0 && response[0] == 6;
                 bool isNack = response.Length > 0 && response[0] == 15;
                 
-                System.Diagnostics.Debug.WriteLine(
+               /* System.Diagnostics.Debug.WriteLine(
                     $"STM32 >> {command} << len={response.Length} " +
-                    $"{(isAck ? "ACK" : isNack ? "NACK" : $"raw={((int)response[0])}")}");
+                    $"{(isAck ? "ACK" : isNack ? "NACK" : $"raw={((int)response[0])}")}");*/
                 return response;
             }
             catch (TimeoutException)
@@ -129,8 +129,10 @@ namespace PGA305OWICalibration.Instruments
             if (voClosed) config |= RELAY_VO;
             if (vcomp1High) config |= VCOMP1_HIGH;
             if (vcomp0High) config |= VCOMP0_HIGH;
-
+            
+            System.Diagnostics.Debug.WriteLine($"cfg byte: 0x{config:X2}");
             string response = await SendCommand($"cfg{config:X2}");
+
             return response.Length > 0 && response[0] == 6;
         }
 
@@ -144,13 +146,14 @@ namespace PGA305OWICalibration.Instruments
             bool allLow = await ConfigureRelays(
                 owiClosed: false, maClosed: false, voClosed: false,
                 vcomp0High: false, vcomp1High: false);
+            
             if (!allLow) return false;
 
             await Task.Delay(10);
 
             return await ConfigureRelays(
                 owiClosed: true, maClosed: false, voClosed: true,
-                vcomp0High: true, vcomp1High: true);
+                vcomp0High: true, vcomp1High: false);
         }
 
         public async Task<bool> DisconnectAll()
