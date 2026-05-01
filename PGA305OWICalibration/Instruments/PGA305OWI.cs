@@ -50,6 +50,8 @@ namespace PGA305OWICalibration.PGA305EVM
         public const byte ADDR_SERIAL_MID = 0x74;
         public const byte ADDR_SERIAL_MSB = 0x75;
 
+
+
         //TI set serial address
         public const byte ADDR_SERIAL_BYTE0 = 0x60;
         public const byte ADDR_SERIAL_BYTE1 = 0x61;
@@ -116,17 +118,19 @@ namespace PGA305OWICalibration.PGA305EVM
 
         public bool Activate()
         {
-            Debug.WriteLine("Activate() called");
+            Debug.WriteLine("Activate called");
             byte[] response = new byte[54];
+            byte[] drain = new byte[54];
 
             _u2a.OneWire_PulseSetup(TIME_SETUP, ACT_TIME_LOW, ACT_TIME_HIGH, TIME_STORE, FLAGS);
 
             _u2a.OneWire_PulseWriteEx(1, 2);
-            Thread.Sleep(60);
+            Thread.Sleep(55);
             _u2a.OneWire_PulseWriteEx(1, 2);
 
             _u2a.UART_Control();
             _u2a.UART_SetMode(2);
+
             _u2a.GPIO_WritePort(GPIO11, STATE_HIGH);
 
             _u2a.UART_Write(new byte[] {
@@ -143,32 +147,26 @@ namespace PGA305OWICalibration.PGA305EVM
             {
                 Debug.WriteLine($"  [{i}] = 0x{response[i]:X2}");
             }
+
             byte counter = 0;
             bool commandModeActive = false;
-           
 
-            while (counter < 255)
+            while (counter < 10)
             {
-                /*_u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, 0x0C }, 3);
-                _u2a.UART_Read(new byte[54], 54);
-
-                _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_RESPONSE }, 2);
-                _u2a.UART_Read(response, 54);*/
-
-                _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE },5);
+                _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
                 _u2a.UART_Read(response, 54);
-              
+
                 Debug.WriteLine($"Poll {counter}: {response}");
 
                 byte result = response[0];
                 Debug.WriteLine($"Poll {counter}: COMPENSATION_CONTROL = 0x{result:X2}");
 
-                if (result == 0x03)
+                /*if (result == 0x03)
                 {
                     commandModeActive = true;
                     Debug.WriteLine("Command mode confirmed.");
                     break;
-                }
+                }*/
 
                 counter++;
             }
@@ -179,9 +177,9 @@ namespace PGA305OWICalibration.PGA305EVM
                 return false;
             }
 
-            Debug.WriteLine("Activate complete d");
-           
-           return true;
+            Debug.WriteLine("Activate complete");
+
+            return true;
         }
 
         public void LoadEepromCache(byte page)
@@ -225,13 +223,6 @@ namespace PGA305OWICalibration.PGA305EVM
             byte[] flush = new byte[54];
             byte[] response = new byte[54];
 
-
-            /*_u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, registerAddress }, 3);
-            _u2a.UART_Read(flush, 54);
-
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_RESPONSE }, 2);
-            _u2a.UART_Read(response, 54);*/
-
             _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, registerAddress, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
            
             int count = _u2a.UART_Read(response, 54);
@@ -253,12 +244,39 @@ namespace PGA305OWICalibration.PGA305EVM
             int lsb = ReadRegister(ADDR_PN_LSB);
             int mid = ReadRegister(ADDR_PN_MID);
             int msb = ReadRegister(ADDR_PN_MSB);
+            
             Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
 
             Debug.WriteLine($"Part number: msb:0x{msb:X2} mid:0x{mid:X2} lsb:0x{lsb:X2}");
 
             if (lsb < 0 || mid < 0 || msb < 0) return "Read error";
-            return $"0x{msb:X2}{mid:X2}{lsb:X2}";
+
+            string prefix = (msb % 128) == 0 ? "A" : "S";
+            int numeric = lsb + (mid << 8) + ((msb / 128) << 16);
+            string partNumber = prefix + numeric.ToString();
+
+            Debug.WriteLine($"Part Number: {partNumber}");
+            
+            return partNumber;
+        }
+
+        public string ReadSerialNumber()
+        {
+            int lsb = ReadRegister(ADDR_SERIAL_LSB);
+            int mid = ReadRegister(ADDR_SERIAL_MID);
+            int msb = ReadRegister(ADDR_SERIAL_MSB);
+            
+            Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
+
+            Debug.WriteLine($"Part number: msb:0x{msb:X2} mid:0x{mid:X2} lsb:0x{lsb:X2}");
+
+            if (lsb< 0 || mid < 0 || msb < 0) return "Read error";
+            
+            int serialValue = lsb + (mid << 8) + (msb << 16);
+            string serialNumber = serialValue.ToString("D6");
+
+            Debug.WriteLine($"Serial Number: {serialNumber}");
+            return serialNumber;
         }
 
         public string ReadTISerialNumber()
@@ -286,35 +304,7 @@ namespace PGA305OWICalibration.PGA305EVM
 
             return serialValue.ToString("D6");
         }
-
-        public string ReadSerialNumber()
-        {
-            //This is for TI Serial number
-            int b0 = ReadRegister(ADDR_SERIAL_BYTE0);
-            int b1 = ReadRegister(ADDR_SERIAL_BYTE1);
-            int b2 = ReadRegister(ADDR_SERIAL_BYTE2);
-            int b3 = ReadRegister(ADDR_SERIAL_BYTE3);
-            int b4 = ReadRegister(ADDR_SERIAL_BYTE4);
-            int b5 = ReadRegister(ADDR_SERIAL_BYTE5);
-            int b6 = ReadRegister(ADDR_SERIAL_BYTE6);
-            int b7 = ReadRegister(ADDR_SERIAL_BYTE7);
-
-            Debug.WriteLine($"Serial Number: b7: {b7} | b6: {b6} | b5: {b5} | b4: {b4} | b3: {b3} | b2: {b2} | b1: {b1} | b0: {b0}");
-
-            Debug.WriteLine($"Serial Number: b7:0x{b7:X2} b6:0x{b6:X2} b5:0x{b5:X2} b4:0x{b4:X2} b3:0x{b3:X2} b2:0x{b2:X2} b1:0x{b1:X2} b0:0x{b0:X2}");
-
-
-            if (b0 < 0 || b1 < 0 || b2 < 0 || b3 < 0 || b4 < 0 || b5 < 0 || b6 < 0 || b7 < 0)
-                return "Read error";
-
-            // Combine all bytes into a single integer value
-            long serialValue = ((long)b7 << 56) | ((long)b6 << 48) | ((long)b5 << 40) | ((long)b4 << 32) |
-                               ((long)b3 << 24) | ((long)b2 << 16) | ((long)b1 << 8) | (long)b0;
-            Debug.WriteLine($"{serialValue}");
-
-            return serialValue.ToString("D6");
-        }
-              
+                           
         public async Task<string> ReadPartNumberAsync()
         {
             int lsb = await ReadRegisterAsync(ADDR_PN_LSB);

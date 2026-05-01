@@ -1,19 +1,23 @@
 ﻿using System;
-using System.IO.Ports; // This requires the NuGet package "System.IO.Ports"
-using System.Threading;
+using System.IO.Ports;
+using System.Diagnostics;
 
 namespace PGA305OWICalibration.Instruments
 {
     public class STM32Controller
     {
         private SerialPort? _serialPort;
+        private byte _currentConfig = 0;
 
-
-        private const byte RELAY_OWI = 0x40;  
-        private const byte RELAY_MA = 0x20;  
-        private const byte RELAY_VO = 0x10;  
-        private const byte VCOMP1_HIGH = 0x02;  
-        private const byte VCOMP0_HIGH = 0x01;
+        // Byte mask is the location in the command byte for each control bit sent to the STM32
+        private const byte SETOWI_MASK = 0x40;  // PB4  - OWI relay
+        private const byte SETMA_MASK = 0x20;  // PA11 - mA relay
+        private const byte SETVO_MASK = 0x10;  // PA8  - VO relay
+        private const byte MEASRV_MASK = 0x0C;  // PB0  - measure reference voltage
+        private const byte MEASVO_MASK = 0x08;  // PA12 - measure voltage output
+        private const byte MEASMA_MASK = 0x04;  // PB7  - measure mA
+        private const byte VCOMP1_MASK = 0x02;  // PA4  - voltage comparator 1
+        private const byte VCOMP0_MASK = 0x01;  // PA5  - voltage comparator 0
 
         public bool IsConnected => _serialPort?.IsOpen ?? false;
 
@@ -51,116 +55,86 @@ namespace PGA305OWICalibration.Instruments
             _serialPort = null;
         }
 
-        public async Task<string> RawTest()
-        {
-            if (_serialPort == null) return "port is null";
-
-            _serialPort.DiscardInBuffer();
-            _serialPort.DiscardOutBuffer();
-                        
-            byte[] toSend = new byte[] { 0x49, 0x44, 0x4E, 0x0A }; // I D N \n
-            _serialPort.Write(toSend, 0, toSend.Length);
-
-            System.Diagnostics.Debug.WriteLine(
-                $"Sent bytes: {BitConverter.ToString(toSend)}");
-
-            await Task.Delay(200);
-
-            int waiting = _serialPort.BytesToRead;
-            System.Diagnostics.Debug.WriteLine($"Bytes in RX buffer: {waiting}");
-
-            if (waiting == 0) return "nothing received";
-
-            byte[] buf = new byte[waiting];
-            _serialPort.Read(buf, 0, waiting);
-
-            System.Diagnostics.Debug.WriteLine(
-                $"Received hex: {BitConverter.ToString(buf)}");
-            System.Diagnostics.Debug.WriteLine(
-                $"Received txt: {System.Text.Encoding.ASCII.GetString(buf)}");
-
-            return BitConverter.ToString(buf);
-        }
-
-        private async Task<string> SendCommand(string command)
+        private string SendCommand(string command)
         {
             if (!IsConnected || _serialPort == null)
                 throw new InvalidOperationException("STM32 is not connected.");
-
-            _serialPort.WriteLine(command);
-
-            await Task.Delay(50);
-
             try
             {
-                string response = _serialPort.ReadLine().Trim();
-                bool isAck = response.Length > 0 && response[0] == 6;
-                bool isNack = response.Length > 0 && response[0] == 15;
-                
-               /* System.Diagnostics.Debug.WriteLine(
-                    $"STM32 >> {command} << len={response.Length} " +
-                    $"{(isAck ? "ACK" : isNack ? "NACK" : $"raw={((int)response[0])}")}");*/
-                return response;
+                _serialPort.WriteLine(command);
+                return _serialPort.ReadLine().Trim();
             }
             catch (TimeoutException)
             {
-                System.Diagnostics.Debug.WriteLine($"STM32 >> {command} << TIMEOUT");
+                Debug.WriteLine($"STM32 >> {command} << TIMEOUT");
                 return "";
             }
         }
 
-        public async Task<string> GetIdentity() => await SendCommand("IDN");
+        public string GetIdentity() => SendCommand("IDN");
 
-        public async Task<bool> SelectChannel(int channel)
+        public bool SelectChannel(int channel)
         {
             if (channel < 0 || channel > 7)
                 throw new ArgumentOutOfRangeException(nameof(channel));
 
-            string response = await SendCommand($"mx_{channel:X2}");
+            string response = SendCommand($"mx_{channel:X2}");
             return response.Length > 0 && response[0] == 6;
         }
 
-        public async Task<bool> ConfigureRelays(bool owiClosed, bool maClosed, bool voClosed, bool vcomp0High, bool vcomp1High)
+        public bool ConfigureRelays(bool owiRelayClosed, bool maRelayClosed, bool voRelayClosed)
         {
-            byte config = 0;
+            _currentConfig = (byte)(_currentConfig & ~(SETOWI_MASK | SETMA_MASK | SETVO_MASK));
+            if (owiRelayClosed) _currentConfig |= SETOWI_MASK;
+            if (maRelayClosed) _currentConfig |= SETMA_MASK;
+            if (voRelayClosed) _currentConfig |= SETVO_MASK;
 
-            if (owiClosed) config |= RELAY_OWI;
-            if (maClosed) config |= RELAY_MA;
-            if (voClosed) config |= RELAY_VO;
-            if (vcomp1High) config |= VCOMP1_HIGH;
-            if (vcomp0High) config |= VCOMP0_HIGH;
-            
-            System.Diagnostics.Debug.WriteLine($"cfg byte: 0x{config:X2}");
-            string response = await SendCommand($"cfg{config:X2}");
-
+            string response = SendCommand($"cfg{_currentConfig:X2}");
             return response.Length > 0 && response[0] == 6;
         }
 
-        public async Task<bool> ConnectOWI(int channel)
+        public bool ConfigureVoltageComparators(bool vcompa0High, bool vcompa1High)
         {
-            bool channelOk = await SelectChannel(channel);
-            if (!channelOk) return false;
+            _currentConfig = (byte)(_currentConfig & ~(VCOMP0_MASK | VCOMP1_MASK));
+            if (vcompa0High) _currentConfig |= VCOMP0_MASK;
+            if (vcompa1High) _currentConfig |= VCOMP1_MASK;
 
-            await Task.Delay(10);
-
-            bool allLow = await ConfigureRelays(
-                owiClosed: false, maClosed: false, voClosed: false,
-                vcomp0High: false, vcomp1High: false);
-            
-            if (!allLow) return false;
-
-            await Task.Delay(10);
-
-            return await ConfigureRelays(
-                owiClosed: true, maClosed: false, voClosed: true,
-                vcomp0High: true, vcomp1High: false);
+            string response = SendCommand($"cfg{_currentConfig:X2}");
+            return response.Length > 0 && response[0] == 6;
         }
 
-        public async Task<bool> DisconnectAll()
+        public bool ConfigureMeasurement(bool measRV, bool measVO, bool measMA)
         {
-            return await ConfigureRelays(
-                owiClosed: false, maClosed: false, voClosed: false,
-                vcomp0High: false, vcomp1High: false);
+            byte measMask = (byte)(MEASRV_MASK | MEASVO_MASK | MEASMA_MASK);
+            _currentConfig = (byte)(_currentConfig & ~measMask);
+            if (measRV) _currentConfig |= MEASRV_MASK;
+            else if (measVO) _currentConfig |= MEASVO_MASK;
+            else if (measMA) _currentConfig |= MEASMA_MASK;
+
+            string response = SendCommand($"cfg{_currentConfig:X2}");
+            return response.Length > 0 && response[0] == 6;
+        }
+
+        public bool ConnectOWI(int channel)
+        {
+            if (!SelectChannel(channel)) return false;
+
+            _currentConfig = 0;
+            string resetResponse = SendCommand($"cfg{_currentConfig:X2}");
+            if (resetResponse.Length == 0 || resetResponse[0] != 6) return false;
+
+            _currentConfig |= SETOWI_MASK;
+            _currentConfig |= SETVO_MASK;
+
+            string response = SendCommand($"cfg{_currentConfig:X2}");
+            return response.Length > 0 && response[0] == 6;
+        }
+
+        public bool DisconnectAll()
+        {
+            _currentConfig = 0;
+            string response = SendCommand($"cfg{_currentConfig:X2}");
+            return response.Length > 0 && response[0] == 6;
         }
     }
 }

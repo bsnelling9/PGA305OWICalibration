@@ -87,12 +87,12 @@ namespace PGA305OWICalibration
         private void btnPartSerial_Click(object sender, EventArgs e)
         {
             string partNumber =  _pga305OWI.ReadPartNumber();
-            //string serialNumber = _pga305OWI.ReadSerialNumber();
-            string tiSerialNUmber = _pga305OWI.ReadTISerialNumber();
+            string serialNumber = _pga305OWI.ReadSerialNumber();
+            //string tiSerialNUmber = _pga305OWI.ReadTISerialNumber();
 
             listBoxDebug.Items.Add($"Part number:   {partNumber}");
-            //listBoxDebug.Items.Add($"Serial number: {serialNumber}");
-            listBoxDebug.Items.Add($"Serial number: {tiSerialNUmber}");
+            listBoxDebug.Items.Add($"Serial number: {serialNumber}");
+            //listBoxDebug.Items.Add($"Serial number: {tiSerialNUmber}");
 
         }
 

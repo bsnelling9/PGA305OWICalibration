@@ -1,6 +1,7 @@
 ﻿using PGA305OWICalibration.Instruments;
 using System.Diagnostics;
 using System.DirectoryServices.ActiveDirectory;
+using System.Security.Cryptography;
 
 namespace PGA305OWICalibration.PGA305
 {
@@ -221,53 +222,42 @@ namespace PGA305OWICalibration.PGA305
         public string ReadPartNumber()
         {
             int lsb = ReadRegister(ADDR_PN_LSB);
+            int mid = ReadRegister(ADDR_PN_MID);
+            int msb = ReadRegister(ADDR_PN_MSB);
 
-            //int mid = ReadRegister(ADDR_PN_MID);
+            Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
 
-            //int msb = ReadRegister(ADDR_PN_MSB);
+            Debug.WriteLine($"Part number: msb:0x{msb:X2} mid:0x{mid:X2} lsb:0x{lsb:X2}");
 
-            // Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
-            //Debug.WriteLine($"Part number: {msb:X2}{mid:X2}{lsb:X2}");
+            if (lsb < 0 || mid < 0 || msb < 0) return "Read error";
 
-            Debug.WriteLine($"Part number:  lsb: {lsb}");
-            Debug.WriteLine($"Part number: {lsb:X2}");
+            string prefix = (msb % 128) == 0 ? "A" : "S";
+            int numeric = lsb + (mid << 8) + ((msb / 128) << 16);
+            string partNumber = prefix + numeric.ToString();
 
-            //if (lsb < 0 || mid < 0 || msb < 0) return "Read error";
+            Debug.WriteLine($"Part Number: {partNumber}");
 
-            // string prefix = (msb % 128) == 0 ? "A" : "S";
-            //int pnNumeric = lsb + (mid << 8) + ((msb / 128) << 16);
-
-            //Debug.WriteLine($"Part number: {prefix}{pnNumeric}");
-
-            //return $"{prefix}{pnNumeric}";
-
-            return $"{lsb}";
+            return partNumber;
         }
 
         public string ReadSerialNumber()
         {
-            int lsb = ReadRegister(ADDR_PN_LSB);
+            int lsb = ReadRegister(ADDR_SERIAL_LSB);
+            int mid = ReadRegister(ADDR_SERIAL_MID);
+            int msb = ReadRegister(ADDR_SERIAL_MSB);
 
-            //int mid = ReadRegister(ADDR_PN_MID);
+            Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
 
-            //int msb = ReadRegister(ADDR_PN_MSB);
+            Debug.WriteLine($"Part number: msb:0x{msb:X2} mid:0x{mid:X2} lsb:0x{lsb:X2}");
 
-            // Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
-            //Debug.WriteLine($"Part number: {msb:X2}{mid:X2}{lsb:X2}");
+            if (lsb < 0 || mid < 0 || msb < 0) return "Read error";
 
-            Debug.WriteLine($"Part number:  lsb: {lsb}");
-            Debug.WriteLine($"Part number: {lsb:X2}");
+            int serialValue = lsb + (mid << 8) + (msb << 16);
+            string serialNumber = serialValue.ToString("D6");
 
-            //if (lsb < 0 || mid < 0 || msb < 0) return "Read error";
-
-            // string prefix = (msb % 128) == 0 ? "A" : "S";
-            //int pnNumeric = lsb + (mid << 8) + ((msb / 128) << 16);
-
-            //Debug.WriteLine($"Part number: {prefix}{pnNumeric}");
-
-            //return $"{prefix}{pnNumeric}";
-
-            return $"{lsb}";
+            Debug.WriteLine($"Serial Number: {serialNumber}");
+            
+            return serialNumber;
         }
 
         public string ReadDIG_IF_CNTRL()
