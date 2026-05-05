@@ -1,11 +1,8 @@
 ﻿using PGA305OWICalibration.Instruments;
 using PGA305OWICalibration.PGA305;
 using PGA305OWICalibration.UIControls;
-using System;
+
 using System.Diagnostics;
-using System.Drawing;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace PGA305OWICalibration.Tabs
 {
@@ -165,6 +162,9 @@ namespace PGA305OWICalibration.Tabs
                 int stm32Channel = channel - 1;
 
                 bool channelOk = _stm32.SelectChannel(stm32Channel);
+                Debug.WriteLine($"STM32 IsConnected: {_stm32.IsConnected}");
+
+                Debug.WriteLine($"STM32 current cfg: 0x{_stm32.CurrentConfig:X2}");
                 if (!channelOk)
                 {
                     Debug.WriteLine($"Channel {channel}: STM32 select failed");

@@ -79,11 +79,14 @@ namespace PGA305OWICalibration
             }
 
             string identity = _stm32.GetIdentity();
+            bool vcompOk = _stm32.ConfigureVoltageComparators(vcompa0High: true, vcompa1High: true);
+            Debug.WriteLine($"VCOMP set: {vcompOk}");
 
+            bool relayOk = _stm32.ConfigureRelays(owiRelayClosed: true, maRelayClosed: false, voRelayClosed: true);
+            Debug.WriteLine($"Relay set: {relayOk}");
             Debug.WriteLine($"STM32 identity: '{identity}'");
 
             Log($"STM32 identity: '{identity}'");
-
         }
 
         private async void btnFindDUT_Click(object sender, EventArgs e)

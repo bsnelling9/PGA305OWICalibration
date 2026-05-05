@@ -9,6 +9,7 @@ namespace PGA305OWICalibration.Tabs
     {
         private System.ComponentModel.IContainer components = null;
 
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -44,6 +45,12 @@ namespace PGA305OWICalibration.Tabs
             dataGridViewTextBoxColumn3 = new DataGridViewTextBoxColumn();
             btnScanHardware = new ATPButton();
             btnConnectAll = new ATPButton();
+            btnOutputV = new ATPButton();
+            btnOutputRM = new ATPButton();
+            btnOutputC = new ATPButton();
+            lblOutputMode = new Label();
+            lblVoltageRange = new Label();
+            lstVoltageRange = new ListBox();
             ((System.ComponentModel.ISupportInitialize)dgvHardware).BeginInit();
             SuspendLayout();
             // 
@@ -51,7 +58,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblPorts.AutoSize = true;
             lblPorts.Font = new Font("Segoe UI", 10F);
-            lblPorts.Location = new Point(19, 109);
+            lblPorts.Location = new Point(866, 75);
             lblPorts.Name = "lblPorts";
             lblPorts.Size = new Size(74, 19);
             lblPorts.TabIndex = 0;
@@ -60,7 +67,7 @@ namespace PGA305OWICalibration.Tabs
             // cmbPorts
             // 
             cmbPorts.Font = new Font("Segoe UI", 10F);
-            cmbPorts.Location = new Point(19, 131);
+            cmbPorts.Location = new Point(866, 97);
             cmbPorts.Name = "cmbPorts";
             cmbPorts.Size = new Size(150, 25);
             cmbPorts.TabIndex = 1;
@@ -75,7 +82,7 @@ namespace PGA305OWICalibration.Tabs
             btnGetPorts.FlatStyle = FlatStyle.Flat;
             btnGetPorts.Font = new Font("Segoe UI", 10F);
             btnGetPorts.ForeColor = Color.Black;
-            btnGetPorts.Location = new Point(14, 52);
+            btnGetPorts.Location = new Point(861, 18);
             btnGetPorts.Name = "btnGetPorts";
             btnGetPorts.Size = new Size(160, 45);
             btnGetPorts.TabIndex = 2;
@@ -93,7 +100,7 @@ namespace PGA305OWICalibration.Tabs
             btnConnectSTM32.FlatStyle = FlatStyle.Flat;
             btnConnectSTM32.Font = new Font("Segoe UI", 10F);
             btnConnectSTM32.ForeColor = Color.Black;
-            btnConnectSTM32.Location = new Point(15, 162);
+            btnConnectSTM32.Location = new Point(862, 128);
             btnConnectSTM32.Name = "btnConnectSTM32";
             btnConnectSTM32.Size = new Size(160, 45);
             btnConnectSTM32.TabIndex = 3;
@@ -106,7 +113,7 @@ namespace PGA305OWICalibration.Tabs
             lblSTM32Status.AutoSize = true;
             lblSTM32Status.Font = new Font("Segoe UI", 10F);
             lblSTM32Status.ForeColor = Color.Red;
-            lblSTM32Status.Location = new Point(13, 210);
+            lblSTM32Status.Location = new Point(860, 176);
             lblSTM32Status.Name = "lblSTM32Status";
             lblSTM32Status.Size = new Size(152, 19);
             lblSTM32Status.TabIndex = 4;
@@ -122,7 +129,7 @@ namespace PGA305OWICalibration.Tabs
             btnConnectUSB2ANY.FlatStyle = FlatStyle.Flat;
             btnConnectUSB2ANY.Font = new Font("Segoe UI", 10F);
             btnConnectUSB2ANY.ForeColor = Color.Black;
-            btnConnectUSB2ANY.Location = new Point(15, 252);
+            btnConnectUSB2ANY.Location = new Point(862, 218);
             btnConnectUSB2ANY.Name = "btnConnectUSB2ANY";
             btnConnectUSB2ANY.Size = new Size(160, 45);
             btnConnectUSB2ANY.TabIndex = 5;
@@ -135,7 +142,7 @@ namespace PGA305OWICalibration.Tabs
             lblUSB2ANYStatus.AutoSize = true;
             lblUSB2ANYStatus.Font = new Font("Segoe UI", 10F);
             lblUSB2ANYStatus.ForeColor = Color.Red;
-            lblUSB2ANYStatus.Location = new Point(16, 306);
+            lblUSB2ANYStatus.Location = new Point(863, 272);
             lblUSB2ANYStatus.Name = "lblUSB2ANYStatus";
             lblUSB2ANYStatus.Size = new Size(169, 19);
             lblUSB2ANYStatus.TabIndex = 6;
@@ -145,7 +152,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblComp.AutoSize = true;
             lblComp.Font = new Font("Segoe UI", 10F);
-            lblComp.Location = new Point(19, 383);
+            lblComp.Location = new Point(823, 353);
             lblComp.Name = "lblComp";
             lblComp.Size = new Size(142, 19);
             lblComp.TabIndex = 7;
@@ -157,7 +164,7 @@ namespace PGA305OWICalibration.Tabs
             chkVCOMPA0.Checked = true;
             chkVCOMPA0.CheckState = CheckState.Checked;
             chkVCOMPA0.Font = new Font("Segoe UI", 10F);
-            chkVCOMPA0.Location = new Point(19, 413);
+            chkVCOMPA0.Location = new Point(823, 383);
             chkVCOMPA0.Name = "chkVCOMPA0";
             chkVCOMPA0.Size = new Size(94, 23);
             chkVCOMPA0.TabIndex = 8;
@@ -169,7 +176,7 @@ namespace PGA305OWICalibration.Tabs
             chkVCOMPA1.Checked = true;
             chkVCOMPA1.CheckState = CheckState.Checked;
             chkVCOMPA1.Font = new Font("Segoe UI", 10F);
-            chkVCOMPA1.Location = new Point(19, 443);
+            chkVCOMPA1.Location = new Point(823, 413);
             chkVCOMPA1.Name = "chkVCOMPA1";
             chkVCOMPA1.Size = new Size(94, 23);
             chkVCOMPA1.TabIndex = 9;
@@ -185,7 +192,7 @@ namespace PGA305OWICalibration.Tabs
             btnSetCompensation.FlatStyle = FlatStyle.Flat;
             btnSetCompensation.Font = new Font("Segoe UI", 10F);
             btnSetCompensation.ForeColor = Color.Black;
-            btnSetCompensation.Location = new Point(19, 483);
+            btnSetCompensation.Location = new Point(823, 453);
             btnSetCompensation.Name = "btnSetCompensation";
             btnSetCompensation.Size = new Size(160, 45);
             btnSetCompensation.TabIndex = 10;
@@ -206,7 +213,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblRelay.AutoSize = true;
             lblRelay.Font = new Font("Segoe UI", 10F);
-            lblRelay.Location = new Point(19, 553);
+            lblRelay.Location = new Point(823, 523);
             lblRelay.Name = "lblRelay";
             lblRelay.Size = new Size(84, 19);
             lblRelay.TabIndex = 12;
@@ -217,7 +224,7 @@ namespace PGA305OWICalibration.Tabs
             rdoOWI.AutoSize = true;
             rdoOWI.Checked = true;
             rdoOWI.Font = new Font("Segoe UI", 10F);
-            rdoOWI.Location = new Point(19, 583);
+            rdoOWI.Location = new Point(823, 553);
             rdoOWI.Name = "rdoOWI";
             rdoOWI.Size = new Size(55, 23);
             rdoOWI.TabIndex = 13;
@@ -228,7 +235,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             rdoVO.AutoSize = true;
             rdoVO.Font = new Font("Segoe UI", 10F);
-            rdoVO.Location = new Point(79, 583);
+            rdoVO.Location = new Point(883, 553);
             rdoVO.Name = "rdoVO";
             rdoVO.Size = new Size(47, 23);
             rdoVO.TabIndex = 14;
@@ -238,7 +245,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             rdoMA.AutoSize = true;
             rdoMA.Font = new Font("Segoe UI", 10F);
-            rdoMA.Location = new Point(129, 583);
+            rdoMA.Location = new Point(933, 553);
             rdoMA.Name = "rdoMA";
             rdoMA.Size = new Size(49, 23);
             rdoMA.TabIndex = 15;
@@ -254,7 +261,7 @@ namespace PGA305OWICalibration.Tabs
             btnSetRelay.FlatStyle = FlatStyle.Flat;
             btnSetRelay.Font = new Font("Segoe UI", 10F);
             btnSetRelay.ForeColor = Color.Black;
-            btnSetRelay.Location = new Point(19, 623);
+            btnSetRelay.Location = new Point(823, 593);
             btnSetRelay.Name = "btnSetRelay";
             btnSetRelay.Size = new Size(160, 45);
             btnSetRelay.TabIndex = 16;
@@ -292,7 +299,7 @@ namespace PGA305OWICalibration.Tabs
             dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
             dgvHardware.DefaultCellStyle = dataGridViewCellStyle2;
-            dgvHardware.Location = new Point(400, 25);
+            dgvHardware.Location = new Point(173, 19);
             dgvHardware.Name = "dgvHardware";
             dgvHardware.ReadOnly = true;
             dgvHardware.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -302,19 +309,19 @@ namespace PGA305OWICalibration.Tabs
             // dataGridViewTextBoxColumn1
             // 
             dataGridViewTextBoxColumn1.HeaderText = "Device";
-            dataGridViewTextBoxColumn1.Name = "Device";
+            dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             dataGridViewTextBoxColumn1.ReadOnly = true;
             // 
             // dataGridViewTextBoxColumn2
             // 
             dataGridViewTextBoxColumn2.HeaderText = "Port";
-            dataGridViewTextBoxColumn2.Name = "Port";
+            dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
             dataGridViewTextBoxColumn2.ReadOnly = true;
             // 
             // dataGridViewTextBoxColumn3
             // 
             dataGridViewTextBoxColumn3.HeaderText = "Status";
-            dataGridViewTextBoxColumn3.Name = "Status";
+            dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
             dataGridViewTextBoxColumn3.ReadOnly = true;
             // 
             // btnScanHardware
@@ -327,7 +334,7 @@ namespace PGA305OWICalibration.Tabs
             btnScanHardware.FlatStyle = FlatStyle.Flat;
             btnScanHardware.Font = new Font("Segoe UI", 10F);
             btnScanHardware.ForeColor = Color.Black;
-            btnScanHardware.Location = new Point(234, 31);
+            btnScanHardware.Location = new Point(7, 25);
             btnScanHardware.Name = "btnScanHardware";
             btnScanHardware.Size = new Size(160, 45);
             btnScanHardware.TabIndex = 18;
@@ -345,13 +352,97 @@ namespace PGA305OWICalibration.Tabs
             btnConnectAll.FlatStyle = FlatStyle.Flat;
             btnConnectAll.Font = new Font("Segoe UI", 10F);
             btnConnectAll.ForeColor = Color.Black;
-            btnConnectAll.Location = new Point(400, 240);
+            btnConnectAll.Location = new Point(173, 234);
             btnConnectAll.Name = "btnConnectAll";
             btnConnectAll.Size = new Size(160, 45);
             btnConnectAll.TabIndex = 20;
             btnConnectAll.Text = "Connect All";
             btnConnectAll.UseVisualStyleBackColor = false;
             btnConnectAll.Click += BtnConnectAll_Click;
+            // 
+            // btnOutputV
+            // 
+            btnOutputV.BackColor = Color.White;
+            btnOutputV.BorderColor = Color.Black;
+            btnOutputV.BorderSize = 2;
+            btnOutputV.CornerRadius = 10;
+            btnOutputV.Cursor = Cursors.Hand;
+            btnOutputV.FlatStyle = FlatStyle.Flat;
+            btnOutputV.Font = new Font("Segoe UI", 10F);
+            btnOutputV.ForeColor = Color.Black;
+            btnOutputV.Location = new Point(20, 339);
+            btnOutputV.Name = "btnOutputV";
+            btnOutputV.Size = new Size(160, 45);
+            btnOutputV.TabIndex = 22;
+            btnOutputV.Text = "Voltage";
+            btnOutputV.UseVisualStyleBackColor = false;
+            btnOutputV.Click += BtnOutputV_Click;
+            // 
+            // btnOutputRM
+            // 
+            btnOutputRM.BackColor = Color.White;
+            btnOutputRM.BorderColor = Color.Black;
+            btnOutputRM.BorderSize = 2;
+            btnOutputRM.CornerRadius = 10;
+            btnOutputRM.Cursor = Cursors.Hand;
+            btnOutputRM.FlatStyle = FlatStyle.Flat;
+            btnOutputRM.Font = new Font("Segoe UI", 10F);
+            btnOutputRM.ForeColor = Color.Black;
+            btnOutputRM.Location = new Point(190, 339);
+            btnOutputRM.Name = "btnOutputRM";
+            btnOutputRM.Size = new Size(160, 45);
+            btnOutputRM.TabIndex = 23;
+            btnOutputRM.Text = "Ratio Metric";
+            btnOutputRM.UseVisualStyleBackColor = false;
+            btnOutputRM.Click += BtnOutputRM_Click;
+            // 
+            // btnOutputC
+            // 
+            btnOutputC.BackColor = Color.White;
+            btnOutputC.BorderColor = Color.Black;
+            btnOutputC.BorderSize = 2;
+            btnOutputC.CornerRadius = 10;
+            btnOutputC.Cursor = Cursors.Hand;
+            btnOutputC.FlatStyle = FlatStyle.Flat;
+            btnOutputC.Font = new Font("Segoe UI", 10F);
+            btnOutputC.ForeColor = Color.Black;
+            btnOutputC.Location = new Point(360, 339);
+            btnOutputC.Name = "btnOutputC";
+            btnOutputC.Size = new Size(160, 45);
+            btnOutputC.TabIndex = 24;
+            btnOutputC.Text = "Current";
+            btnOutputC.UseVisualStyleBackColor = false;
+            btnOutputC.Click += BtnOutputC_Click;
+            // 
+            // lblOutputMode
+            // 
+            lblOutputMode.AutoSize = true;
+            lblOutputMode.Font = new Font("Segoe UI", 10F);
+            lblOutputMode.Location = new Point(20, 309);
+            lblOutputMode.Name = "lblOutputMode";
+            lblOutputMode.Size = new Size(184, 19);
+            lblOutputMode.TabIndex = 21;
+            lblOutputMode.Text = "Select Output Configuration:";
+            // 
+            // lblVoltageRange
+            // 
+            lblVoltageRange.AutoSize = true;
+            lblVoltageRange.Font = new Font("Segoe UI", 10F);
+            lblVoltageRange.Location = new Point(19, 400);
+            lblVoltageRange.Name = "lblVoltageRange";
+            lblVoltageRange.Size = new Size(100, 23);
+            lblVoltageRange.TabIndex = 0;
+            lblVoltageRange.Text = "Select Voltage Range:";
+            // 
+            // lstVoltageRange
+            // 
+            lstVoltageRange.Font = new Font("Segoe UI", 10F);
+            lstVoltageRange.Items.AddRange(new object[] { "0-10V", "0-5V", "1-5V", "0.5-4.5V", "1-6V" });
+            lstVoltageRange.Location = new Point(19, 425);
+            lstVoltageRange.Name = "lstVoltageRange";
+            lstVoltageRange.Size = new Size(200, 110);
+            lstVoltageRange.TabIndex = 0;
+            lstVoltageRange.Click += LstVoltageRange_Click;
             // 
             // HardwareTab
             // 
@@ -378,8 +469,14 @@ namespace PGA305OWICalibration.Tabs
             Controls.Add(btnScanHardware);
             Controls.Add(dgvHardware);
             Controls.Add(btnConnectAll);
+            Controls.Add(lblOutputMode);
+            Controls.Add(btnOutputV);
+            Controls.Add(btnOutputRM);
+            Controls.Add(btnOutputC);
+            Controls.Add(lblVoltageRange);
+            Controls.Add(lstVoltageRange);
             Name = "HardwareTab";
-            Size = new Size(1043, 746);
+            Size = new Size(1725, 1112);
             ((System.ComponentModel.ISupportInitialize)dgvHardware).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -409,5 +506,11 @@ namespace PGA305OWICalibration.Tabs
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
+        private ATPButton btnOutputV;
+        private ATPButton btnOutputRM;
+        private ATPButton btnOutputC;
+        private Label lblOutputMode;
+        private Label lblVoltageRange;
+        private ListBox lstVoltageRange;
     }
 }

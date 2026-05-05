@@ -73,17 +73,15 @@ namespace PGA305OWICalibration.Instruments
 
         public int GetHandle() => _handle;
 
-        //This raises the TX (OWI) voltage line, which causes issues for activation
+
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aPower_WriteControl(int handle, Power_3V3 p33, Power_5V0 p50);
         public int Power_WriteControl(Power_3V3 p33, Power_5V0 p50) => u2aPower_WriteControl(_handle, p33, p50);
 
     
-
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aDACs_Write(int handle, DACs_WhichDAC dac, DACs_OperatingMode mode, byte value);
         public int DACs_Write(DACs_WhichDAC dac, DACs_OperatingMode mode, byte value) => u2aDACs_Write(_handle, dac, mode, value);
-
 
 
         [DllImport("USB2ANY_2.8.2.dll")]
@@ -133,7 +131,6 @@ namespace PGA305OWICalibration.Instruments
         public int UART_DisableReceiver() => u2aUART_DisableReceiver(_handle);
 
   
-
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aGPIO_SetPort(int handle, byte port, byte function);
         public int GPIO_SetPort(byte port, byte function) => u2aGPIO_SetPort(_handle, port, function);

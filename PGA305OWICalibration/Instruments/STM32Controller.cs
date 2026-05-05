@@ -73,10 +73,13 @@ namespace PGA305OWICalibration.Instruments
 
         public string GetIdentity() => SendCommand("IDN");
 
+        public byte CurrentConfig => _currentConfig;
+
         public bool SelectChannel(int channel)
         {
             if (channel < 0 || channel > 7)
                 throw new ArgumentOutOfRangeException(nameof(channel));
+            Debug.WriteLine($"Selecting STM32 channel {channel}");
 
             string response = SendCommand($"mx_{channel:X2}");
             return response.Length > 0 && response[0] == 6;
@@ -119,13 +122,17 @@ namespace PGA305OWICalibration.Instruments
         {
             if (!SelectChannel(channel)) return false;
 
-            _currentConfig = 0;
+            byte vcompBits = (byte)(_currentConfig & (VCOMP0_MASK | VCOMP1_MASK));
+            _currentConfig = vcompBits;
+
+            Debug.WriteLine($"ConnectOWI reset cfg: 0x{_currentConfig:X2}");
             string resetResponse = SendCommand($"cfg{_currentConfig:X2}");
             if (resetResponse.Length == 0 || resetResponse[0] != 6) return false;
 
             _currentConfig |= SETOWI_MASK;
             _currentConfig |= SETVO_MASK;
 
+            Debug.WriteLine($"ConnectOWI final cfg: 0x{_currentConfig:X2}");
             string response = SendCommand($"cfg{_currentConfig:X2}");
             return response.Length > 0 && response[0] == 6;
         }

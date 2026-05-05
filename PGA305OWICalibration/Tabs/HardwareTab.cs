@@ -1,8 +1,6 @@
 ﻿using PGA305OWICalibration.Instruments;
 using System.Diagnostics;
 using System.IO.Ports;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace PGA305OWICalibration.Tabs
 {
@@ -16,6 +14,8 @@ namespace PGA305OWICalibration.Tabs
             InitializeComponent();
             _stm32 = stm32;
             _u2a = u2a;
+            lblVoltageRange.Visible = false;
+            lstVoltageRange.Visible = false;
         }
 
         private void BtnGetPorts_Click(object sender, EventArgs e)
@@ -103,10 +103,10 @@ namespace PGA305OWICalibration.Tabs
                 bool ok = _stm32.ConfigureRelays(
                     owiRelayClosed: rdoOWI.Checked,
                     maRelayClosed: rdoMA.Checked,
-                    voRelayClosed: rdoVO.Checked);
+                    voRelayClosed: rdoOWI.Checked || rdoVO.Checked);
 
                 string mode = rdoOWI.Checked ? "OWI" : rdoVO.Checked ? "VO" : "MA";
-                lblRelayStatus.Text = ok ? $"{mode} OWI Activated" : "Failed";
+                lblRelayStatus.Text = ok ? $"{mode} Relay Set" : "Failed";
                 lblRelayStatus.ForeColor = ok ? Color.Green : Color.Red;
             }
             catch (Exception ex)
@@ -119,8 +119,6 @@ namespace PGA305OWICalibration.Tabs
         private void BtnScanHardware_Click(object sender, EventArgs e)
         {
             dgvHardware.Rows.Clear();
-
-            // Scan COM ports
             try
             {
                 string[] ports = SerialPort.GetPortNames();
@@ -134,7 +132,6 @@ namespace PGA305OWICalibration.Tabs
                 Debug.WriteLine($"COM scan error: {ex.Message}");
             }
 
-            // Scan USB2ANY
             try
             {
                 int numFound = _u2a.FindControllers();
@@ -154,12 +151,12 @@ namespace PGA305OWICalibration.Tabs
             }
         }
 
+
         private void BtnConnectAll_Click(object sender, EventArgs e)
         {
-            // Connect STM32 - try each COM port until identity matches
             foreach (DataGridViewRow row in dgvHardware.Rows)
             {
-                string port = row.Cells["Port"].Value?.ToString() ?? "";
+                string port = row.Cells[1].Value?.ToString() ?? "";
 
                 if (!port.StartsWith("COM")) continue;
 
@@ -167,15 +164,15 @@ namespace PGA305OWICalibration.Tabs
                 bool connected = _stm32.Open(port);
                 if (!connected)
                 {
-                    row.Cells["Status"].Value = "Failed to Open";
+                    row.Cells[2].Value = "Failed to Open";
                     continue;
                 }
 
                 string identity = _stm32.GetIdentity();
                 if (identity.Contains("PGA305"))
                 {
-                    row.Cells["Device"].Value = identity;
-                    row.Cells["Status"].Value = "Connected";
+                    row.Cells[0].Value = identity;
+                    row.Cells[2].Value = "Connected";
                     lblSTM32Status.Text = $"STM32: {identity}";
                     lblSTM32Status.ForeColor = Color.Green;
                     break;
@@ -183,12 +180,11 @@ namespace PGA305OWICalibration.Tabs
                 else
                 {
                     _stm32.Close();
-                    row.Cells["Device"].Value = identity.Length > 0 ? identity : "Unknown";
-                    row.Cells["Status"].Value = "Not STM32";
+                    row.Cells[0].Value = identity.Length > 0 ? identity : "Unknown";
+                    row.Cells[2].Value = "Not STM32";
                 }
             }
 
-            // Connect USB2ANY
             try
             {
                 bool opened = _u2a.Open("");
@@ -197,10 +193,10 @@ namespace PGA305OWICalibration.Tabs
 
                 foreach (DataGridViewRow row in dgvHardware.Rows)
                 {
-                    if (row.Cells["Device"].Value?.ToString() == "USB2ANY")
+                    if (row.Cells[0].Value?.ToString() == "USB2ANY")
                     {
-                        row.Cells["Device"].Value = opened ? $"USB2ANY ({_u2a.GetSerialNumber(0)})" : "USB2ANY";
-                        row.Cells["Status"].Value = opened ? "Connected" : "Failed";
+                        row.Cells[0].Value = opened ? $"USB2ANY ({_u2a.GetSerialNumber(0)})" : "USB2ANY";
+                        row.Cells[2].Value = opened ? "Connected" : "Failed";
                     }
                 }
             }
@@ -209,6 +205,26 @@ namespace PGA305OWICalibration.Tabs
                 lblUSB2ANYStatus.Text = $"USB2ANY: Error - {ex.Message}";
                 lblUSB2ANYStatus.ForeColor = Color.Red;
             }
+        }
+
+        private void BtnOutputV_Click(object sender, EventArgs e)
+        {
+            lblVoltageRange.Visible = true;
+            lstVoltageRange.Visible = true;
+        }
+
+        private void BtnOutputRM_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void BtnOutputC_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void LstVoltageRange_Click(object sender, EventArgs e)
+        {
+            if (lstVoltageRange.SelectedItem != null)
+                Debug.WriteLine($"Voltage range selected: {lstVoltageRange.SelectedItem}");
         }
     }
 }

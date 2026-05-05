@@ -50,8 +50,6 @@ namespace PGA305OWICalibration.PGA305EVM
         public const byte ADDR_SERIAL_MID = 0x74;
         public const byte ADDR_SERIAL_MSB = 0x75;
 
-
-
         //TI set serial address
         public const byte ADDR_SERIAL_BYTE0 = 0x60;
         public const byte ADDR_SERIAL_BYTE1 = 0x61;
@@ -89,18 +87,12 @@ namespace PGA305OWICalibration.PGA305EVM
 
             _u2a.OneWire_SetOutput(0);
 
-            /*result = _u2a.UART_Control();
-            Debug.WriteLine($"UART_Control result: {result}");
-            if (result < 0) return false;*/
-
-            // Per PGA305 GUI documentation: receiver mode 2 = half duplex
-           /* result = _u2a.UART_SetMode(2);
-            Debug.WriteLine($"UART_SetMode(2) result: {result}");
-            if (result < 0) return false;*/
-
             // Per OWI documentation: 25ms timeout for >4800 bps
 
             _u2a.SetReceiveTimeout(25);
+
+            _u2a.UART_Control();
+            _u2a.UART_SetMode(2);
 
             Thread.Sleep(5);
 
@@ -110,9 +102,6 @@ namespace PGA305OWICalibration.PGA305EVM
             _u2a.GPIO_SetPort(GPIO11, FN_OUTPUT);
             _u2a.GPIO_WritePort(GPIO11, STATE_LOW);
 
-            /* _u2a.GPIO_SetPort(GPIO10, FN_OUTPUT);
-             _u2a.GPIO_WritePort(GPIO10, STATE_LOW);*/
-
             return true;
         }
 
@@ -120,16 +109,13 @@ namespace PGA305OWICalibration.PGA305EVM
         {
             Debug.WriteLine("Activate called");
             byte[] response = new byte[54];
-            byte[] drain = new byte[54];
-
+            
             _u2a.OneWire_PulseSetup(TIME_SETUP, ACT_TIME_LOW, ACT_TIME_HIGH, TIME_STORE, FLAGS);
 
             _u2a.OneWire_PulseWriteEx(1, 2);
             Thread.Sleep(55);
             _u2a.OneWire_PulseWriteEx(1, 2);
 
-            _u2a.UART_Control();
-            _u2a.UART_SetMode(2);
 
             _u2a.GPIO_WritePort(GPIO11, STATE_HIGH);
 
@@ -161,12 +147,12 @@ namespace PGA305OWICalibration.PGA305EVM
                 byte result = response[0];
                 Debug.WriteLine($"Poll {counter}: COMPENSATION_CONTROL = 0x{result:X2}");
 
-                /*if (result == 0x03)
+                if (result == 0x03)
                 {
                     commandModeActive = true;
                     Debug.WriteLine("Command mode confirmed.");
                     break;
-                }*/
+                }
 
                 counter++;
             }

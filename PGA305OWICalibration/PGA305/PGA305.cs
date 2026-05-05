@@ -1,7 +1,5 @@
 ﻿using PGA305OWICalibration.Instruments;
 using System.Diagnostics;
-using System.DirectoryServices.ActiveDirectory;
-using System.Security.Cryptography;
 
 namespace PGA305OWICalibration.PGA305
 {
@@ -28,7 +26,6 @@ namespace PGA305OWICalibration.PGA305
         GPIO10 is used for OWI VDD control (GPIO_OWI_VDD)
         GPIO11 is used for OWI TX control (GPIO_OWI_TX)
         */
-
         public const byte GPIO4 = 4;
         public const byte GPIO5 = 5;
         public const byte GPIO7 = 7;
@@ -42,8 +39,6 @@ namespace PGA305OWICalibration.PGA305
         public const byte STATE_HIGH = 2;
         public const byte STATE_LOW = 1;
 
-        private const DACs_WhichDAC DAC_OWI_OFFSET = DACs_WhichDAC.DAC0;
-        private const byte DAC_OFFSET_ZERO = 0;
 
         // PGA305 OWI commands
         private const byte SYNC_BYTE = 0x55;
@@ -61,50 +56,33 @@ namespace PGA305OWICalibration.PGA305
         public const byte ADDR_SERIAL_MID = 0x74;
         public const byte ADDR_SERIAL_MSB = 0x75;
         
-        // EEPROM cache address
-        // Part number
+        // EEPROM cache addresses
         public const byte CACHE_00 = 0x80;
         public const byte CACHE_01 = 0x81;
         public const byte CACHE_02 = 0x82;
-        //Serial number
         public const byte CACHE_03 = 0x83;
         public const byte CACHE_04 = 0x84;
         public const byte CACHE_05 = 0x85;
-
-        //Pressure range
         public const byte CACHE_06 = 0x86;
         public const byte CACHE_07 = 0x87;
 
 
         public PGA305Device(USB2AnyDevice device) => _u2a = device;
 
-        public  bool Initialize()
+        public bool Initialize()
         {
-            Debug.WriteLine("Initialise() called");
+            Debug.WriteLine("Initialise() device called");
             _u2a.EnableDebugLogging();
-
-            //_u2a.Power_WriteControl(Power_3V3.ON, Power_5V0.ON);
-            //Thread.Sleep(20);
 
             int result = _u2a.OneWire_SetMode(OW_MODE);
 
             Debug.WriteLine($"OneWire_SetMode({OW_MODE}) result: {result}");
             if (result < 0) return false;
 
-            //result = _u2a.OneWire_PulseSetup(TIME_SETUP, TIME_LOW, TIME_HIGH, TIME_STORE, FLAGS);
-
             _u2a.OneWire_SetOutput(0);
 
-            //dont need this
-           /* result = _u2a.UART_Control();
-            Debug.WriteLine($"UART_Control result: {result}");
-            if (result < 0) return false;
-            
-            _u2a.UART_SetMode(2);*/
-            _u2a.SetReceiveTimeout(25);
-                        
-           /* _u2a.GPIO_SetPort(GPIO5, PIN_INPUT);
-            _u2a.GPIO_WritePort(GPIO5, STATE_LOW);*/
+            _u2a.UART_Control();
+            _u2a.UART_SetMode(2);
 
             _u2a.GPIO_SetPort(GPIO7, PIN_OUTPUT);
             _u2a.GPIO_WritePort(GPIO7, STATE_LOW);
@@ -112,17 +90,6 @@ namespace PGA305OWICalibration.PGA305
             _u2a.GPIO_SetPort(GPIO11, PIN_OUTPUT);
             _u2a.GPIO_WritePort(GPIO11, STATE_LOW);
 
-            // GPIO_OWI_VDD is set to low when communicating with the PGA305
-            _u2a.GPIO_SetPort(GPIO10, PIN_OUTPUT);
-            _u2a.GPIO_WritePort(GPIO10, STATE_LOW);
-
-           //Filter so the USB2ANY will see anything below some V as 0. this is for debugging
-           //Formula: value = (0.200 / 3.3) × 255 ≈ 15
-           //This is going to be used to reduce the amount of noise
-           //its the threshold on the USB2Any to decide what the values should be
-           //int response = _u2a.DACs_Write(DAC_OWI_OFFSET, DACs_OperatingMode.Normal, 0);
-           //Debug.Write($"DAC Write result: {response}");
-            
             return true;
         }
 
@@ -138,56 +105,53 @@ namespace PGA305OWICalibration.PGA305
             Thread.Sleep(55);
             _u2a.OneWire_PulseWriteEx(1, 2);
 
-            _u2a.UART_Control();
-            _u2a.UART_SetMode(2);
-
             _u2a.GPIO_WritePort(GPIO11, STATE_HIGH);
-
+            
             _u2a.UART_Write(new byte[] {
-                SYNC_BYTE, CMD_WRITE_PAGE0, 0x08, SYNC_BYTE,
-                SYNC_BYTE, CMD_WRITE_PAGE0, 0x09, SYNC_BYTE
-            }, 8);
+                 SYNC_BYTE, CMD_WRITE_PAGE0, 0x08, SYNC_BYTE,
+                 SYNC_BYTE, CMD_WRITE_PAGE0, 0x09, SYNC_BYTE
+             }, 8);
 
+             _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
+             int count = _u2a.UART_Read(response, 54);
 
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
-            int count = _u2a.UART_Read(response, 54);
+             Debug.WriteLine($"Poll : got {count} bytes");
+             for (int i = 0; i < count; i++)
+             {
+                 Debug.WriteLine($"  [{i}] = 0x{response[i]:X2}");
+             }
 
-            Debug.WriteLine($"Poll : got {count} bytes");
-            for (int i = 0; i < count; i++)
-            {
-                Debug.WriteLine($"  [{i}] = 0x{response[i]:X2}");
-            }
+             byte counter = 0;
+             bool commandModeActive = false;
 
-            byte counter = 0;
-            bool commandModeActive = false;
+             /* This is commented out for George's testing
+             while (counter < 5)
+             {
+                 _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
+                 _u2a.UART_Read(response, 54);
 
-            while (counter < 5)
-            {
-                _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
-                _u2a.UART_Read(response, 54);
+                 Debug.WriteLine($"Poll {counter}: {response}");
 
-                Debug.WriteLine($"Poll {counter}: {response}");
+                 byte result = response[0];
+                 Debug.WriteLine($"Poll {counter}: COMPENSATION_CONTROL = 0x{result:X2}");
 
-                byte result = response[0];
-                Debug.WriteLine($"Poll {counter}: COMPENSATION_CONTROL = 0x{result:X2}");
+                 if (result == 0x03)
+                 {
+                     commandModeActive = true;
+                     Debug.WriteLine("Command mode confirmed.");
+                     break;
+                 }
 
-                if (result == 0x03)
-                {
-                    commandModeActive = true;
-                    Debug.WriteLine("Command mode confirmed.");
-                    break;
-                }
+                 counter++;
+             }*/
 
-                counter++;
-            }
+             /*if (!commandModeActive)
+             {
+                 Debug.WriteLine("Error: Failed to establish OWI command mode after 255 attempts.");
+                 return false;
+             }*/
 
-            if (!commandModeActive)
-            {
-                Debug.WriteLine("Error: Failed to establish OWI command mode after 255 attempts.");
-                return false;
-            }
-
-            Debug.WriteLine("Activate complete d");
+             Debug.WriteLine("Activate complete d");
 
             return true;
         }
@@ -197,12 +161,6 @@ namespace PGA305OWICalibration.PGA305
         {
             byte[] flush = new byte[54];
             byte[] response = new byte[54];
-
-            /*_u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, registerAddress }, 3);
-            _u2a.UART_Read(flush, 54);
-
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_RESPONSE }, 2);
-            _u2a.UART_Read(response, 54);*/
 
             _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_READ_INIT, registerAddress, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
 
@@ -313,7 +271,7 @@ namespace PGA305OWICalibration.PGA305
             return (partNumber, serialNumber, prange);
         }
              
-       
+       //remove this
         public void LoadEepromCache(byte page)
         {
             byte[] buffer = new byte[54];
@@ -322,9 +280,6 @@ namespace PGA305OWICalibration.PGA305
             _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x21, 0x89, 0x01 }, 4);
 
             Thread.Sleep(20);
-            //_u2a.GPIO_WritePort(GPIO11, STATE_LOW);
-
-            //_u2a.UART_Read(buffer, 54);
 
             Debug.WriteLine($"EEPROM cache loaded for page {page}");
         }

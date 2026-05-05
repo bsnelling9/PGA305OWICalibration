@@ -1,15 +1,11 @@
 ﻿using PGA305OWICalibration.Instruments;
 using PGA305OWICalibration.PGA305EVM;
-using System.Diagnostics;
-using System.IO.Ports;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace PGA305OWICalibration
 {
     public partial class Form2 : Form
     {
         private USB2AnyDevice _u2a = new USB2AnyDevice();
-        private STM32Controller _stm32 = new STM32Controller();
         private PGA305Owi _pga305OWI = null!;
 
         public Form2()
@@ -26,7 +22,7 @@ namespace PGA305OWICalibration
         {
             try
             {
-                //_u2a.EnableDebugLogging();
+                _u2a.EnableDebugLogging();
 
                 int numFound = _u2a.FindControllers();
                 listBoxDebug.Items.Add($"USB2ANY devices found: {numFound}");
