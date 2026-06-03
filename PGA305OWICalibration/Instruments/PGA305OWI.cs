@@ -118,43 +118,7 @@ namespace PGA305OWICalibration.PGA305EVM
 
             Debug.WriteLine("Error: Failed to establish OWI command mode.");
             return false;
-        }
-
-        public void LoadEepromCache(byte page)
-        {
-            byte[] buffer = new byte[54];
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_WRITE, 0x88, page }, 4);
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, CMD_WRITE, 0x89, 0x01 }, 4);
-            _u2a.UART_Read(buffer, 54);
-            Debug.WriteLine($"EEPROM cache loaded for page {page}");
-        }
-
-        public async Task<int> ReadRegisterAsync(byte registerAddress)
-        {
-            return await Task.Run(() =>
-            {
-                byte[] flush = new byte[54];
-                byte[] return_data = new byte[54];
-
-                _u2a.UART_Read(flush, 54);
-
-                _u2a.UART_Write(new byte[] {
-                    SYNC_BYTE, CMD_READ_INIT, registerAddress,
-                    SYNC_BYTE, CMD_READ_RESPONSE
-                }, 5);
-
-                            var sw = System.Diagnostics.Stopwatch.StartNew();
-                while (_u2a.UART_GetRxCount() == 0 && sw.ElapsedMilliseconds < 100) { }
-
-                int count = _u2a.UART_Read(return_data, 54);
-
-                Debug.WriteLine($"Reg 0x{registerAddress:X2} count:{count} Raw: [{string.Join(" ", return_data.Take(10).Select(b => $"0x{b:X2}"))}]");
-
-                if (count < 5) return -1;
-                return (int)return_data[3];
-            });
-        }
-                       
+        }         
 
         public int ReadRegister(byte registerAddress)
         {
@@ -233,21 +197,6 @@ namespace PGA305OWICalibration.PGA305EVM
             Debug.WriteLine($"Sensor Serial Number: {serialValue}");
 
             return serialValue.ToString("D10");
-        }
-
-        public async Task<string> ReadPartNumberAsync()
-        {
-            int lsb = await ReadRegisterAsync(ADDR_PN_LSB);
-
-            int mid = await ReadRegisterAsync(ADDR_PN_MID);
-
-            int msb = await ReadRegisterAsync(ADDR_PN_MSB);
-
-            Debug.WriteLine($"Part number: msb: {msb} | mid: {mid} | lsb: {lsb}");
-            Debug.WriteLine($"Part number: {msb:X2}{mid:X2}{lsb:X2}");
-
-            return (lsb < 0 || mid < 0 || msb < 0) ? "Read error"
-            : $"0x{msb:X2}{mid:X2}{lsb:X2}";
         }
     }
 }
