@@ -1,6 +1,4 @@
-﻿using System.Windows.Forms;
-using System.Drawing;
-using PGA305OWICalibration.UIControls;
+﻿using PGA305OWICalibration.UIControls;
 
 namespace PGA305OWICalibration.Tabs
 {
@@ -21,15 +19,16 @@ namespace PGA305OWICalibration.Tabs
             SuspendLayout();
 
             // modeButton
-            modeButton.Location = new Point(20, 20);
             modeButton.Name = "modeButton";
-
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            Name = "APTScanTab";
-            Size = new Size(1043, 746);
+            modeButton.Location = new System.Drawing.Point(20, 20);
+            modeButton.TabStop = false;
 
             Controls.Add(modeButton);
+
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            Name = "APTScanTab";
+            Size = new System.Drawing.Size(1725, 1112);
 
             ResumeLayout(false);
         }

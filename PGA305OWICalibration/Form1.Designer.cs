@@ -22,7 +22,6 @@ namespace PGA305OWICalibration
             tabControl1 = new TabControl();
             TabMainPage = new TabPage();
             btnDebug = new ATPButton();
-            btnGetDIG_IF_CNTRL = new ATPButton();
             listBox1 = new ListBox();
             btnActPGA = new ATPButton();
             btnGetMetaData = new ATPButton();
@@ -56,7 +55,6 @@ namespace PGA305OWICalibration
             // TabMainPage
             // 
             TabMainPage.Controls.Add(btnDebug);
-            TabMainPage.Controls.Add(btnGetDIG_IF_CNTRL);
             TabMainPage.Controls.Add(listBox1);
             TabMainPage.Controls.Add(btnActPGA);
             TabMainPage.Controls.Add(btnGetMetaData);
@@ -91,23 +89,6 @@ namespace PGA305OWICalibration
             btnDebug.Text = "Debug EVM";
             btnDebug.UseVisualStyleBackColor = true;
             btnDebug.Click += btnDebug_Click;
-            // 
-            // btnGetDIG_IF_CNTRL
-            // 
-            btnGetDIG_IF_CNTRL.BackColor = Color.White;
-            btnGetDIG_IF_CNTRL.BorderColor = Color.Black;
-            btnGetDIG_IF_CNTRL.BorderSize = 2;
-            btnGetDIG_IF_CNTRL.CornerRadius = 10;
-            btnGetDIG_IF_CNTRL.FlatStyle = FlatStyle.Flat;
-            btnGetDIG_IF_CNTRL.Font = new Font("Segoe UI", 10F);
-            btnGetDIG_IF_CNTRL.ForeColor = Color.Black;
-            btnGetDIG_IF_CNTRL.Location = new Point(1478, 109);
-            btnGetDIG_IF_CNTRL.Name = "btnGetDIG_IF_CNTRL";
-            btnGetDIG_IF_CNTRL.Size = new Size(150, 50);
-            btnGetDIG_IF_CNTRL.TabIndex = 39;
-            btnGetDIG_IF_CNTRL.Text = "Get DIG_IF_CNTRL";
-            btnGetDIG_IF_CNTRL.UseVisualStyleBackColor = true;
-            btnGetDIG_IF_CNTRL.Click += btnGetDIG_IF_CNTRL_Click;
             // 
             // listBox1
             // 
@@ -306,7 +287,6 @@ namespace PGA305OWICalibration
         private ATPButton btnGetHW;
         private ComboBox comboBox1;
         private ATPButton btnDebug;
-        private ATPButton btnGetDIG_IF_CNTRL;
         private ListBox listBox1;
     }
 }

@@ -23,16 +23,15 @@
         {
             btnExitDebug = new Button();
             u2a = new Button();
-            button2 = new Button();
-            btnRead = new Button();
             btnDebugGPIO = new Button();
             btnManualHardwareTest = new Button();
             btnTestGPIO11 = new Button();
             btnActivate = new Button();
-            btnLoadEEPROM = new Button();
-            btnGetSerial = new Button();
             button10 = new Button();
             listBoxDebug = new ListBox();
+            btnHandlePOT = new Button();
+            btnInit = new Button();
+            btnReadDevice = new Button();
             SuspendLayout();
             // 
             // btnExitDebug
@@ -47,32 +46,13 @@
             // 
             // u2a
             // 
-            u2a.Location = new Point(632, 39);
+            u2a.Location = new Point(611, 49);
             u2a.Name = "u2a";
             u2a.Size = new Size(119, 48);
             u2a.TabIndex = 2;
-            u2a.Text = "U2A";
+            u2a.Text = "Connect to USB2ANY";
             u2a.UseVisualStyleBackColor = true;
             u2a.Click += u2a_Click;
-            // 
-            // button2
-            // 
-            button2.Location = new Point(43, 189);
-            button2.Name = "button2";
-            button2.Size = new Size(120, 41);
-            button2.TabIndex = 4;
-            button2.Text = "button2";
-            button2.UseVisualStyleBackColor = true;
-            // 
-            // btnRead
-            // 
-            btnRead.Location = new Point(632, 368);
-            btnRead.Name = "btnRead";
-            btnRead.Size = new Size(118, 41);
-            btnRead.TabIndex = 5;
-            btnRead.Text = "Read Part and Serial Number";
-            btnRead.UseVisualStyleBackColor = true;
-            btnRead.Click += btnRead_Click;
             // 
             // btnDebugGPIO
             // 
@@ -106,33 +86,13 @@
             // 
             // btnActivate
             // 
-            btnActivate.Location = new Point(632, 107);
+            btnActivate.Location = new Point(609, 247);
             btnActivate.Name = "btnActivate";
             btnActivate.Size = new Size(116, 39);
             btnActivate.TabIndex = 9;
             btnActivate.Text = "Activate";
             btnActivate.UseVisualStyleBackColor = true;
             btnActivate.Click += btnActivate_Click;
-            // 
-            // btnLoadEEPROM
-            // 
-            btnLoadEEPROM.Location = new Point(632, 179);
-            btnLoadEEPROM.Name = "btnLoadEEPROM";
-            btnLoadEEPROM.Size = new Size(116, 51);
-            btnLoadEEPROM.TabIndex = 10;
-            btnLoadEEPROM.Text = "Load EEPROM";
-            btnLoadEEPROM.UseVisualStyleBackColor = true;
-            btnLoadEEPROM.Click += btnLoadEEPROM_Click;
-            // 
-            // btnGetSerial
-            // 
-            btnGetSerial.Location = new Point(632, 266);
-            btnGetSerial.Name = "btnGetSerial";
-            btnGetSerial.Size = new Size(122, 61);
-            btnGetSerial.TabIndex = 11;
-            btnGetSerial.Text = "Get Part and Serial";
-            btnGetSerial.UseVisualStyleBackColor = true;
-            btnGetSerial.Click += btnPartSerial_Click;
             // 
             // button10
             // 
@@ -151,25 +111,53 @@
             listBoxDebug.Name = "listBoxDebug";
             listBoxDebug.Size = new Size(349, 274);
             listBoxDebug.TabIndex = 21;
-            //listBoxDebug.SelectedIndexChanged += listBoxDebug_SelectedIndexChanged;
+            // 
+            // btnHandlePOT
+            // 
+            btnHandlePOT.Location = new Point(609, 120);
+            btnHandlePOT.Name = "btnHandlePOT";
+            btnHandlePOT.Size = new Size(114, 50);
+            btnHandlePOT.TabIndex = 22;
+            btnHandlePOT.Text = "Handle POT";
+            btnHandlePOT.UseVisualStyleBackColor = true;
+            btnHandlePOT.Click += btnHandlePOT_Click;
+            // 
+            // btnInit
+            // 
+            btnInit.Location = new Point(609, 192);
+            btnInit.Name = "btnInit";
+            btnInit.Size = new Size(121, 38);
+            btnInit.TabIndex = 23;
+            btnInit.Text = "Initialize";
+            btnInit.UseVisualStyleBackColor = true;
+            btnInit.Click += btnInit_Click;
+            // 
+            // btnReadDevice
+            // 
+            btnReadDevice.Location = new Point(609, 330);
+            btnReadDevice.Name = "btnReadDevice";
+            btnReadDevice.Size = new Size(116, 44);
+            btnReadDevice.TabIndex = 24;
+            btnReadDevice.Text = "Read Device";
+            btnReadDevice.UseVisualStyleBackColor = true;
+            btnReadDevice.Click += btnReadDevice_Click;
             // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 692);
+            Controls.Add(btnReadDevice);
+            Controls.Add(btnInit);
+            Controls.Add(btnHandlePOT);
             Controls.Add(listBoxDebug);
             Controls.Add(button10);
             Controls.Add(btnExitDebug);
             Controls.Add(u2a);
-            Controls.Add(button2);
-            Controls.Add(btnRead);
             Controls.Add(btnDebugGPIO);
             Controls.Add(btnManualHardwareTest);
             Controls.Add(btnTestGPIO11);
             Controls.Add(btnActivate);
-            Controls.Add(btnLoadEEPROM);
-            Controls.Add(btnGetSerial);
             Name = "Form2";
             Text = "Form2";
             ResumeLayout(false);
@@ -179,15 +167,14 @@
 
         private Button btnExitDebug;
         private Button u2a;
-        private Button button2;
-        private Button btnRead;
         private Button btnDebugGPIO;
         private Button btnManualHardwareTest;
         private Button btnTestGPIO11;
         private Button btnActivate;
-        private Button btnLoadEEPROM;
-        private Button btnGetSerial;
         private Button button10;
         private ListBox listBoxDebug;
+        private Button btnHandlePOT;
+        private Button btnInit;
+        private Button btnReadDevice;
     }
 }

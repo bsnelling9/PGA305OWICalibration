@@ -21,6 +21,10 @@ namespace PGA305OWICalibration.PGA305EVM
         GPIO10 is used for OWI VDD control (GPIO_OWI_VDD)
         GPIO11 is used for OWI TX control (GPIO_OWI_TX)
         */
+        public const byte GPIO0 = 0;
+        public const byte GPIO1 = 1;
+        public const byte GPIO4 = 4;
+        public const byte GPIO5 = 5;
         public const byte GPIO7 = 7;
         public const byte GPIO10 = 10;
         public const byte GPIO11 = 11;
@@ -28,11 +32,10 @@ namespace PGA305OWICalibration.PGA305EVM
         // GPIO pin configuration
         public const byte FN_OUTPUT = 1;
         public const byte FN_INPUT = 2;
+        public const byte FN_INPUT_PULLUP = 3;
         public const byte STATE_HIGH = 2;
         public const byte STATE_LOW = 1;
 
-        private const DACs_WhichDAC DAC_OWI_OFFSET = DACs_WhichDAC.DAC0;
-        private const byte DAC_OFFSET_ZERO = 0;
 
         // PGA305 OWI commands
         private const byte SYNC_BYTE = 0x55;
@@ -50,72 +53,47 @@ namespace PGA305OWICalibration.PGA305EVM
         public const byte ADDR_SERIAL_MID = 0x74;
         public const byte ADDR_SERIAL_MSB = 0x75;
 
-        //TI set serial address
-        public const byte ADDR_SERIAL_BYTE0 = 0x60;
-        public const byte ADDR_SERIAL_BYTE1 = 0x61;
-        public const byte ADDR_SERIAL_BYTE2 = 0x62;
-        public const byte ADDR_SERIAL_BYTE3 = 0x63;
-        public const byte ADDR_SERIAL_BYTE4 = 0x64;
-        public const byte ADDR_SERIAL_BYTE5 = 0x65;
-        public const byte ADDR_SERIAL_BYTE6 = 0x66;
-        public const byte ADDR_SERIAL_BYTE7 = 0x67;
-
-        // OWI response frame structure (confirmed from Saleae captures)
-        // [echo] [0xF6] [DATA] [0xFF] [0xF7]
-        // Data is always at index 2
-        // Stop sequence is always 0xFF 0xF7
-        private const byte OWI_STOP_BYTE = 0xF7;
-        private const byte OWI_PRE_STOP_BYTE = 0xFF;
-        private const int OWI_DATA_INDEX = 2;
-        private const int OWI_MIN_RESPONSE_LEN = 5;
-        private const int OWI_READ_TIMEOUT_MS = 500;
-
+        //Interanal Serial Number EEPROM Addresses
+        public const byte INTERNAL_SN_b0 = 0x64;
+        public const byte INTERNAL_SN_b1 = 0x65;
+        public const byte INTERNAL_SN_b2 = 0x66;
+        public const byte INTERNAL_SN_b3 = 0x67;
 
         public PGA305Owi(USB2AnyDevice device) => _u2a = device;
-  
+      
         public bool Initialize()
         {
             Debug.WriteLine("Initialise() called");
-            _u2a.EnableDebugLogging();
-                       
-            Thread.Sleep(5);
-                        
+
             int result = _u2a.OneWire_SetMode(OW_MODE);
-            
             Debug.WriteLine($"OneWire_SetMode({OW_MODE}) result: {result}");
             if (result < 0) return false;
 
             _u2a.OneWire_SetOutput(0);
-
-            // Per OWI documentation: 25ms timeout for >4800 bps
-
             _u2a.SetReceiveTimeout(25);
 
-            _u2a.UART_Control();
-            _u2a.UART_SetMode(2);
+            int uartResult = _u2a.UART_Control();
+            Debug.WriteLine($"UART_Control result: {uartResult}");
 
-            Thread.Sleep(5);
-
-            _u2a.GPIO_SetPort(GPIO7, FN_OUTPUT);
-            _u2a.GPIO_WritePort(GPIO7, STATE_LOW);
+            _u2a.GPIO_SetPort(GPIO10, FN_OUTPUT);
+            _u2a.GPIO_WritePort(GPIO10, STATE_LOW);
 
             _u2a.GPIO_SetPort(GPIO11, FN_OUTPUT);
             _u2a.GPIO_WritePort(GPIO11, STATE_LOW);
-
+            
             return true;
         }
 
         public bool Activate()
         {
-            Debug.WriteLine("Activate called");
+            Debug.WriteLine("Activate called OWI");
             byte[] response = new byte[54];
-            
+
             _u2a.OneWire_PulseSetup(TIME_SETUP, ACT_TIME_LOW, ACT_TIME_HIGH, TIME_STORE, FLAGS);
 
-            _u2a.OneWire_PulseWriteEx(1, 2);
-            Thread.Sleep(55);
-            _u2a.OneWire_PulseWriteEx(1, 2);
-
+            _u2a.OneWire_PulseWriteEx(0, 2);
+            Thread.Sleep(20);
+            _u2a.OneWire_PulseWriteEx(0, 2);
 
             _u2a.GPIO_WritePort(GPIO11, STATE_HIGH);
 
@@ -124,48 +102,22 @@ namespace PGA305OWICalibration.PGA305EVM
                 SYNC_BYTE, CMD_WRITE_PAGE0, 0x09, SYNC_BYTE
             }, 8);
 
-
             _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
             int count = _u2a.UART_Read(response, 54);
 
-            Debug.WriteLine($"Poll : got {count} bytes");
+            Debug.WriteLine($"Activate: got {count} bytes");
             for (int i = 0; i < count; i++)
-            {
                 Debug.WriteLine($"  [{i}] = 0x{response[i]:X2}");
-            }
 
-            byte counter = 0;
-            bool commandModeActive = false;
 
-            while (counter < 10)
+            if (count > 0 && response[count - 1] == 0x03)
             {
-                _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
-                _u2a.UART_Read(response, 54);
-
-                Debug.WriteLine($"Poll {counter}: {response}");
-
-                byte result = response[0];
-                Debug.WriteLine($"Poll {counter}: COMPENSATION_CONTROL = 0x{result:X2}");
-
-                if (result == 0x03)
-                {
-                    commandModeActive = true;
-                    Debug.WriteLine("Command mode confirmed.");
-                    break;
-                }
-
-                counter++;
+                Debug.WriteLine("Command mode confirmed.");
+                return true;
             }
 
-            if (!commandModeActive)
-            {
-                Debug.WriteLine("Error: Failed to establish OWI command mode after 255 attempts.");
-                return false;
-            }
-
-            Debug.WriteLine("Activate complete");
-
-            return true;
+            Debug.WriteLine("Error: Failed to establish OWI command mode.");
+            return false;
         }
 
         public void LoadEepromCache(byte page)
@@ -265,32 +217,24 @@ namespace PGA305OWICalibration.PGA305EVM
             return serialNumber;
         }
 
-        public string ReadTISerialNumber()
+        public string ReadInternalSerialNumber()
         {
-            //This is for TI Serial number
-            int b0 = ReadRegister(ADDR_SERIAL_BYTE0);
-            int b1 = ReadRegister(ADDR_SERIAL_BYTE1);
-            int b2 = ReadRegister(ADDR_SERIAL_BYTE2);
-            int b3 = ReadRegister(ADDR_SERIAL_BYTE3);
-            int b4 = ReadRegister(ADDR_SERIAL_BYTE4);
-            int b5 = ReadRegister(ADDR_SERIAL_BYTE5);
-            int b6 = ReadRegister(ADDR_SERIAL_BYTE6);
-            int b7 = ReadRegister(ADDR_SERIAL_BYTE7);
+            int b4 = ReadRegister(INTERNAL_SN_b0);
+            int b5 = ReadRegister(INTERNAL_SN_b1);
+            int b6 = ReadRegister(INTERNAL_SN_b2);
+            int b7 = ReadRegister(INTERNAL_SN_b3);
 
-            Debug.WriteLine($"Serial Number: b7: {b7} | b6: {b6} | b5: {b5} | b4: {b4} | b3: {b3} | b2: {b2} | b1: {b1} | b0: {b0}");
+            Debug.WriteLine($"Sensor Serial: b7:0x{b7:X2} b6:0x{b6:X2} b5:0x{b5:X2} b4:0x{b4:X2}");
 
-            Debug.WriteLine($"Serial Number: b7:0x{b7:X2} b6:0x{b6:X2} b5:0x{b5:X2} b4:0x{b4:X2} b3:0x{b3:X2} b2:0x{b2:X2} b1:0x{b1:X2} b0:0x{b0:X2}");
-                      
-            if (b0 < 0 || b1 < 0 || b2 < 0 || b3 < 0 || b4 < 0 || b5 < 0 || b6 < 0 || b7 < 0)
+            if (b4 < 0 || b5 < 0 || b6 < 0 || b7 < 0)
                 return "Read error";
 
-            long serialValue = ((long)b7 << 56) | ((long)b6 << 48) | ((long)b5 << 40) | ((long)b4 << 32) |
-                   ((long)b3 << 24) | ((long)b2 << 16) | ((long)b1 << 8) | (long)b0;
-            Debug.WriteLine($"{serialValue}");
+            long serialValue = ((long)b7 << 24) | ((long)b6 << 16) | ((long)b5 << 8) | (long)b4;
+            Debug.WriteLine($"Sensor Serial Number: {serialValue}");
 
-            return serialValue.ToString("D6");
+            return serialValue.ToString("D10");
         }
-                           
+
         public async Task<string> ReadPartNumberAsync()
         {
             int lsb = await ReadRegisterAsync(ADDR_PN_LSB);
@@ -304,26 +248,6 @@ namespace PGA305OWICalibration.PGA305EVM
 
             return (lsb < 0 || mid < 0 || msb < 0) ? "Read error"
             : $"0x{msb:X2}{mid:X2}{lsb:X2}";
-        }
-
-        public async Task<string> ReadSerialNumberAsync()
-        {
-            int b0 = await ReadRegisterAsync(ADDR_SERIAL_BYTE0);
-            
-            int b1 = await ReadRegisterAsync(ADDR_SERIAL_BYTE1);
-            
-            int b2 = await ReadRegisterAsync(ADDR_SERIAL_BYTE2);
-            
-            int b3 = await ReadRegisterAsync(ADDR_SERIAL_BYTE3);
-
-            Debug.WriteLine($"Serial Number: b3: {b3} | b2: {b2} | b1: {b1} | b0: {b0}");
-
-            Debug.WriteLine($"Serial Number: {b3:X2}{b2:X2}{b1:X2}{b0:X2}");
-            
-            return (b0 < 0 || b1 < 0 || b2 < 0 || b3 < 0)
-                ? "Read error"
-                : $"{b3:X2}{b2:X2}{b1:X2}{b0:X2}";
-
         }
     }
 }

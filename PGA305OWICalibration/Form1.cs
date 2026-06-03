@@ -207,7 +207,6 @@ namespace PGA305OWICalibration
                     _u2a.GPIO_WritePort(PGA305Owi.GPIO7, PGA305Owi.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Owi.GPIO10, PGA305Owi.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Owi.GPIO11, PGA305Owi.STATE_LOW);
-                    //_u2a.GPIO_WritePort(PGA305Device.GPIO5, PGA305Device.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Device.GPIO7, PGA305Device.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Device.GPIO10, PGA305Device.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Device.GPIO11, PGA305Device.STATE_LOW);

@@ -20,7 +20,7 @@ namespace PGA305OWICalibration.PGA305
         private const ushort ACT_TIME_HIGH = 1000;
 
         /*
-        GPIO05 is used for OWI Rx
+        GPIO5 is used for OWI Rx
         GPIO4 is used for OWI Tx
         GPIO7 is used for OWI activation pulse (GPIO_OWI_ACT)
         GPIO10 is used for OWI VDD control (GPIO_OWI_VDD)
@@ -124,7 +124,6 @@ namespace PGA305OWICalibration.PGA305
              byte counter = 0;
              bool commandModeActive = false;
 
-             /* This is commented out for George's testing
              while (counter < 5)
              {
                  _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x02, 0x0C, SYNC_BYTE, CMD_READ_RESPONSE }, 5);
@@ -143,13 +142,13 @@ namespace PGA305OWICalibration.PGA305
                  }
 
                  counter++;
-             }*/
+             }
 
-             /*if (!commandModeActive)
+             if (!commandModeActive)
              {
                  Debug.WriteLine("Error: Failed to establish OWI command mode after 255 attempts.");
                  return false;
-             }*/
+             }
 
              Debug.WriteLine("Activate complete d");
 
@@ -254,18 +253,14 @@ namespace PGA305OWICalibration.PGA305
             for (int i = 0; i < count; i++)
                 Debug.WriteLine($"  cache[{i}] = 0x{data[i]:X2}");
 
-            // Parse part number
             int pn_lsb = data[0];
             int pn_mid = data[1];
             int pn_msb = data[2];
             string partNumber = $"0x{pn_msb:X2}{pn_mid:X2}{pn_lsb:X2}";
 
-
-            // Parse serial number
             long serialValue = ((long)data[5] << 16) | ((long)data[4] << 8) | (long)data[3];
             string serialNumber = serialValue.ToString("D6");
 
-            // Parse pressure range
             int prange = data[6] | (data[7] << 8);
 
             return (partNumber, serialNumber, prange);
