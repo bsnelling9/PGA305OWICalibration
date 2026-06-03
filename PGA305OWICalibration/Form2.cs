@@ -1,16 +1,18 @@
 ﻿using PGA305OWICalibration.Instruments;
 using PGA305OWICalibration.PGA305EVM;
 using System.Diagnostics;
-using System.IO.Ports;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace PGA305OWICalibration
 {
     public partial class Form2 : Form
     {
         private USB2AnyDevice _u2a = new USB2AnyDevice();
-        private STM32Controller _stm32 = new STM32Controller();
         private PGA305Owi _pga305OWI = null!;
+
+        //I2C variables for the Digipot used for OWI signal conditioning on the EVM.
+        private const ushort DIGIPOT_ADDR = 0x2D;
+        private const byte DIGIPOT_REG = 0x00;
+        private const byte DIGIPOT_VALUE = 0x19;
 
         public Form2()
         {
@@ -22,11 +24,12 @@ namespace PGA305OWICalibration
             this.Close();
         }
 
+
         private void u2a_Click(object sender, EventArgs e)
         {
             try
             {
-                //_u2a.EnableDebugLogging();
+                _u2a.EnableDebugLogging();
 
                 int numFound = _u2a.FindControllers();
                 listBoxDebug.Items.Add($"USB2ANY devices found: {numFound}");
@@ -47,13 +50,10 @@ namespace PGA305OWICalibration
                     return;
                 }
 
+                _u2a.Power_WriteControl(Power_3V3.ON, Power_5V0.ON);
+
                 listBoxDebug.Items.Add($"USB2ANY opened. Handle = {_u2a.GetHandle()}");
                 _pga305OWI = new PGA305Owi(_u2a);
-
-                bool initOk = _pga305OWI.Initialize();
-                listBoxDebug.Items.Add($"PGA305 GPIO OWI init: {(initOk ? "OK" : "FAILED")}");
-                if (initOk)
-                    listBoxDebug.Items.Add("Ready — click Read.");
             }
             catch (Exception ex)
             {
@@ -61,75 +61,49 @@ namespace PGA305OWICalibration
             }
         }
 
-   
+        private void btnHandlePOT_Click(object sender, EventArgs e)
+        {
+            int i2cResult = _u2a.I2C_Control(0, 0, 1);
+            Debug.WriteLine($"I2C_Control result: {i2cResult}");
+
+            int writeResult = _u2a.I2C_RegisterWrite(DIGIPOT_ADDR, DIGIPOT_REG, DIGIPOT_VALUE);
+            Debug.WriteLine($"DigiPot write result: {writeResult}");
+
+            int result = _u2a.I2C_RegisterWrite(0x57, 0x00, 0x00);
+            Debug.WriteLine($"TPL0102 Pot0 write result: {result}");
+
+            result = _u2a.I2C_RegisterWrite(0x57, 0x01, 0x00);
+            Debug.WriteLine($"TPL0102 Pot1 write result: {result}");
+        }
+
+        private void btnInit_Click(object sender, EventArgs e)
+        {
+            if (_pga305OWI == null)
+            {
+                listBoxDebug.Items.Add("Please click U2A first.");
+                return;
+            }
+
+            bool initOk = _pga305OWI.Initialize();
+            listBoxDebug.Items.Add($"PGA305 init: {(initOk ? "OK" : "FAILED")}");
+            if (initOk)
+                listBoxDebug.Items.Add("Ready — click Activate.");
+        }
 
         private void btnActivate_Click(object sender, EventArgs e)
         {
             _pga305OWI.Activate();
         }
-        //Not needed
-        private void btnLoadEEPROM_Click(object sender, EventArgs e)
-        {
-            _pga305OWI.LoadEepromCache(0x0C);
-        }
 
-        private void button2_Click_1(object sender, EventArgs e)
+        private void btnReadDevice_Click(object sender, EventArgs e)
         {
-            if (_pga305OWI == null)
-            {
-                listBoxDebug.Items.Add("Please click U2A first.");
-                return;
-            }
-            bool activated = _pga305OWI.Activate();
-            listBoxDebug.Items.Add($"PGA305 activation: {(activated ? "OK" : "FAILED")}");
-        }
-
-        private void btnPartSerial_Click(object sender, EventArgs e)
-        {
-            string partNumber =  _pga305OWI.ReadPartNumber();
-            //string serialNumber = _pga305OWI.ReadSerialNumber();
-            string tiSerialNUmber = _pga305OWI.ReadTISerialNumber();
+            string partNumber = _pga305OWI.ReadPartNumber();
+            string serialNumber = _pga305OWI.ReadSerialNumber();
+            string internalSerialNumber = _pga305OWI.ReadInternalSerialNumber();
 
             listBoxDebug.Items.Add($"Part number:   {partNumber}");
-            //listBoxDebug.Items.Add($"Serial number: {serialNumber}");
-            listBoxDebug.Items.Add($"Serial number: {tiSerialNUmber}");
-
-        }
-
-        private async void btnRead_Click(object sender, EventArgs e)
-        {
-            if (_pga305OWI == null)
-            {
-                listBoxDebug.Items.Add("Please click U2A first.");
-                return;
-            }
-
-            try
-            {
-                bool activated = _pga305OWI.Activate();
-                listBoxDebug.Items.Add($"PGA305 activation: {(activated ? "OK" : "FAILED")}");
-                await Task.Delay(2);
-
-                if (!activated)
-                {
-                    string errorText = "";
-                    _u2a.GetStatusText(-1, ref errorText);
-                    listBoxDebug.Items.Add($"Activation error: {errorText}");
-                    return;
-                }
-
-                //await _pga305OWI.LoadEepromCache(0x00);
-
-                string partNumber = await _pga305OWI.ReadPartNumberAsync();
-                string serialNumber = await _pga305OWI.ReadSerialNumberAsync();
-
-                listBoxDebug.Items.Add($"Part number:   {partNumber}");
-                listBoxDebug.Items.Add($"Serial number: {serialNumber}");
-            }
-            catch (Exception ex)
-            {
-                listBoxDebug.Items.Add($"Error: {ex.Message}");
-            }
+            listBoxDebug.Items.Add($"Serial number: {serialNumber}");
+            listBoxDebug.Items.Add($"Internal serial number: {internalSerialNumber}");
         }
 
         private void btnDebugGPIO_Click(object sender, EventArgs e)
@@ -153,15 +127,6 @@ namespace PGA305OWICalibration
                 listBoxDebug.Items.Add($"GPIO debug error: {ex.Message}");
             }
         }
-
-        /*private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (comboBox1.SelectedItem != null)
-            {
-                _selectedPort = comboBox1.SelectedItem.ToString();
-                listBoxDebug.Items.Add($"Target Port: {_selectedPort}");
-            }
-        }*/
 
         private void btnTestGPIO11_Click(object sender, EventArgs e)
         {
@@ -254,9 +219,5 @@ namespace PGA305OWICalibration
             }
         }
 
-        private void listBoxDebug_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 }

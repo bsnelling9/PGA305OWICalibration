@@ -19,7 +19,6 @@ namespace PGA305OWICalibration.Instruments
         private int _handle;
         private bool _isOpen = false;
 
-
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aFindControllers();
         public int FindControllers() => u2aFindControllers();
@@ -73,17 +72,15 @@ namespace PGA305OWICalibration.Instruments
 
         public int GetHandle() => _handle;
 
-        //This raises the TX (OWI) voltage line, which causes issues for activation
+
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aPower_WriteControl(int handle, Power_3V3 p33, Power_5V0 p50);
         public int Power_WriteControl(Power_3V3 p33, Power_5V0 p50) => u2aPower_WriteControl(_handle, p33, p50);
 
     
-
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aDACs_Write(int handle, DACs_WhichDAC dac, DACs_OperatingMode mode, byte value);
         public int DACs_Write(DACs_WhichDAC dac, DACs_OperatingMode mode, byte value) => u2aDACs_Write(_handle, dac, mode, value);
-
 
 
         [DllImport("USB2ANY_2.8.2.dll")]
@@ -105,7 +102,7 @@ namespace PGA305OWICalibration.Instruments
 
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aUART_Control(int handle, UART_BaudRate baud, UART_Parity parity, UART_BitDirection bitDir, UART_CharacterLength charLen, UART_StopBits stopBits);
-        public int UART_Control() => u2aUART_Control(_handle, UART_BaudRate._4800_bps, UART_Parity.None, UART_BitDirection.LSB_First, UART_CharacterLength._8_Bit, UART_StopBits.One);
+        public int UART_Control() => u2aUART_Control(_handle, UART_BaudRate._9600_bps, UART_Parity.None, UART_BitDirection.LSB_First, UART_CharacterLength._8_Bit, UART_StopBits.One);
 
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aUART_SetMode(int handle, uint mode);
@@ -131,9 +128,8 @@ namespace PGA305OWICalibration.Instruments
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aUART_DisableReceiver(int handle);
         public int UART_DisableReceiver() => u2aUART_DisableReceiver(_handle);
-
   
-
+       
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aGPIO_SetPort(int handle, byte port, byte function);
         public int GPIO_SetPort(byte port, byte function) => u2aGPIO_SetPort(_handle, port, function);
@@ -145,118 +141,15 @@ namespace PGA305OWICalibration.Instruments
         [DllImport("USB2ANY_2.8.2.dll")]
         private static extern int u2aGPIO_WritePulse(int handle, byte port, byte polarity, ushort duration);
         public int GPIO_WritePulse(byte port, byte polarity, ushort duration) => u2aGPIO_WritePulse(_handle, port, polarity, duration);
-    }
-}
 
-/*
- *   public class USB2AnyDevice
-    {
-        private bool _isOpen = false;
-        private U2A _u2a = new U2A();
-
-        [DllImport("USB2ANY_2.8.2.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "u2aUART_GetRxCount")]
-        private static extern int NativeUART_GetRxCount(int handle);
-
-        public int UART_GetRxCount() => NativeUART_GetRxCount(_u2a.u2aHandle);
-
-        [DllImport("USB2ANY_2.8.2.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "u2aUART_SetMode")]
-        private static extern int NativeUART_SetMode(int handle, uint mode);
-
-        public int UART_SetMode(uint mode) => NativeUART_SetMode(_u2a.u2aHandle, mode);
-
-        [DllImport("USB2ANY_2.8.2.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "u2aUART_DisableReceiver")]
-        private static extern int NativeUART_DisableReceiver(int handle);
-
-        public int UART_DisableReceiver() => NativeUART_DisableReceiver(_u2a.u2aHandle);
 
         [DllImport("USB2ANY_2.8.2.dll")]
-        private static extern int u2aUART_Write(int handle, byte nBytes, [MarshalAs(UnmanagedType.LPArray)] byte[] data);
+        private static extern int u2aI2C_Control(int handle, int speed, int addressLength, int pullUps);
+        public int I2C_Control(int speed, int addressLength, int pullUps) => u2aI2C_Control(_handle, speed, addressLength, pullUps);
 
-        public int UART_Write(byte[] data, byte nBytes)
-            => u2aUART_Write(_u2a.u2aHandle, nBytes, data);
+        [DllImport("USB2ANY_2.8.2.dll")]
+        private static extern int u2aI2C_RegisterWrite(int handle, ushort i2cAddress, byte registerAddress, byte value);
+        public int I2C_RegisterWrite(ushort i2cAddress, byte registerAddress, byte value) => u2aI2C_RegisterWrite(_handle, i2cAddress, registerAddress, value);
 
-
-        [DllImport("USB2ANY_2.8.2.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "u2aUART_Read")]
-        private static extern int NativeUART_Read(int handle, byte nBytes, [MarshalAs(UnmanagedType.LPArray)] byte[] buffer);
-
-        public int UART_Read(byte[] buffer, byte length)
-        {
-            int result = NativeUART_Read(_u2a.u2aHandle, length, buffer);
-            Debug.WriteLine($"UART_Read raw result: {result}");
-            return result;
-        }
-
-        [DllImport("USB2ANY_2.8.2.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "u2aGPIO_SetPort")]
-        private static extern int NativeGPIO_SetPort(int handle, byte port, byte function);
-
-        public int GPIO_SetPort(byte port, byte function)
-            => NativeGPIO_SetPort(_u2a.u2aHandle, port, function);
-
-        [DllImport("USB2ANY_2.8.2.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "u2aGPIO_WritePort")]
-        private static extern int NativeGPIO_WritePort(int handle, byte port, byte state);
-
-        public int GPIO_WritePort(byte port, byte state)
-            => NativeGPIO_WritePort(_u2a.u2aHandle, port, state);
-
-        public int GetHandle() => _u2a.u2aHandle;
-        public int FindControllers() => _u2a.FindControllers();
-
-        public string GetSerialNumber(int index)
-        {
-            string serial = "";
-            int result = _u2a.GetSerialNumber(index, ref serial);
-            return (result >= 0) ? serial : "";
-        }
-
-        public bool Open(string serialNumber = "")
-        {
-            int result = _u2a.Open(serialNumber ?? "");
-            _isOpen = _u2a.u2aHandle > 0;
-            return _isOpen;
-        }
-
-        public void Close()
-        {
-            if (_isOpen) 
-            { 
-                _u2a.Close(); 
-                _isOpen = false; 
-            }
-        }
-
-        public int Power_WriteControl(Power_3V3 p33, Power_5V0 p50) => _u2a.Power_WriteControl(p33, p50);
-               
-        public int DACs_Write(DACs_WhichDAC dac, DACs_OperatingMode mode, byte value)
-            => _u2a.DACs_Write(dac, mode, value);
-
-        public int OneWire_SetMode(ushort mode) => _u2a.OneWire_SetMode(mode);
-                
-        public int OneWire_PulseSetup(ushort setup, ushort low, ushort high, ushort store, int flags)
-            => _u2a.OneWire_PulseSetup(setup, low, high, store, flags);
-
-        public int OneWire_PulseWriteEx(byte address, ushort pulses) => _u2a.OneWire_PulseWriteEx(address, pulses);
-
-        public int OneWire_SetOutput(byte state) => _u2a.OneWire_SetOutput(state);
-
-        public int UART_Control()
-        {
-            //(UART_BaudRate)11 (4800 Baud)
-            //(UART_BaudRate)10 (2400 Baud)
-            // UART_BaudRate._9600_bps
-            return _u2a.UART_Control(
-               (UART_BaudRate)11,
-                UART_Parity.None,
-                UART_BitDirection.LSB_First,
-                UART_CharacterLength._8_Bit,
-                UART_StopBits.One);
-        }
-
-        public void EnableDebugLogging() => _u2a.EnableDebugLogging(true);
-
-        public int SetReceiveTimeout(int milliseconds) => _u2a.SetReceiveTimeout(milliseconds);
-
-        public void GetStatusText(int code, ref string text) => _u2a.Status_GetText(code, ref text);
-
-
-        public int GPIO_WritePulse(byte port, byte polarity, ushort duration)
-            => _u2a.GPIO_WritePulse(port, polarity, duration);*/
+    }
+}

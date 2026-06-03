@@ -1,6 +1,7 @@
 using PGA305OWICalibration.Instruments;
 using PGA305OWICalibration.PGA305;
 using PGA305OWICalibration.PGA305EVM;
+using PGA305OWICalibration.Tabs;
 using System.Diagnostics;
 using System.IO.Ports;
 
@@ -10,13 +11,22 @@ namespace PGA305OWICalibration
     {
         private USB2AnyDevice _u2a = new USB2AnyDevice();
         private STM32Controller _stm32 = new STM32Controller();
-        private PGA305Owi _pga305OWI = null!;
         private PGA305Device _pga305 = null!;
         private string _selectedPort = "";
 
         public Form1()
         {
             InitializeComponent();
+
+            _pga305 = new PGA305Device(_u2a);
+
+            HardwareTab hardwareTab = new HardwareTab(_stm32, _u2a);
+            hardwareTab.Dock = DockStyle.Fill;
+            this.hardwareTab.Controls.Add(hardwareTab);
+
+            APTScanTab aptScanTab = new APTScanTab(_stm32, _pga305);
+            aptScanTab.Dock = DockStyle.Fill;
+            this.deviceTab.Controls.Add(aptScanTab);
         }
 
         private void Log(string message) => listBox1.Items.Add(message);
@@ -50,7 +60,7 @@ namespace PGA305OWICalibration
             }
         }
 
-        private async void btnConnectSTM32_Click(object sender, EventArgs e)
+        private void btnConnectSTM32_Click(object sender, EventArgs e)
         {
             try { _stm32.Close(); } catch { }
             _stm32 = new STM32Controller();
@@ -68,18 +78,29 @@ namespace PGA305OWICalibration
                 return;
             }
 
-            string identity = await _stm32.GetIdentity();
+            string identity = _stm32.GetIdentity();
+            bool vcompOk = _stm32.ConfigureVoltageComparators(vcompa0High: true, vcompa1High: true);
+            Debug.WriteLine($"VCOMP set: {vcompOk}");
 
+            bool relayOk = _stm32.ConfigureRelays(owiRelayClosed: true, maRelayClosed: false, voRelayClosed: true);
+            Debug.WriteLine($"Relay set: {relayOk}");
             Debug.WriteLine($"STM32 identity: '{identity}'");
 
             Log($"STM32 identity: '{identity}'");
-
-            /*string raw = await _stm32.RawTest();
-            Log($"Raw result: {raw}");
-            
-            Debug.WriteLine($"Raw result: {raw}");*/
         }
 
+        private async void btnFindDUT_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                bool connected = _stm32.ConnectOWI(0);
+                Log($"OWI connect channel 0: {(connected ? "OK" : "FAILED")}");
+            }
+            catch (Exception ex)
+            {
+                Log($"FindDUT error: {ex.Message}");
+            }
+        }
 
         private void btnInitUSB2ANY_Click(object sender, EventArgs e)
         {
@@ -113,35 +134,6 @@ namespace PGA305OWICalibration
                 listBox1.Items.Add($"Error: {ex.Message}");
             }
         }
-
-
-        private async void btnFindDUT_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                bool channelOk = await _stm32.SelectChannel(0);
-
-                Log($"STM32 channel 0 select: {(channelOk ? "OK" : "FAILED")}");
-
-                if (!channelOk) return;
-
-                //await Task.Delay(10);
-
-                bool relayOk = await _stm32.ConfigureRelays(owiClosed: true, maClosed: false, voClosed: false, vcomp0High: true, vcomp1High: false);
-                Log($"OWI relay closed: {(relayOk ? "OK" : "FAILED")}");
-
-                if (!relayOk) return;
-
-                //await Task.Delay(10);
-
-                bool owiConnected = await _stm32.ConnectOWI(0);
-            }
-            catch (Exception ex)
-            {
-                Log($"FindDUT error: {ex.Message}");
-            }
-        }
-
 
         private void btnInitPGA305_Click(object sender, EventArgs e)
         {
@@ -215,7 +207,6 @@ namespace PGA305OWICalibration
                     _u2a.GPIO_WritePort(PGA305Owi.GPIO7, PGA305Owi.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Owi.GPIO10, PGA305Owi.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Owi.GPIO11, PGA305Owi.STATE_LOW);
-                    //_u2a.GPIO_WritePort(PGA305Device.GPIO5, PGA305Device.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Device.GPIO7, PGA305Device.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Device.GPIO10, PGA305Device.STATE_LOW);
                     _u2a.GPIO_WritePort(PGA305Device.GPIO11, PGA305Device.STATE_LOW);
@@ -231,6 +222,10 @@ namespace PGA305OWICalibration
             base.OnFormClosing(e);
         }
 
-       
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }
