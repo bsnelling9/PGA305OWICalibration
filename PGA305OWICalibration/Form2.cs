@@ -1,4 +1,6 @@
-﻿using PGA305OWICalibration.Instruments;
+﻿using PGA305OWICalibration.API;
+using PGA305OWICalibration.Config;
+using PGA305OWICalibration.Instruments;
 using PGA305OWICalibration.PGA305EVM;
 using System.Diagnostics;
 
@@ -8,11 +10,17 @@ namespace PGA305OWICalibration
     {
         private USB2AnyDevice _u2a = new USB2AnyDevice();
         private PGA305Owi _pga305OWI = null!;
+        private ApiClient _api = new ApiClient();
 
         //I2C variables for the Digipot used for OWI signal conditioning on the EVM.
         private const ushort DIGIPOT_ADDR = 0x2D;
         private const byte DIGIPOT_REG = 0x00;
         private const byte DIGIPOT_VALUE = 0x19;
+
+        private string? _sensorSerialNumber;
+        private string? _pressureCode;
+        private string? _selectedVoltageRange;
+        private string? _selectedOutputConfig;
 
         public Form2()
         {
@@ -50,7 +58,8 @@ namespace PGA305OWICalibration
                     return;
                 }
 
-                _u2a.Power_WriteControl(Power_3V3.ON, Power_5V0.ON);
+                int powerResult = _u2a.Power_WriteControl(Power_3V3.ON, Power_5V0.ON);
+                listBoxDebug.Items.Add($"Power result: {powerResult}");
 
                 listBoxDebug.Items.Add($"USB2ANY opened. Handle = {_u2a.GetHandle()}");
                 _pga305OWI = new PGA305Owi(_u2a);
@@ -97,127 +106,133 @@ namespace PGA305OWICalibration
 
         private void btnReadDevice_Click(object sender, EventArgs e)
         {
-            string partNumber = _pga305OWI.ReadPartNumber();
-            string serialNumber = _pga305OWI.ReadSerialNumber();
+            _pressureCode = _pga305OWI.ReadPressureCode();
+            _sensorSerialNumber = _pga305OWI.ReadSerialNumber();
             string internalSerialNumber = _pga305OWI.ReadInternalSerialNumber();
 
-            listBoxDebug.Items.Add($"Part number:   {partNumber}");
-            listBoxDebug.Items.Add($"Serial number: {serialNumber}");
+            listBoxDebug.Items.Add($"Pressure code: {_pressureCode}");
+            listBoxDebug.Items.Add($"Serial number: {_sensorSerialNumber}");
             listBoxDebug.Items.Add($"Internal serial number: {internalSerialNumber}");
         }
 
-        private void btnDebugGPIO_Click(object sender, EventArgs e)
+        private void BtnOutputV_Click(object sender, EventArgs e)
         {
-            try
+            _selectedOutputConfig = "voltage";
+            lblVoltageRange.Visible = true;
+            lstVoltageRange.Visible = true;
+        }
+
+        private void BtnOutputRM_Click(object sender, EventArgs e)
+        {
+            _selectedOutputConfig = "ratiometric";
+        }
+
+        private void BtnOutputC_Click(object sender, EventArgs e)
+        {
+            _selectedOutputConfig = "current";
+        }
+
+        private void lstVoltageRange_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lstVoltageRange.SelectedItem != null)
             {
-                _u2a.GPIO_SetPort(7, 1);
-
-                listBoxDebug.Items.Add("GPIO7 → HIGH. Check TP51 with multimeter...");
-                _u2a.GPIO_WritePort(7, 1);
-                Thread.Sleep(2000);
-
-                listBoxDebug.Items.Add("GPIO7 → LOW. Check TP51 with multimeter...");
-                _u2a.GPIO_WritePort(7, 0);
-                Thread.Sleep(2000);
-
-                listBoxDebug.Items.Add("GPIO7 debug complete.");
-            }
-            catch (Exception ex)
-            {
-                listBoxDebug.Items.Add($"GPIO debug error: {ex.Message}");
+                _selectedVoltageRange = lstVoltageRange.SelectedItem.ToString();
+                Debug.WriteLine($"Voltage range selected: {_selectedVoltageRange}");
             }
         }
 
-        private void btnTestGPIO11_Click(object sender, EventArgs e)
+        private (double vMin, double vMax) ParseVoltageRange(string range)
         {
-            try
-            {
-                listBoxDebug.Items.Add("--- GPIO11 Force Test ---");
-
-                if (_u2a.GetHandle() <= 0)
-                {
-                    listBoxDebug.Items.Add("Device not open — click U2A first");
-                    return;
-                }
-
-                int r1 = _u2a.GPIO_SetPort(11, 2);
-                int r2 = _u2a.GPIO_WritePort(11, 2);
-                listBoxDebug.Items.Add($"GPIO11 HIGH — SetPort:{r1} WritePort:{r2} — measure TP60 now");
-                Thread.Sleep(3000);
-
-                int r3 = _u2a.GPIO_WritePort(11, 1);
-                listBoxDebug.Items.Add($"GPIO11 LOW — WritePort:{r3} — measure TP60 now");
-                Thread.Sleep(3000);
-
-                int r4 = _u2a.GPIO_WritePort(11, 2);
-                listBoxDebug.Items.Add($"GPIO11 HIGH again — WritePort:{r4}");
-                Thread.Sleep(3000);
-
-                listBoxDebug.Items.Add("--- Did TP60 follow GPIO11? ---");
-            }
-            catch (Exception ex)
-            {
-                listBoxDebug.Items.Add($"Error: {ex.Message}");
-            }
+            string trimmed = range.TrimEnd('V');
+            var parts = trimmed.Split('-');
+            return (double.Parse(parts[0]), double.Parse(parts[1]));
         }
 
-        private void btnManualHardwareTest_Click(object sender, EventArgs e)
+        private async void btnConfigure_Click(object sender, EventArgs e)
         {
-            try
+            // These are Temporary, just for testing the writing to EEPROM           
+            _sensorSerialNumber ??= "1"; 
+            string testStockCode = "TEST001";
+
+            if (string.IsNullOrEmpty(_sensorSerialNumber))
             {
-                listBoxDebug.Items.Add("--- Manual Hardware Test ---");
-
-                if (_u2a.GetHandle() <= 0)
-                {
-                    listBoxDebug.Items.Add("Device not open — click U2A first");
-                    return;
-                }
-
-                int r = _u2a.Power_WriteControl(Power_3V3.ON, Power_5V0.ON);
-                listBoxDebug.Items.Add($"Power ON result: {r}");
-                Thread.Sleep(50);
-
-                int r1 = _u2a.GPIO_SetPort(11, 1);
-                int r2 = _u2a.GPIO_WritePort(11, 1);
-                listBoxDebug.Items.Add($"GPIO11 HIGH — SetPort:{r1} WritePort:{r2}");
-                Thread.Sleep(10);
-
-                int r3 = _u2a.DACs_Write(DACs_WhichDAC.DAC0, DACs_OperatingMode.Normal, 0);
-                listBoxDebug.Items.Add($"DAC0 = 0 result: {r3}");
-                Thread.Sleep(10);
-
-                int r4 = _u2a.GPIO_SetPort(10, 1);
-                int r5 = _u2a.GPIO_WritePort(10, 1);
-                listBoxDebug.Items.Add($"GPIO10 HIGH — SetPort:{r4} WritePort:{r5} — measure TP20 now");
-                Thread.Sleep(3000);
-
-                int r6 = _u2a.GPIO_WritePort(10, 0);
-                listBoxDebug.Items.Add($"GPIO10 LOW — WritePort:{r6} — measure TP20 now");
-                Thread.Sleep(3000);
-
-                listBoxDebug.Items.Add("--- Did TP20 change between HIGH and LOW? ---");
-
-                int r7 = _u2a.GPIO_SetPort(7, 1);
-                int r8 = _u2a.GPIO_WritePort(7, 1);
-                listBoxDebug.Items.Add($"GPIO7 HIGH — SetPort:{r7} WritePort:{r8} — measure TP4");
-                Thread.Sleep(3000);
-
-                int r9 = _u2a.GPIO_WritePort(7, 0);
-                listBoxDebug.Items.Add($"GPIO7 LOW — WritePort:{r9}");
-                Thread.Sleep(3000);
-
-                int r10 = _u2a.GPIO_WritePort(7, 1);
-                listBoxDebug.Items.Add($"GPIO7 HIGH again — WritePort:{r10}");
-                Thread.Sleep(3000);
-
-                _u2a.GPIO_WritePort(7, 0);
-                listBoxDebug.Items.Add("--- Test complete ---");
+                listBoxDebug.Items.Add("No serial number — click Read Device first.");
+                return;
             }
-            catch (Exception ex)
+
+            if (string.IsNullOrEmpty(_selectedVoltageRange))
             {
-                listBoxDebug.Items.Add($"Error: {ex.Message}");
+                listBoxDebug.Items.Add("No voltage range selected.");
+                return;
             }
+
+            listBoxDebug.Items.Add($"Configuring device for {_selectedVoltageRange}...");
+
+            if (_selectedVoltageRange == "0-10V")
+            {
+                listBoxDebug.Items.Add("0-10V is native range — no coefficient change needed.");
+                return;
+            }
+
+            var (vMin, vMax) = ParseVoltageRange(_selectedVoltageRange);
+
+            var result = await _api.ConvertOutput(int.Parse(_sensorSerialNumber), vMin, vMax);
+            if (result == null)
+            {
+                listBoxDebug.Items.Add("convert-output failed.");
+                return;
+            }
+
+            listBoxDebug.Items.Add($"Got coefficients for session {result.session_id}");
+            foreach (var kv in result.coefficients)
+                listBoxDebug.Items.Add($"  {kv.Key} = 0x{kv.Value}");
+
+            listBoxDebug.Items.Add("EEPROM write skipped — pending hardware fix.");
+
+            bool transducerWritten = await _api.CreateTransducer(
+                testStockCode, result.serial_number, _selectedVoltageRange,
+                _pressureCode ?? "100G", _selectedOutputConfig ?? "voltage");
+
+            listBoxDebug.Items.Add(transducerWritten
+                ? "transducer written to database."
+                : "transducer write FAILED.");
+
+            if (!transducerWritten)
+            {
+                listBoxDebug.Items.Add("Skipping final-coefficients write since transducer failed.");
+                return;
+            }
+
+            bool dbWritten = await _api.CreateFinalCoefficients(
+                result.session_id, result.serial_number, testStockCode,
+                result.coefficients, result.padc_gain, result.tadc_gain,
+                result.padc_offset, result.tadc_offset);
+
+            listBoxDebug.Items.Add(dbWritten
+                ? "final-coefficients written to database."
+                : "final-coefficients write FAILED.");
         }
 
+        //Remove this for final production
+        private void btnTestWriteH_Click(object sender, EventArgs e)
+        {
+            if (_pga305OWI == null)
+            {
+                listBoxDebug.Items.Add("Please click U2A first.");
+                return;
+            }
+
+            bool ok = _pga305OWI.TestWriteHCoefficients(0x01);
+            listBoxDebug.Items.Add(ok ? "H coefficient test write succeeded." : "H coefficient test write FAILED.");
+
+            foreach (string key in new[] { "h0", "h1", "h2", "h3" })
+            {
+                byte[] addrs = AppConfig.COEFFICIENT_ADDRESSES[key];
+                int lsb = _pga305OWI.ReadRegister(addrs[0]);
+                int mid = _pga305OWI.ReadRegister(addrs[1]);
+                int msb = _pga305OWI.ReadRegister(addrs[2]);
+                listBoxDebug.Items.Add($"{key}: 0x{msb:X2}{mid:X2}{lsb:X2}");
+            }
+        }
     }
 }
