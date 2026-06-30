@@ -14,11 +14,12 @@
 
 	<ItemGroup>
 		<Folder Include="Data\" />
-		<Folder Include="Protocol\" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="IviFoundation.Visa" Version="8.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.9" />
 		<PackageReference Include="NationalInstruments.Visa" Version="25.5.0.13" />
 		<PackageReference Include="System.IO.Ports" Version="10.0.5" />
 	</ItemGroup>
@@ -36,6 +37,12 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<Link>USB2ANY_2.8.2.dll</Link>
 		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="appsettings.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

@@ -265,18 +265,5 @@ namespace PGA305OWICalibration.PGA305
 
             return (partNumber, serialNumber, prange);
         }
-             
-       //remove this
-        public void LoadEepromCache(byte page)
-        {
-            byte[] buffer = new byte[54];
-                        
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x21, 0x88, page }, 4);
-            _u2a.UART_Write(new byte[] { SYNC_BYTE, 0x21, 0x89, 0x01 }, 4);
-
-            Thread.Sleep(20);
-
-            Debug.WriteLine($"EEPROM cache loaded for page {page}");
-        }
     }
 }
