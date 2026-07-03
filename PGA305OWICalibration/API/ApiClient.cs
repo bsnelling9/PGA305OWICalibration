@@ -1,10 +1,7 @@
 ﻿using PGA305OWICalibration.Config;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace PGA305OWICalibration.API
 {
@@ -23,9 +20,17 @@ namespace PGA305OWICalibration.API
     {
         private readonly HttpClient _client = new();
 
-        public async Task<ConvertOutputResult?> ConvertOutput(int serialNumber, double vMin, double vMax)
+        public async Task<ConvertOutputResult?> ConvertOutput(int serialNumber, double voltageMin, double voltageMax, double pressureMin, double pressureMax, string pressureUnit)
         {
-            var payload = new { serial_number = serialNumber, v_min = vMin, v_max = vMax };
+            var payload = new
+            {
+                serial_number = serialNumber,
+                v_min = voltageMin,
+                v_max = voltageMax,
+                p_min = pressureMin,
+                p_max = pressureMax,
+                pressure_unit = pressureUnit
+            };
             string json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -67,6 +72,7 @@ namespace PGA305OWICalibration.API
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _client.PostAsync($"{AppConfig.API_URL}/final-coefficients", content);
+            Debug.WriteLine(response);
             return response.IsSuccessStatusCode;
         }
 
@@ -89,6 +95,7 @@ namespace PGA305OWICalibration.API
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _client.PostAsync($"{AppConfig.API_URL}/transducer", content);
+            Debug.WriteLine(response);
             return response.IsSuccessStatusCode;
         }
     }

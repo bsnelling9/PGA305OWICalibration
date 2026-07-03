@@ -37,6 +37,19 @@ namespace PGA305OWICalibration
             debugForm.Show();
         }
 
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+            SettingsForm settingsForm = new SettingsForm();
+            settingsForm.Show();
+        }
+
+        private void btnConfigI2C_Click(object sender, EventArgs e)
+        {
+            I2COutputConfigForm outputForm = new I2COutputConfigForm();
+            outputForm.Show();
+        }
+
+
         private void btnGetHW_Click(object sender, EventArgs e)
         {
             comboBox1.Items.Clear();
@@ -198,6 +211,7 @@ namespace PGA305OWICalibration
                 listBox1.Items.Add($"Target Port: {_selectedPort}");
             }
         }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             try
@@ -226,6 +240,7 @@ namespace PGA305OWICalibration
         {
 
         }
+
 
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System.Configuration;
+using System.Text.Json;
 
 namespace PGA305OWICalibration.Config
 {
@@ -17,11 +17,30 @@ namespace PGA305OWICalibration.Config
 
         public static string API_URL => _config["ApiUrl"] ?? "http://localhost:3000";
 
+        public static void SaveApiUrl(string newUrl)
+        {
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+            string json = File.ReadAllText(path);
+            var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+            node["ApiUrl"] = newUrl;
+            File.WriteAllText(path, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+        }
 
         public const int BAUD_RATE = 115200;
         public const string DEVICE_IDENTITY = "PGA305_Mux_01";
 
-        public const int EEPROM_ADDR = 0x25;
+        // ==========================================
+        // I2C Addresses for the PGA305
+        // ==========================================
+        public const int I2C_RUNTIME_ADDR = 0x20;
+        public const int I2C_CONTROL_ADDR = 0x22;
+        public const int I2C_EEPROM_ADDR = 0x25;
+
+
+
+        // ==========================================
+        // EEPROM REGISTER ADDRESSES
+        // ==========================================
 
         public const int TADC_GAIN_MSB = 0x60;
         public const int TADC_OFFSET_LSB = 0x61;
@@ -45,7 +64,7 @@ namespace PGA305OWICalibration.Config
         public const int SENSOR_SN_B1 = 0x74;
         public const int SENSOR_SN_B2 = 0x75;
 
-        // EEPROM Cache window
+        // EEPROM Cache 
         public const int CACHE_B0 = 0x80;
         public const int CACHE_B1 = 0x81;
         public const int CACHE_B2 = 0x82;
@@ -65,10 +84,10 @@ namespace PGA305OWICalibration.Config
 
 
         // I2C devices on the EVM (DigiPot / TPL0102 signal conditioning)
-        public const ushort DIGIPOT_ADDR = 0x2D;
+        public const int DIGIPOT_ADDR = 0x2D;
         public const byte DIGIPOT_REG = 0x00;
         public const byte DIGIPOT_VALUE = 0x19;
-        public const ushort TPL0102_ADDR = 0x57;
+        public const int TPL0102_ADDR = 0x57;
 
         public const byte CMD_BURST_WRITE_CACHE = 0xD0;
         public const byte CMD_BURST_READ_CACHE = 0xD3;

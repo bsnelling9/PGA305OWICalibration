@@ -87,7 +87,7 @@ namespace PGA305OWICalibration.PGA305EVM
 
             if (count > 0 && response[count - 1] == 0x03)
             {
-                Debug.WriteLine("Command mode confirmed.");
+                Debug.WriteLine("Device entered Command modea.");
                 FlushUartRx();
                 return true;
             }

@@ -21,6 +21,7 @@ namespace PGA305OWICalibration
         {
             tabControl1 = new TabControl();
             TabMainPage = new TabPage();
+            btnSettings = new ATPButton();
             btnDebug = new ATPButton();
             listBox1 = new ListBox();
             btnActPGA = new ATPButton();
@@ -34,6 +35,7 @@ namespace PGA305OWICalibration
             hardwareTab = new TabPage();
             deviceTab = new TabPage();
             tabPage4 = new TabPage();
+            btnConfigI2C = new ATPButton();
             tabControl1.SuspendLayout();
             TabMainPage.SuspendLayout();
             SuspendLayout();
@@ -48,12 +50,14 @@ namespace PGA305OWICalibration
             tabControl1.Location = new Point(0, 0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1685, 738);
+            tabControl1.Size = new Size(1228, 738);
             tabControl1.TabIndex = 21;
             tabControl1.SelectedIndexChanged += tabControl1_SelectedIndexChanged;
             // 
             // TabMainPage
             // 
+            TabMainPage.Controls.Add(btnConfigI2C);
+            TabMainPage.Controls.Add(btnSettings);
             TabMainPage.Controls.Add(btnDebug);
             TabMainPage.Controls.Add(listBox1);
             TabMainPage.Controls.Add(btnActPGA);
@@ -68,10 +72,27 @@ namespace PGA305OWICalibration
             TabMainPage.Location = new Point(4, 24);
             TabMainPage.Name = "TabMainPage";
             TabMainPage.Padding = new Padding(3);
-            TabMainPage.Size = new Size(1677, 710);
+            TabMainPage.Size = new Size(1220, 710);
             TabMainPage.TabIndex = 0;
             TabMainPage.Text = "Main";
             TabMainPage.UseVisualStyleBackColor = true;
+            // 
+            // btnSettings
+            // 
+            btnSettings.BackColor = Color.White;
+            btnSettings.BorderColor = Color.Black;
+            btnSettings.BorderSize = 2;
+            btnSettings.CornerRadius = 10;
+            btnSettings.FlatStyle = FlatStyle.Flat;
+            btnSettings.Font = new Font("Segoe UI", 10F);
+            btnSettings.ForeColor = Color.Black;
+            btnSettings.Location = new Point(1034, 574);
+            btnSettings.Name = "btnSettings";
+            btnSettings.Size = new Size(150, 50);
+            btnSettings.TabIndex = 41;
+            btnSettings.Text = "Settings";
+            btnSettings.UseVisualStyleBackColor = true;
+            btnSettings.Click += btnSettings_Click;
             // 
             // btnDebug
             // 
@@ -82,7 +103,7 @@ namespace PGA305OWICalibration
             btnDebug.FlatStyle = FlatStyle.Flat;
             btnDebug.Font = new Font("Segoe UI", 10F);
             btnDebug.ForeColor = Color.Black;
-            btnDebug.Location = new Point(1478, 6);
+            btnDebug.Location = new Point(1034, 518);
             btnDebug.Name = "btnDebug";
             btnDebug.Size = new Size(150, 50);
             btnDebug.TabIndex = 40;
@@ -94,7 +115,7 @@ namespace PGA305OWICalibration
             // 
             listBox1.FormattingEnabled = true;
             listBox1.ItemHeight = 15;
-            listBox1.Location = new Point(397, 133);
+            listBox1.Location = new Point(243, 133);
             listBox1.Name = "listBox1";
             listBox1.Size = new Size(739, 319);
             listBox1.TabIndex = 30;
@@ -221,7 +242,7 @@ namespace PGA305OWICalibration
             // comboBox1
             // 
             comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(409, 61);
+            comboBox1.Location = new Point(255, 61);
             comboBox1.Name = "comboBox1";
             comboBox1.Size = new Size(269, 23);
             comboBox1.TabIndex = 22;
@@ -232,7 +253,7 @@ namespace PGA305OWICalibration
             hardwareTab.Location = new Point(4, 24);
             hardwareTab.Name = "hardwareTab";
             hardwareTab.Padding = new Padding(3);
-            hardwareTab.Size = new Size(1677, 710);
+            hardwareTab.Size = new Size(1220, 710);
             hardwareTab.TabIndex = 1;
             hardwareTab.Text = "Hardware";
             hardwareTab.UseVisualStyleBackColor = true;
@@ -242,7 +263,7 @@ namespace PGA305OWICalibration
             deviceTab.Location = new Point(4, 24);
             deviceTab.Name = "deviceTab";
             deviceTab.Padding = new Padding(3);
-            deviceTab.Size = new Size(1677, 710);
+            deviceTab.Size = new Size(1220, 710);
             deviceTab.TabIndex = 2;
             deviceTab.Text = "Device";
             deviceTab.UseVisualStyleBackColor = true;
@@ -252,16 +273,33 @@ namespace PGA305OWICalibration
             tabPage4.Location = new Point(4, 24);
             tabPage4.Name = "tabPage4";
             tabPage4.Padding = new Padding(3);
-            tabPage4.Size = new Size(1677, 710);
+            tabPage4.Size = new Size(1220, 710);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "tabPage4";
             tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // btnConfigI2C
+            // 
+            btnConfigI2C.BackColor = Color.White;
+            btnConfigI2C.BorderColor = Color.Black;
+            btnConfigI2C.BorderSize = 2;
+            btnConfigI2C.CornerRadius = 10;
+            btnConfigI2C.FlatStyle = FlatStyle.Flat;
+            btnConfigI2C.Font = new Font("Segoe UI", 10F);
+            btnConfigI2C.ForeColor = Color.Black;
+            btnConfigI2C.Location = new Point(1034, 457);
+            btnConfigI2C.Name = "btnConfigI2C";
+            btnConfigI2C.Size = new Size(150, 50);
+            btnConfigI2C.TabIndex = 42;
+            btnConfigI2C.Text = "Configure using I2C";
+            btnConfigI2C.UseVisualStyleBackColor = true;
+            btnConfigI2C.Click += btnConfigI2C_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1685, 738);
+            ClientSize = new Size(1228, 738);
             Controls.Add(tabControl1);
             Name = "Form1";
             Text = "PGA305 OWI Calibration";
@@ -288,5 +326,7 @@ namespace PGA305OWICalibration
         private ComboBox comboBox1;
         private ATPButton btnDebug;
         private ListBox listBox1;
+        private ATPButton btnSettings;
+        private ATPButton btnConfigI2C;
     }
 }

@@ -23,7 +23,6 @@ namespace PGA305OWICalibration
 
         private void InitializeComponent()
         {
-            btnExitDebug = new Button();
             u2a = new Button();
             btnActivate = new Button();
             button10 = new Button();
@@ -37,23 +36,16 @@ namespace PGA305OWICalibration
             btnOutputV = new ATPButton();
             btnOutputRM = new ATPButton();
             btnOutputC = new ATPButton();
-            btnConfigure = new Button();
             btnTestWriteH = new Button();
+            btnConfigDevice = new ATPButton();
+            btnInitHW = new ATPButton();
+            btnClose = new ATPButton();
+            btnConnectDevice = new ATPButton();
             SuspendLayout();
-            // 
-            // btnExitDebug
-            // 
-            btnExitDebug.Location = new Point(994, 639);
-            btnExitDebug.Name = "btnExitDebug";
-            btnExitDebug.Size = new Size(85, 41);
-            btnExitDebug.TabIndex = 0;
-            btnExitDebug.Text = "Exit";
-            btnExitDebug.UseVisualStyleBackColor = true;
-            btnExitDebug.Click += btnExitDebug_Click;
             // 
             // u2a
             // 
-            u2a.Location = new Point(411, 34);
+            u2a.Location = new Point(34, 389);
             u2a.Name = "u2a";
             u2a.Size = new Size(119, 48);
             u2a.TabIndex = 2;
@@ -63,7 +55,7 @@ namespace PGA305OWICalibration
             // 
             // btnActivate
             // 
-            btnActivate.Location = new Point(411, 250);
+            btnActivate.Location = new Point(35, 543);
             btnActivate.Name = "btnActivate";
             btnActivate.Size = new Size(118, 39);
             btnActivate.TabIndex = 9;
@@ -91,7 +83,7 @@ namespace PGA305OWICalibration
             // 
             // btnHandlePOT
             // 
-            btnHandlePOT.Location = new Point(411, 111);
+            btnHandlePOT.Location = new Point(35, 443);
             btnHandlePOT.Name = "btnHandlePOT";
             btnHandlePOT.Size = new Size(118, 38);
             btnHandlePOT.TabIndex = 22;
@@ -101,7 +93,7 @@ namespace PGA305OWICalibration
             // 
             // btnInit
             // 
-            btnInit.Location = new Point(411, 177);
+            btnInit.Location = new Point(35, 499);
             btnInit.Name = "btnInit";
             btnInit.Size = new Size(118, 38);
             btnInit.TabIndex = 23;
@@ -111,7 +103,7 @@ namespace PGA305OWICalibration
             // 
             // btnReadDevice
             // 
-            btnReadDevice.Location = new Point(411, 328);
+            btnReadDevice.Location = new Point(35, 588);
             btnReadDevice.Name = "btnReadDevice";
             btnReadDevice.Size = new Size(118, 44);
             btnReadDevice.TabIndex = 24;
@@ -206,19 +198,9 @@ namespace PGA305OWICalibration
             btnOutputC.UseVisualStyleBackColor = false;
             btnOutputC.Click += BtnOutputC_Click;
             // 
-            // btnConfigure
-            // 
-            btnConfigure.Location = new Point(675, 283);
-            btnConfigure.Name = "btnConfigure";
-            btnConfigure.Size = new Size(99, 42);
-            btnConfigure.TabIndex = 31;
-            btnConfigure.Text = "Configure";
-            btnConfigure.UseVisualStyleBackColor = true;
-            btnConfigure.Click += btnConfigure_Click;
-            // 
             // btnTestWriteH
             // 
-            btnTestWriteH.Location = new Point(413, 388);
+            btnTestWriteH.Location = new Point(39, 638);
             btnTestWriteH.Name = "btnTestWriteH";
             btnTestWriteH.Size = new Size(115, 40);
             btnTestWriteH.TabIndex = 32;
@@ -226,19 +208,93 @@ namespace PGA305OWICalibration
             btnTestWriteH.UseVisualStyleBackColor = true;
             btnTestWriteH.Click += btnTestWriteH_Click;
             // 
+            // btnConfigDevice
+            // 
+            btnConfigDevice.BackColor = Color.White;
+            btnConfigDevice.BorderColor = Color.Black;
+            btnConfigDevice.BorderSize = 2;
+            btnConfigDevice.CornerRadius = 10;
+            btnConfigDevice.Cursor = Cursors.Hand;
+            btnConfigDevice.FlatStyle = FlatStyle.Flat;
+            btnConfigDevice.Font = new Font("Segoe UI", 10F);
+            btnConfigDevice.ForeColor = Color.Black;
+            btnConfigDevice.Location = new Point(574, 274);
+            btnConfigDevice.Name = "btnConfigDevice";
+            btnConfigDevice.Size = new Size(160, 45);
+            btnConfigDevice.TabIndex = 35;
+            btnConfigDevice.Text = "Configure";
+            btnConfigDevice.UseVisualStyleBackColor = false;
+            btnConfigDevice.Click += btnConfigDevice_Click;
+            // 
+            // btnInitHW
+            // 
+            btnInitHW.BackColor = Color.White;
+            btnInitHW.BorderColor = Color.Black;
+            btnInitHW.BorderSize = 2;
+            btnInitHW.CornerRadius = 10;
+            btnInitHW.Cursor = Cursors.Hand;
+            btnInitHW.FlatStyle = FlatStyle.Flat;
+            btnInitHW.Font = new Font("Segoe UI", 10F);
+            btnInitHW.ForeColor = Color.Black;
+            btnInitHW.Location = new Point(395, 61);
+            btnInitHW.Name = "btnInitHW";
+            btnInitHW.Size = new Size(160, 45);
+            btnInitHW.TabIndex = 36;
+            btnInitHW.Text = "Initialize Hardware";
+            btnInitHW.UseVisualStyleBackColor = false;
+            btnInitHW.Click += btnInitHW_Click;
+            // 
+            // btnClose
+            // 
+            btnClose.BackColor = Color.White;
+            btnClose.BorderColor = Color.Black;
+            btnClose.BorderSize = 2;
+            btnClose.CornerRadius = 10;
+            btnClose.Cursor = Cursors.Hand;
+            btnClose.FlatStyle = FlatStyle.Flat;
+            btnClose.Font = new Font("Segoe UI", 10F);
+            btnClose.ForeColor = Color.Black;
+            btnClose.Location = new Point(977, 635);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new Size(113, 45);
+            btnClose.TabIndex = 38;
+            btnClose.Text = "Close";
+            btnClose.UseVisualStyleBackColor = false;
+            btnClose.Click += btnClose_Click;
+            // 
+            // btnConnectDevice
+            // 
+            btnConnectDevice.BackColor = Color.White;
+            btnConnectDevice.BorderColor = Color.Black;
+            btnConnectDevice.BorderSize = 2;
+            btnConnectDevice.CornerRadius = 10;
+            btnConnectDevice.Cursor = Cursors.Hand;
+            btnConnectDevice.FlatStyle = FlatStyle.Flat;
+            btnConnectDevice.Font = new Font("Segoe UI", 10F);
+            btnConnectDevice.ForeColor = Color.Black;
+            btnConnectDevice.Location = new Point(395, 137);
+            btnConnectDevice.Name = "btnConnectDevice";
+            btnConnectDevice.Size = new Size(160, 45);
+            btnConnectDevice.TabIndex = 39;
+            btnConnectDevice.Text = "Connect to Device";
+            btnConnectDevice.UseVisualStyleBackColor = false;
+            btnConnectDevice.Click += btnConnectDevice_Click;
+            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1377, 692);
+            ClientSize = new Size(1125, 692);
+            Controls.Add(btnConnectDevice);
+            Controls.Add(btnClose);
+            Controls.Add(btnInitHW);
+            Controls.Add(btnConfigDevice);
             Controls.Add(btnTestWriteH);
-            Controls.Add(btnConfigure);
             Controls.Add(btnReadDevice);
             Controls.Add(btnInit);
             Controls.Add(btnHandlePOT);
             Controls.Add(listBoxDebug);
             Controls.Add(button10);
-            Controls.Add(btnExitDebug);
             Controls.Add(u2a);
             Controls.Add(btnActivate);
             Controls.Add(lblOutputMode);
@@ -254,8 +310,6 @@ namespace PGA305OWICalibration
         }
 
         #endregion
-
-        private Button btnExitDebug;
         private Button u2a;
         private Button btnActivate;
         private Button button10;
@@ -269,7 +323,10 @@ namespace PGA305OWICalibration
         private ATPButton btnOutputC;
         private Label lblVoltageRange;
         private ListBox lstVoltageRange;
-        private Button btnConfigure;
         private Button btnTestWriteH;
+        private ATPButton btnConfigDevice;
+        private ATPButton btnInitHW;
+        private ATPButton btnClose;
+        private ATPButton btnConnectDevice;
     }
 }
