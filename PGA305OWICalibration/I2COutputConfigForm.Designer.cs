@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             btnScanHardware = new PGA305OWICalibration.UIControls.ATPButton();
             dgvHardware = new DataGridView();
             dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
@@ -58,6 +58,8 @@
             btnUnitPsi = new PGA305OWICalibration.UIControls.ATPButton();
             lblSelectUnit = new Label();
             lblPressureError = new Label();
+            label3 = new Label();
+            lblConfigueSensor = new Label();
             ((System.ComponentModel.ISupportInitialize)dgvHardware).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numMinPressure).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numMaxPressure).BeginInit();
@@ -73,7 +75,7 @@
             btnScanHardware.FlatStyle = FlatStyle.Flat;
             btnScanHardware.Font = new Font("Segoe UI", 10F);
             btnScanHardware.ForeColor = Color.Black;
-            btnScanHardware.Location = new Point(12, 33);
+            btnScanHardware.Location = new Point(12, 43);
             btnScanHardware.Name = "btnScanHardware";
             btnScanHardware.Size = new Size(160, 45);
             btnScanHardware.TabIndex = 19;
@@ -85,23 +87,23 @@
             // 
             dgvHardware.AllowUserToAddRows = false;
             dgvHardware.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = SystemColors.Control;
-            dataGridViewCellStyle1.Font = new Font("Segoe UI", 10F);
-            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
-            dgvHardware.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = SystemColors.Control;
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 10F);
+            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+            dgvHardware.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             dgvHardware.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3 });
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = SystemColors.Window;
-            dataGridViewCellStyle2.Font = new Font("Segoe UI", 10F);
-            dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
-            dgvHardware.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = SystemColors.Window;
+            dataGridViewCellStyle4.Font = new Font("Segoe UI", 10F);
+            dataGridViewCellStyle4.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.False;
+            dgvHardware.DefaultCellStyle = dataGridViewCellStyle4;
             dgvHardware.Location = new Point(12, 136);
             dgvHardware.Name = "dgvHardware";
             dgvHardware.ReadOnly = true;
@@ -150,7 +152,7 @@
             // 
             lsbAPT10MetaData.FormattingEnabled = true;
             lsbAPT10MetaData.ItemHeight = 15;
-            lsbAPT10MetaData.Location = new Point(12, 404);
+            lsbAPT10MetaData.Location = new Point(12, 434);
             lsbAPT10MetaData.Name = "lsbAPT10MetaData";
             lsbAPT10MetaData.Size = new Size(330, 124);
             lsbAPT10MetaData.TabIndex = 31;
@@ -166,7 +168,7 @@
             btnConfigDevice.FlatStyle = FlatStyle.Flat;
             btnConfigDevice.Font = new Font("Segoe UI", 10F);
             btnConfigDevice.ForeColor = Color.Black;
-            btnConfigDevice.Location = new Point(923, 318);
+            btnConfigDevice.Location = new Point(953, 287);
             btnConfigDevice.Name = "btnConfigDevice";
             btnConfigDevice.Size = new Size(160, 45);
             btnConfigDevice.TabIndex = 42;
@@ -178,7 +180,7 @@
             // 
             lblOutputMode.AutoSize = true;
             lblOutputMode.Font = new Font("Segoe UI", 10F);
-            lblOutputMode.Location = new Point(583, 21);
+            lblOutputMode.Location = new Point(505, 21);
             lblOutputMode.Name = "lblOutputMode";
             lblOutputMode.Size = new Size(184, 19);
             lblOutputMode.TabIndex = 36;
@@ -188,7 +190,7 @@
             // 
             lblVoltageRange.AutoSize = true;
             lblVoltageRange.Font = new Font("Segoe UI", 10F);
-            lblVoltageRange.Location = new Point(583, 111);
+            lblVoltageRange.Location = new Point(505, 115);
             lblVoltageRange.Name = "lblVoltageRange";
             lblVoltageRange.Size = new Size(139, 19);
             lblVoltageRange.TabIndex = 40;
@@ -200,7 +202,7 @@
             lstVoltageRange.Font = new Font("Segoe UI", 10F);
             lstVoltageRange.ItemHeight = 17;
             lstVoltageRange.Items.AddRange(new object[] { "0-10V", "0-5V", "1-5V", "0.5-4.5V", "1-6V" });
-            lstVoltageRange.Location = new Point(583, 136);
+            lstVoltageRange.Location = new Point(505, 136);
             lstVoltageRange.Name = "lstVoltageRange";
             lstVoltageRange.Size = new Size(200, 106);
             lstVoltageRange.TabIndex = 41;
@@ -217,9 +219,9 @@
             btnOutputV.FlatStyle = FlatStyle.Flat;
             btnOutputV.Font = new Font("Segoe UI", 10F);
             btnOutputV.ForeColor = Color.Black;
-            btnOutputV.Location = new Point(583, 51);
+            btnOutputV.Location = new Point(506, 42);
             btnOutputV.Name = "btnOutputV";
-            btnOutputV.Size = new Size(160, 45);
+            btnOutputV.Size = new Size(107, 45);
             btnOutputV.TabIndex = 37;
             btnOutputV.Text = "Voltage";
             btnOutputV.UseVisualStyleBackColor = false;
@@ -235,9 +237,9 @@
             btnOutputRM.FlatStyle = FlatStyle.Flat;
             btnOutputRM.Font = new Font("Segoe UI", 10F);
             btnOutputRM.ForeColor = Color.Black;
-            btnOutputRM.Location = new Point(753, 51);
+            btnOutputRM.Location = new Point(634, 43);
             btnOutputRM.Name = "btnOutputRM";
-            btnOutputRM.Size = new Size(160, 45);
+            btnOutputRM.Size = new Size(110, 45);
             btnOutputRM.TabIndex = 38;
             btnOutputRM.Text = "Ratio Metric";
             btnOutputRM.UseVisualStyleBackColor = false;
@@ -253,9 +255,9 @@
             btnOutputC.FlatStyle = FlatStyle.Flat;
             btnOutputC.Font = new Font("Segoe UI", 10F);
             btnOutputC.ForeColor = Color.Black;
-            btnOutputC.Location = new Point(923, 51);
+            btnOutputC.Location = new Point(765, 43);
             btnOutputC.Name = "btnOutputC";
-            btnOutputC.Size = new Size(160, 45);
+            btnOutputC.Size = new Size(104, 45);
             btnOutputC.TabIndex = 39;
             btnOutputC.Text = "Current";
             btnOutputC.UseVisualStyleBackColor = false;
@@ -283,7 +285,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 10F);
-            label1.Location = new Point(16, 12);
+            label1.Location = new Point(16, 21);
             label1.Name = "label1";
             label1.Size = new Size(228, 19);
             label1.TabIndex = 44;
@@ -309,9 +311,9 @@
             btnNoPChange.FlatStyle = FlatStyle.Flat;
             btnNoPChange.Font = new Font("Segoe UI", 10F);
             btnNoPChange.ForeColor = Color.Black;
-            btnNoPChange.Location = new Point(583, 288);
+            btnNoPChange.Location = new Point(505, 288);
             btnNoPChange.Name = "btnNoPChange";
-            btnNoPChange.Size = new Size(128, 45);
+            btnNoPChange.Size = new Size(107, 45);
             btnNoPChange.TabIndex = 46;
             btnNoPChange.Text = "No Change";
             btnNoPChange.UseVisualStyleBackColor = false;
@@ -321,7 +323,7 @@
             // 
             lblPressureRange.AutoSize = true;
             lblPressureRange.Font = new Font("Segoe UI", 10F);
-            lblPressureRange.Location = new Point(583, 264);
+            lblPressureRange.Location = new Point(505, 264);
             lblPressureRange.Name = "lblPressureRange";
             lblPressureRange.Size = new Size(128, 19);
             lblPressureRange.TabIndex = 47;
@@ -330,7 +332,7 @@
             // 
             // numMinPressure
             // 
-            numMinPressure.Location = new Point(584, 456);
+            numMinPressure.Location = new Point(506, 456);
             numMinPressure.Name = "numMinPressure";
             numMinPressure.Size = new Size(82, 23);
             numMinPressure.TabIndex = 48;
@@ -340,7 +342,7 @@
             // 
             lblMinPressure.AutoSize = true;
             lblMinPressure.Font = new Font("Segoe UI", 10F);
-            lblMinPressure.Location = new Point(584, 434);
+            lblMinPressure.Location = new Point(506, 434);
             lblMinPressure.Name = "lblMinPressure";
             lblMinPressure.Size = new Size(92, 19);
             lblMinPressure.TabIndex = 49;
@@ -349,7 +351,7 @@
             // 
             // numMaxPressure
             // 
-            numMaxPressure.Location = new Point(712, 456);
+            numMaxPressure.Location = new Point(634, 456);
             numMaxPressure.Name = "numMaxPressure";
             numMaxPressure.Size = new Size(82, 23);
             numMaxPressure.TabIndex = 50;
@@ -359,7 +361,7 @@
             // 
             lblMaxPressure.AutoSize = true;
             lblMaxPressure.Font = new Font("Segoe UI", 10F);
-            lblMaxPressure.Location = new Point(712, 434);
+            lblMaxPressure.Location = new Point(634, 434);
             lblMaxPressure.Name = "lblMaxPressure";
             lblMaxPressure.Size = new Size(94, 19);
             lblMaxPressure.TabIndex = 51;
@@ -371,7 +373,7 @@
             lsbOutputConfig.Font = new Font("Segoe UI", 10F);
             lsbOutputConfig.FormattingEnabled = true;
             lsbOutputConfig.ItemHeight = 17;
-            lsbOutputConfig.Location = new Point(903, 147);
+            lsbOutputConfig.Location = new Point(939, 136);
             lsbOutputConfig.Name = "lsbOutputConfig";
             lsbOutputConfig.Size = new Size(219, 140);
             lsbOutputConfig.TabIndex = 52;
@@ -387,7 +389,7 @@
             btnUnitBar.FlatStyle = FlatStyle.Flat;
             btnUnitBar.Font = new Font("Segoe UI", 10F);
             btnUnitBar.ForeColor = Color.Black;
-            btnUnitBar.Location = new Point(584, 366);
+            btnUnitBar.Location = new Point(506, 366);
             btnUnitBar.Name = "btnUnitBar";
             btnUnitBar.Size = new Size(57, 45);
             btnUnitBar.TabIndex = 53;
@@ -405,7 +407,7 @@
             btnUnitPsi.FlatStyle = FlatStyle.Flat;
             btnUnitPsi.Font = new Font("Segoe UI", 10F);
             btnUnitPsi.ForeColor = Color.Black;
-            btnUnitPsi.Location = new Point(665, 366);
+            btnUnitPsi.Location = new Point(587, 366);
             btnUnitPsi.Name = "btnUnitPsi";
             btnUnitPsi.Size = new Size(57, 45);
             btnUnitPsi.TabIndex = 54;
@@ -417,7 +419,7 @@
             // 
             lblSelectUnit.AutoSize = true;
             lblSelectUnit.Font = new Font("Segoe UI", 10F);
-            lblSelectUnit.Location = new Point(584, 344);
+            lblSelectUnit.Location = new Point(506, 344);
             lblSelectUnit.Name = "lblSelectUnit";
             lblSelectUnit.Size = new Size(74, 19);
             lblSelectUnit.TabIndex = 55;
@@ -428,18 +430,41 @@
             // 
             lblPressureError.AutoSize = true;
             lblPressureError.Font = new Font("Segoe UI", 10F);
-            lblPressureError.Location = new Point(583, 492);
+            lblPressureError.Location = new Point(505, 492);
             lblPressureError.Name = "lblPressureError";
             lblPressureError.Size = new Size(45, 19);
             lblPressureError.TabIndex = 56;
             lblPressureError.Text = "label3";
             lblPressureError.Click += lblPressureError_Click;
             // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI", 10F);
+            label3.Location = new Point(16, 332);
+            label3.Name = "label3";
+            label3.Size = new Size(124, 19);
+            label3.TabIndex = 57;
+            label3.Text = "Connect to Device:";
+            // 
+            // lblConfigueSensor
+            // 
+            lblConfigueSensor.AutoSize = true;
+            lblConfigueSensor.Font = new Font("Segoe UI", 10F);
+            lblConfigueSensor.Location = new Point(939, 114);
+            lblConfigueSensor.Name = "lblConfigueSensor";
+            lblConfigueSensor.Size = new Size(219, 19);
+            lblConfigueSensor.TabIndex = 58;
+            lblConfigueSensor.Text = "Confirm and Configure Transducer";
+            lblConfigueSensor.Visible = false;
+            // 
             // I2COutputConfigForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1261, 674);
+            Controls.Add(lblConfigueSensor);
+            Controls.Add(label3);
             Controls.Add(lblPressureError);
             Controls.Add(lblSelectUnit);
             Controls.Add(btnUnitPsi);
@@ -504,5 +529,7 @@
         private UIControls.ATPButton btnUnitPsi;
         private Label lblSelectUnit;
         private Label lblPressureError;
+        private Label label3;
+        private Label lblConfigueSensor;
     }
 }

@@ -2,6 +2,12 @@
 using System.Diagnostics;
 using System.IO.Ports;
 
+
+// To DO
+// Remove all voltage selection from this tab
+// This is for the hardware only
+// The output should be moved the the ATP TAB
+
 namespace PGA305OWICalibration.Tabs
 {
     public partial class HardwareTab : UserControl
@@ -150,7 +156,6 @@ namespace PGA305OWICalibration.Tabs
                 dgvHardware.Rows.Add("USB2ANY", "-", $"Error: {ex.Message}");
             }
         }
-
 
         private void BtnConnectAll_Click(object sender, EventArgs e)
         {

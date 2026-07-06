@@ -152,7 +152,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblComp.AutoSize = true;
             lblComp.Font = new Font("Segoe UI", 10F);
-            lblComp.Location = new Point(823, 353);
+            lblComp.Location = new Point(29, 300);
             lblComp.Name = "lblComp";
             lblComp.Size = new Size(142, 19);
             lblComp.TabIndex = 7;
@@ -164,7 +164,7 @@ namespace PGA305OWICalibration.Tabs
             chkVCOMPA0.Checked = true;
             chkVCOMPA0.CheckState = CheckState.Checked;
             chkVCOMPA0.Font = new Font("Segoe UI", 10F);
-            chkVCOMPA0.Location = new Point(823, 383);
+            chkVCOMPA0.Location = new Point(29, 330);
             chkVCOMPA0.Name = "chkVCOMPA0";
             chkVCOMPA0.Size = new Size(94, 23);
             chkVCOMPA0.TabIndex = 8;
@@ -176,7 +176,7 @@ namespace PGA305OWICalibration.Tabs
             chkVCOMPA1.Checked = true;
             chkVCOMPA1.CheckState = CheckState.Checked;
             chkVCOMPA1.Font = new Font("Segoe UI", 10F);
-            chkVCOMPA1.Location = new Point(823, 413);
+            chkVCOMPA1.Location = new Point(29, 360);
             chkVCOMPA1.Name = "chkVCOMPA1";
             chkVCOMPA1.Size = new Size(94, 23);
             chkVCOMPA1.TabIndex = 9;
@@ -192,7 +192,7 @@ namespace PGA305OWICalibration.Tabs
             btnSetCompensation.FlatStyle = FlatStyle.Flat;
             btnSetCompensation.Font = new Font("Segoe UI", 10F);
             btnSetCompensation.ForeColor = Color.Black;
-            btnSetCompensation.Location = new Point(823, 453);
+            btnSetCompensation.Location = new Point(29, 400);
             btnSetCompensation.Name = "btnSetCompensation";
             btnSetCompensation.Size = new Size(160, 45);
             btnSetCompensation.TabIndex = 10;
@@ -204,7 +204,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblCompensationStatus.AutoSize = true;
             lblCompensationStatus.Font = new Font("Segoe UI", 10F);
-            lblCompensationStatus.Location = new Point(189, 498);
+            lblCompensationStatus.Location = new Point(881, 648);
             lblCompensationStatus.Name = "lblCompensationStatus";
             lblCompensationStatus.Size = new Size(0, 19);
             lblCompensationStatus.TabIndex = 11;
@@ -213,7 +213,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblRelay.AutoSize = true;
             lblRelay.Font = new Font("Segoe UI", 10F);
-            lblRelay.Location = new Point(823, 523);
+            lblRelay.Location = new Point(29, 470);
             lblRelay.Name = "lblRelay";
             lblRelay.Size = new Size(84, 19);
             lblRelay.TabIndex = 12;
@@ -224,7 +224,7 @@ namespace PGA305OWICalibration.Tabs
             rdoOWI.AutoSize = true;
             rdoOWI.Checked = true;
             rdoOWI.Font = new Font("Segoe UI", 10F);
-            rdoOWI.Location = new Point(823, 553);
+            rdoOWI.Location = new Point(29, 500);
             rdoOWI.Name = "rdoOWI";
             rdoOWI.Size = new Size(55, 23);
             rdoOWI.TabIndex = 13;
@@ -235,7 +235,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             rdoVO.AutoSize = true;
             rdoVO.Font = new Font("Segoe UI", 10F);
-            rdoVO.Location = new Point(883, 553);
+            rdoVO.Location = new Point(89, 500);
             rdoVO.Name = "rdoVO";
             rdoVO.Size = new Size(47, 23);
             rdoVO.TabIndex = 14;
@@ -245,7 +245,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             rdoMA.AutoSize = true;
             rdoMA.Font = new Font("Segoe UI", 10F);
-            rdoMA.Location = new Point(933, 553);
+            rdoMA.Location = new Point(139, 500);
             rdoMA.Name = "rdoMA";
             rdoMA.Size = new Size(49, 23);
             rdoMA.TabIndex = 15;
@@ -261,7 +261,7 @@ namespace PGA305OWICalibration.Tabs
             btnSetRelay.FlatStyle = FlatStyle.Flat;
             btnSetRelay.Font = new Font("Segoe UI", 10F);
             btnSetRelay.ForeColor = Color.Black;
-            btnSetRelay.Location = new Point(823, 593);
+            btnSetRelay.Location = new Point(28, 536);
             btnSetRelay.Name = "btnSetRelay";
             btnSetRelay.Size = new Size(160, 45);
             btnSetRelay.TabIndex = 16;
@@ -273,7 +273,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblRelayStatus.AutoSize = true;
             lblRelayStatus.Font = new Font("Segoe UI", 10F);
-            lblRelayStatus.Location = new Point(189, 638);
+            lblRelayStatus.Location = new Point(716, 534);
             lblRelayStatus.Name = "lblRelayStatus";
             lblRelayStatus.Size = new Size(0, 19);
             lblRelayStatus.TabIndex = 17;
@@ -370,7 +370,7 @@ namespace PGA305OWICalibration.Tabs
             btnOutputV.FlatStyle = FlatStyle.Flat;
             btnOutputV.Font = new Font("Segoe UI", 10F);
             btnOutputV.ForeColor = Color.Black;
-            btnOutputV.Location = new Point(20, 339);
+            btnOutputV.Location = new Point(712, 489);
             btnOutputV.Name = "btnOutputV";
             btnOutputV.Size = new Size(160, 45);
             btnOutputV.TabIndex = 22;
@@ -388,7 +388,7 @@ namespace PGA305OWICalibration.Tabs
             btnOutputRM.FlatStyle = FlatStyle.Flat;
             btnOutputRM.Font = new Font("Segoe UI", 10F);
             btnOutputRM.ForeColor = Color.Black;
-            btnOutputRM.Location = new Point(190, 339);
+            btnOutputRM.Location = new Point(882, 489);
             btnOutputRM.Name = "btnOutputRM";
             btnOutputRM.Size = new Size(160, 45);
             btnOutputRM.TabIndex = 23;
@@ -406,7 +406,7 @@ namespace PGA305OWICalibration.Tabs
             btnOutputC.FlatStyle = FlatStyle.Flat;
             btnOutputC.Font = new Font("Segoe UI", 10F);
             btnOutputC.ForeColor = Color.Black;
-            btnOutputC.Location = new Point(360, 339);
+            btnOutputC.Location = new Point(1052, 489);
             btnOutputC.Name = "btnOutputC";
             btnOutputC.Size = new Size(160, 45);
             btnOutputC.TabIndex = 24;
@@ -418,7 +418,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblOutputMode.AutoSize = true;
             lblOutputMode.Font = new Font("Segoe UI", 10F);
-            lblOutputMode.Location = new Point(20, 309);
+            lblOutputMode.Location = new Point(712, 459);
             lblOutputMode.Name = "lblOutputMode";
             lblOutputMode.Size = new Size(184, 19);
             lblOutputMode.TabIndex = 21;
@@ -428,19 +428,20 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblVoltageRange.AutoSize = true;
             lblVoltageRange.Font = new Font("Segoe UI", 10F);
-            lblVoltageRange.Location = new Point(19, 400);
+            lblVoltageRange.Location = new Point(711, 550);
             lblVoltageRange.Name = "lblVoltageRange";
-            lblVoltageRange.Size = new Size(100, 23);
+            lblVoltageRange.Size = new Size(139, 19);
             lblVoltageRange.TabIndex = 0;
             lblVoltageRange.Text = "Select Voltage Range:";
             // 
             // lstVoltageRange
             // 
             lstVoltageRange.Font = new Font("Segoe UI", 10F);
+            lstVoltageRange.ItemHeight = 17;
             lstVoltageRange.Items.AddRange(new object[] { "0-10V", "0-5V", "1-5V", "0.5-4.5V", "1-6V" });
-            lstVoltageRange.Location = new Point(19, 425);
+            lstVoltageRange.Location = new Point(711, 575);
             lstVoltageRange.Name = "lstVoltageRange";
-            lstVoltageRange.Size = new Size(200, 110);
+            lstVoltageRange.Size = new Size(200, 106);
             lstVoltageRange.TabIndex = 0;
             lstVoltageRange.Click += LstVoltageRange_Click;
             // 

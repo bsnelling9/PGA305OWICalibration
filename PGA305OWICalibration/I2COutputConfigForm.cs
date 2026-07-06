@@ -175,7 +175,7 @@ namespace PGA305OWICalibration
         private async void btnConfigDevice_Click(object sender, EventArgs e)
         {
             // These are Temporary, just for testing the writing to EEPROM
-            // 
+            // The number is related to the DB on my personal workstation.
             string testSerialNumber = "2";
             string testStockCode = "TEST002";
 
