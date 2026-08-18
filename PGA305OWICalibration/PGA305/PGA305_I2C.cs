@@ -15,17 +15,17 @@ namespace PGA305OWICalibration.PGA305
         public bool EnterCommandMode(int channel)
         {
             _stm32.SetChannel(1);
-            return _stm32.EnterCommandMode(AppConfig.I2C_RUNTIME_ADDR);
+            return _stm32.EnterCommandMode(EEPROMRegister.I2C_RUNTIME_ADDR);
         }
 
         public string? ReadSerialNumber()
         {
             for (int attempt = 0; attempt < 3; attempt++)
             {
-                int? b0 = _stm32.ReadRegister(AppConfig.INTERNAL_SN_B0, AppConfig.I2C_EEPROM_ADDR);
-                int? b1 = _stm32.ReadRegister(AppConfig.INTERNAL_SN_B1, AppConfig.I2C_EEPROM_ADDR);
-                int? b2 = _stm32.ReadRegister(AppConfig.INTERNAL_SN_B2, AppConfig.I2C_EEPROM_ADDR);
-                int? b3 = _stm32.ReadRegister(AppConfig.INTERNAL_SN_B3, AppConfig.I2C_EEPROM_ADDR);
+                int? b0 = _stm32.ReadRegister(EEPROMRegister.INTERNAL_SN_B0, EEPROMRegister.I2C_EEPROM_ADDR);
+                int? b1 = _stm32.ReadRegister(EEPROMRegister.INTERNAL_SN_B1, EEPROMRegister.I2C_EEPROM_ADDR);
+                int? b2 = _stm32.ReadRegister(EEPROMRegister.INTERNAL_SN_B2, EEPROMRegister.I2C_EEPROM_ADDR);
+                int? b3 = _stm32.ReadRegister(EEPROMRegister.INTERNAL_SN_B3, EEPROMRegister.I2C_EEPROM_ADDR);
 
                 if (b0 == null || b1 == null || b2 == null || b3 == null) return null;
 
@@ -40,9 +40,9 @@ namespace PGA305OWICalibration.PGA305
         {
             for (int attempt = 0; attempt < 3; attempt++)
             {
-                int? b0 = _stm32.ReadRegister(AppConfig.SENSOR_SN_B0, AppConfig.I2C_EEPROM_ADDR);
-                int? b1 = _stm32.ReadRegister(AppConfig.SENSOR_SN_B1, AppConfig.I2C_EEPROM_ADDR);
-                int? b2 = _stm32.ReadRegister(AppConfig.SENSOR_SN_B2, AppConfig.I2C_EEPROM_ADDR);
+                int? b0 = _stm32.ReadRegister(EEPROMRegister.SENSOR_SN_B0, EEPROMRegister.I2C_EEPROM_ADDR);
+                int? b1 = _stm32.ReadRegister(EEPROMRegister.SENSOR_SN_B1, EEPROMRegister.I2C_EEPROM_ADDR);
+                int? b2 = _stm32.ReadRegister(EEPROMRegister.SENSOR_SN_B2, EEPROMRegister.I2C_EEPROM_ADDR);
 
                 if (b0 == null || b1 == null || b2 == null) return null;
 
@@ -58,8 +58,8 @@ namespace PGA305OWICalibration.PGA305
         {
             for (int attempt = 0; attempt < 3; attempt++)
             {
-                int? lsb = _stm32.ReadRegister(AppConfig.PRANGE_LSB, AppConfig.I2C_EEPROM_ADDR);
-                int? msb = _stm32.ReadRegister(AppConfig.PRANGE_MSB, AppConfig.I2C_EEPROM_ADDR);
+                int? lsb = _stm32.ReadRegister(EEPROMRegister.PRANGE_LSB, EEPROMRegister.I2C_EEPROM_ADDR);
+                int? msb = _stm32.ReadRegister(EEPROMRegister.PRANGE_MSB, EEPROMRegister.I2C_EEPROM_ADDR);
 
                 if (lsb == null || msb == null) continue;
 

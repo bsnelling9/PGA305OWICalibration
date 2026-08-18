@@ -1,3 +1,4 @@
+using PGA305OWICalibration.Config;
 using PGA305OWICalibration.Instruments;
 using PGA305OWICalibration.PGA305;
 using PGA305OWICalibration.PGA305EVM;
@@ -17,7 +18,7 @@ namespace PGA305OWICalibration
 
             _pga305 = new PGA305Device(_u2a);
 
-            HardwareTab hardwareTab = new HardwareTab(_stm32, _u2a);
+            HardwareTab hardwareTab = new HardwareTab(_stm32, _u2a, _pga305);
             hardwareTab.Dock = DockStyle.Fill;
             this.hardwareTab.Controls.Add(hardwareTab);
 
@@ -52,12 +53,12 @@ namespace PGA305OWICalibration
             {
                 if (_u2a.GetHandle() > 0)
                 {
-                    _u2a.GPIO_WritePort(PGA305Owi.GPIO7, PGA305Owi.STATE_LOW);
-                    _u2a.GPIO_WritePort(PGA305Owi.GPIO10, PGA305Owi.STATE_LOW);
-                    _u2a.GPIO_WritePort(PGA305Owi.GPIO11, PGA305Owi.STATE_LOW);
-                    _u2a.GPIO_WritePort(PGA305Device.GPIO7, PGA305Device.STATE_LOW);
-                    _u2a.GPIO_WritePort(PGA305Device.GPIO10, PGA305Device.STATE_LOW);
-                    _u2a.GPIO_WritePort(PGA305Device.GPIO11, PGA305Device.STATE_LOW);
+                    _u2a.GPIO_WritePort(AppConfig.GPIO7, AppConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(AppConfig.GPIO7, AppConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
                     _u2a.OneWire_SetOutput(0);
                     _u2a.OneWire_SetMode(0);
                     Thread.Sleep(10);

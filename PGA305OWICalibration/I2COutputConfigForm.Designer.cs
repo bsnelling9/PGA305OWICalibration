@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             btnScanHardware = new PGA305OWICalibration.UIControls.ATPButton();
             dgvHardware = new DataGridView();
             dataGridViewTextBoxColumn1 = new DataGridViewTextBoxColumn();
@@ -38,7 +37,6 @@
             btnConnectDevice = new PGA305OWICalibration.UIControls.ATPButton();
             lsbAPT10MetaData = new ListBox();
             btnConfigDevice = new PGA305OWICalibration.UIControls.ATPButton();
-            lblOutputMode = new Label();
             lblVoltageRange = new Label();
             lstVoltageRange = new ListBox();
             btnOutputV = new PGA305OWICalibration.UIControls.ATPButton();
@@ -48,7 +46,6 @@
             label1 = new Label();
             label2 = new Label();
             btnNoPChange = new PGA305OWICalibration.UIControls.ATPButton();
-            lblPressureRange = new Label();
             numMinPressure = new NumericUpDown();
             lblMinPressure = new Label();
             numMaxPressure = new NumericUpDown();
@@ -57,12 +54,18 @@
             btnUnitBar = new PGA305OWICalibration.UIControls.ATPButton();
             btnUnitPsi = new PGA305OWICalibration.UIControls.ATPButton();
             lblSelectUnit = new Label();
-            lblPressureError = new Label();
-            label3 = new Label();
             lblConfigueSensor = new Label();
+            gbxScanHardware = new GroupBox();
+            gbxConnectDevice = new GroupBox();
+            gbxConfigOutput = new GroupBox();
+            gbxConfigPressure = new GroupBox();
             ((System.ComponentModel.ISupportInitialize)dgvHardware).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numMinPressure).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numMaxPressure).BeginInit();
+            gbxScanHardware.SuspendLayout();
+            gbxConnectDevice.SuspendLayout();
+            gbxConfigOutput.SuspendLayout();
+            gbxConfigPressure.SuspendLayout();
             SuspendLayout();
             // 
             // btnScanHardware
@@ -75,7 +78,7 @@
             btnScanHardware.FlatStyle = FlatStyle.Flat;
             btnScanHardware.Font = new Font("Segoe UI", 10F);
             btnScanHardware.ForeColor = Color.Black;
-            btnScanHardware.Location = new Point(12, 43);
+            btnScanHardware.Location = new Point(9, 43);
             btnScanHardware.Name = "btnScanHardware";
             btnScanHardware.Size = new Size(160, 45);
             btnScanHardware.TabIndex = 19;
@@ -89,26 +92,18 @@
             dgvHardware.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = SystemColors.Control;
-            dataGridViewCellStyle3.Font = new Font("Segoe UI", 10F);
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
             dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
             dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
             dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
             dgvHardware.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             dgvHardware.Columns.AddRange(new DataGridViewColumn[] { dataGridViewTextBoxColumn1, dataGridViewTextBoxColumn2, dataGridViewTextBoxColumn3 });
-            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = SystemColors.Window;
-            dataGridViewCellStyle4.Font = new Font("Segoe UI", 10F);
-            dataGridViewCellStyle4.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.False;
-            dgvHardware.DefaultCellStyle = dataGridViewCellStyle4;
-            dgvHardware.Location = new Point(12, 136);
+            dgvHardware.Location = new Point(13, 113);
             dgvHardware.Name = "dgvHardware";
             dgvHardware.ReadOnly = true;
             dgvHardware.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvHardware.Size = new Size(422, 152);
+            dgvHardware.Size = new Size(497, 152);
             dgvHardware.TabIndex = 20;
             dgvHardware.CellClick += dgvHardware_CellClick;
             // 
@@ -140,7 +135,7 @@
             btnConnectDevice.FlatStyle = FlatStyle.Flat;
             btnConnectDevice.Font = new Font("Segoe UI", 10F);
             btnConnectDevice.ForeColor = Color.Black;
-            btnConnectDevice.Location = new Point(12, 353);
+            btnConnectDevice.Location = new Point(6, 22);
             btnConnectDevice.Name = "btnConnectDevice";
             btnConnectDevice.Size = new Size(160, 45);
             btnConnectDevice.TabIndex = 21;
@@ -150,11 +145,12 @@
             // 
             // lsbAPT10MetaData
             // 
+            lsbAPT10MetaData.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lsbAPT10MetaData.FormattingEnabled = true;
             lsbAPT10MetaData.ItemHeight = 15;
-            lsbAPT10MetaData.Location = new Point(12, 434);
+            lsbAPT10MetaData.Location = new Point(180, 24);
             lsbAPT10MetaData.Name = "lsbAPT10MetaData";
-            lsbAPT10MetaData.Size = new Size(330, 124);
+            lsbAPT10MetaData.Size = new Size(330, 214);
             lsbAPT10MetaData.TabIndex = 31;
             lsbAPT10MetaData.SelectedIndexChanged += lsbAPT10MetaData_SelectedIndexChanged;
             // 
@@ -168,7 +164,7 @@
             btnConfigDevice.FlatStyle = FlatStyle.Flat;
             btnConfigDevice.Font = new Font("Segoe UI", 10F);
             btnConfigDevice.ForeColor = Color.Black;
-            btnConfigDevice.Location = new Point(953, 287);
+            btnConfigDevice.Location = new Point(1005, 294);
             btnConfigDevice.Name = "btnConfigDevice";
             btnConfigDevice.Size = new Size(160, 45);
             btnConfigDevice.TabIndex = 42;
@@ -176,21 +172,11 @@
             btnConfigDevice.UseVisualStyleBackColor = false;
             btnConfigDevice.Click += btnConfigDevice_Click;
             // 
-            // lblOutputMode
-            // 
-            lblOutputMode.AutoSize = true;
-            lblOutputMode.Font = new Font("Segoe UI", 10F);
-            lblOutputMode.Location = new Point(505, 21);
-            lblOutputMode.Name = "lblOutputMode";
-            lblOutputMode.Size = new Size(184, 19);
-            lblOutputMode.TabIndex = 36;
-            lblOutputMode.Text = "Select Output Configuration:";
-            // 
             // lblVoltageRange
             // 
             lblVoltageRange.AutoSize = true;
             lblVoltageRange.Font = new Font("Segoe UI", 10F);
-            lblVoltageRange.Location = new Point(505, 115);
+            lblVoltageRange.Location = new Point(16, 91);
             lblVoltageRange.Name = "lblVoltageRange";
             lblVoltageRange.Size = new Size(139, 19);
             lblVoltageRange.TabIndex = 40;
@@ -202,7 +188,7 @@
             lstVoltageRange.Font = new Font("Segoe UI", 10F);
             lstVoltageRange.ItemHeight = 17;
             lstVoltageRange.Items.AddRange(new object[] { "0-10V", "0-5V", "1-5V", "0.5-4.5V", "1-6V" });
-            lstVoltageRange.Location = new Point(505, 136);
+            lstVoltageRange.Location = new Point(15, 113);
             lstVoltageRange.Name = "lstVoltageRange";
             lstVoltageRange.Size = new Size(200, 106);
             lstVoltageRange.TabIndex = 41;
@@ -219,7 +205,7 @@
             btnOutputV.FlatStyle = FlatStyle.Flat;
             btnOutputV.Font = new Font("Segoe UI", 10F);
             btnOutputV.ForeColor = Color.Black;
-            btnOutputV.Location = new Point(506, 42);
+            btnOutputV.Location = new Point(15, 35);
             btnOutputV.Name = "btnOutputV";
             btnOutputV.Size = new Size(107, 45);
             btnOutputV.TabIndex = 37;
@@ -237,7 +223,7 @@
             btnOutputRM.FlatStyle = FlatStyle.Flat;
             btnOutputRM.Font = new Font("Segoe UI", 10F);
             btnOutputRM.ForeColor = Color.Black;
-            btnOutputRM.Location = new Point(634, 43);
+            btnOutputRM.Location = new Point(143, 36);
             btnOutputRM.Name = "btnOutputRM";
             btnOutputRM.Size = new Size(110, 45);
             btnOutputRM.TabIndex = 38;
@@ -255,7 +241,7 @@
             btnOutputC.FlatStyle = FlatStyle.Flat;
             btnOutputC.Font = new Font("Segoe UI", 10F);
             btnOutputC.ForeColor = Color.Black;
-            btnOutputC.Location = new Point(765, 43);
+            btnOutputC.Location = new Point(274, 36);
             btnOutputC.Name = "btnOutputC";
             btnOutputC.Size = new Size(104, 45);
             btnOutputC.TabIndex = 39;
@@ -285,7 +271,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 10F);
-            label1.Location = new Point(16, 21);
+            label1.Location = new Point(9, 21);
             label1.Name = "label1";
             label1.Size = new Size(228, 19);
             label1.TabIndex = 44;
@@ -295,7 +281,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 10F);
-            label2.Location = new Point(16, 115);
+            label2.Location = new Point(9, 91);
             label2.Name = "label2";
             label2.Size = new Size(303, 19);
             label2.TabIndex = 45;
@@ -311,7 +297,7 @@
             btnNoPChange.FlatStyle = FlatStyle.Flat;
             btnNoPChange.Font = new Font("Segoe UI", 10F);
             btnNoPChange.ForeColor = Color.Black;
-            btnNoPChange.Location = new Point(505, 288);
+            btnNoPChange.Location = new Point(18, 37);
             btnNoPChange.Name = "btnNoPChange";
             btnNoPChange.Size = new Size(107, 45);
             btnNoPChange.TabIndex = 46;
@@ -319,22 +305,12 @@
             btnNoPChange.UseVisualStyleBackColor = false;
             btnNoPChange.Click += btnNoPChange_Click;
             // 
-            // lblPressureRange
-            // 
-            lblPressureRange.AutoSize = true;
-            lblPressureRange.Font = new Font("Segoe UI", 10F);
-            lblPressureRange.Location = new Point(505, 264);
-            lblPressureRange.Name = "lblPressureRange";
-            lblPressureRange.Size = new Size(128, 19);
-            lblPressureRange.TabIndex = 47;
-            lblPressureRange.Text = "Configure Pressure:";
-            lblPressureRange.Visible = false;
-            // 
             // numMinPressure
             // 
-            numMinPressure.Location = new Point(506, 456);
+            numMinPressure.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            numMinPressure.Location = new Point(27, 139);
             numMinPressure.Name = "numMinPressure";
-            numMinPressure.Size = new Size(82, 23);
+            numMinPressure.Size = new Size(82, 25);
             numMinPressure.TabIndex = 48;
             numMinPressure.ValueChanged += numMinPressure_ValueChanged;
             // 
@@ -342,7 +318,7 @@
             // 
             lblMinPressure.AutoSize = true;
             lblMinPressure.Font = new Font("Segoe UI", 10F);
-            lblMinPressure.Location = new Point(506, 434);
+            lblMinPressure.Location = new Point(27, 117);
             lblMinPressure.Name = "lblMinPressure";
             lblMinPressure.Size = new Size(92, 19);
             lblMinPressure.TabIndex = 49;
@@ -351,9 +327,10 @@
             // 
             // numMaxPressure
             // 
-            numMaxPressure.Location = new Point(634, 456);
+            numMaxPressure.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            numMaxPressure.Location = new Point(155, 139);
             numMaxPressure.Name = "numMaxPressure";
-            numMaxPressure.Size = new Size(82, 23);
+            numMaxPressure.Size = new Size(82, 25);
             numMaxPressure.TabIndex = 50;
             numMaxPressure.ValueChanged += numMaxPressure_ValueChanged;
             // 
@@ -361,7 +338,7 @@
             // 
             lblMaxPressure.AutoSize = true;
             lblMaxPressure.Font = new Font("Segoe UI", 10F);
-            lblMaxPressure.Location = new Point(634, 434);
+            lblMaxPressure.Location = new Point(155, 117);
             lblMaxPressure.Name = "lblMaxPressure";
             lblMaxPressure.Size = new Size(94, 19);
             lblMaxPressure.TabIndex = 51;
@@ -373,7 +350,7 @@
             lsbOutputConfig.Font = new Font("Segoe UI", 10F);
             lsbOutputConfig.FormattingEnabled = true;
             lsbOutputConfig.ItemHeight = 17;
-            lsbOutputConfig.Location = new Point(939, 136);
+            lsbOutputConfig.Location = new Point(991, 143);
             lsbOutputConfig.Name = "lsbOutputConfig";
             lsbOutputConfig.Size = new Size(219, 140);
             lsbOutputConfig.TabIndex = 52;
@@ -389,7 +366,7 @@
             btnUnitBar.FlatStyle = FlatStyle.Flat;
             btnUnitBar.Font = new Font("Segoe UI", 10F);
             btnUnitBar.ForeColor = Color.Black;
-            btnUnitBar.Location = new Point(506, 366);
+            btnUnitBar.Location = new Point(160, 37);
             btnUnitBar.Name = "btnUnitBar";
             btnUnitBar.Size = new Size(57, 45);
             btnUnitBar.TabIndex = 53;
@@ -407,7 +384,7 @@
             btnUnitPsi.FlatStyle = FlatStyle.Flat;
             btnUnitPsi.Font = new Font("Segoe UI", 10F);
             btnUnitPsi.ForeColor = Color.Black;
-            btnUnitPsi.Location = new Point(587, 366);
+            btnUnitPsi.Location = new Point(241, 37);
             btnUnitPsi.Name = "btnUnitPsi";
             btnUnitPsi.Size = new Size(57, 45);
             btnUnitPsi.TabIndex = 54;
@@ -419,82 +396,108 @@
             // 
             lblSelectUnit.AutoSize = true;
             lblSelectUnit.Font = new Font("Segoe UI", 10F);
-            lblSelectUnit.Location = new Point(506, 344);
+            lblSelectUnit.Location = new Point(160, 15);
             lblSelectUnit.Name = "lblSelectUnit";
-            lblSelectUnit.Size = new Size(74, 19);
+            lblSelectUnit.Size = new Size(77, 19);
             lblSelectUnit.TabIndex = 55;
-            lblSelectUnit.Text = "Select Unit";
+            lblSelectUnit.Text = "Select Unit:";
             lblSelectUnit.Visible = false;
-            // 
-            // lblPressureError
-            // 
-            lblPressureError.AutoSize = true;
-            lblPressureError.Font = new Font("Segoe UI", 10F);
-            lblPressureError.Location = new Point(505, 492);
-            lblPressureError.Name = "lblPressureError";
-            lblPressureError.Size = new Size(45, 19);
-            lblPressureError.TabIndex = 56;
-            lblPressureError.Text = "label3";
-            lblPressureError.Click += lblPressureError_Click;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 10F);
-            label3.Location = new Point(16, 332);
-            label3.Name = "label3";
-            label3.Size = new Size(124, 19);
-            label3.TabIndex = 57;
-            label3.Text = "Connect to Device:";
             // 
             // lblConfigueSensor
             // 
             lblConfigueSensor.AutoSize = true;
             lblConfigueSensor.Font = new Font("Segoe UI", 10F);
-            lblConfigueSensor.Location = new Point(939, 114);
+            lblConfigueSensor.Location = new Point(991, 121);
             lblConfigueSensor.Name = "lblConfigueSensor";
             lblConfigueSensor.Size = new Size(219, 19);
             lblConfigueSensor.TabIndex = 58;
             lblConfigueSensor.Text = "Confirm and Configure Transducer";
             lblConfigueSensor.Visible = false;
             // 
+            // gbxScanHardware
+            // 
+            gbxScanHardware.Controls.Add(label2);
+            gbxScanHardware.Controls.Add(label1);
+            gbxScanHardware.Controls.Add(dgvHardware);
+            gbxScanHardware.Controls.Add(btnScanHardware);
+            gbxScanHardware.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbxScanHardware.Location = new Point(16, 12);
+            gbxScanHardware.Name = "gbxScanHardware";
+            gbxScanHardware.Size = new Size(516, 281);
+            gbxScanHardware.TabIndex = 59;
+            gbxScanHardware.TabStop = false;
+            gbxScanHardware.Text = "Setup Hardware";
+            // 
+            // gbxConnectDevice
+            // 
+            gbxConnectDevice.Controls.Add(lsbAPT10MetaData);
+            gbxConnectDevice.Controls.Add(btnConnectDevice);
+            gbxConnectDevice.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbxConnectDevice.Location = new Point(16, 304);
+            gbxConnectDevice.Name = "gbxConnectDevice";
+            gbxConnectDevice.Size = new Size(517, 244);
+            gbxConnectDevice.TabIndex = 60;
+            gbxConnectDevice.TabStop = false;
+            gbxConnectDevice.Text = "Connect to Device";
+            // 
+            // gbxConfigOutput
+            // 
+            gbxConfigOutput.Controls.Add(btnOutputV);
+            gbxConfigOutput.Controls.Add(btnOutputRM);
+            gbxConfigOutput.Controls.Add(btnOutputC);
+            gbxConfigOutput.Controls.Add(lstVoltageRange);
+            gbxConfigOutput.Controls.Add(lblVoltageRange);
+            gbxConfigOutput.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbxConfigOutput.Location = new Point(550, 7);
+            gbxConfigOutput.Name = "gbxConfigOutput";
+            gbxConfigOutput.Size = new Size(402, 225);
+            gbxConfigOutput.TabIndex = 61;
+            gbxConfigOutput.TabStop = false;
+            gbxConfigOutput.Text = "Configure Output";
+            // 
+            // gbxConfigPressure
+            // 
+            gbxConfigPressure.Controls.Add(lblSelectUnit);
+            gbxConfigPressure.Controls.Add(btnUnitPsi);
+            gbxConfigPressure.Controls.Add(btnUnitBar);
+            gbxConfigPressure.Controls.Add(lblMaxPressure);
+            gbxConfigPressure.Controls.Add(numMaxPressure);
+            gbxConfigPressure.Controls.Add(lblMinPressure);
+            gbxConfigPressure.Controls.Add(numMinPressure);
+            gbxConfigPressure.Controls.Add(btnNoPChange);
+            gbxConfigPressure.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            gbxConfigPressure.Location = new Point(548, 242);
+            gbxConfigPressure.Name = "gbxConfigPressure";
+            gbxConfigPressure.Size = new Size(406, 189);
+            gbxConfigPressure.TabIndex = 62;
+            gbxConfigPressure.TabStop = false;
+            gbxConfigPressure.Text = "Configure Pressure";
+            // 
             // I2COutputConfigForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1261, 674);
+            Controls.Add(gbxConfigPressure);
+            Controls.Add(gbxConfigOutput);
+            Controls.Add(gbxConnectDevice);
+            Controls.Add(gbxScanHardware);
             Controls.Add(lblConfigueSensor);
-            Controls.Add(label3);
-            Controls.Add(lblPressureError);
-            Controls.Add(lblSelectUnit);
-            Controls.Add(btnUnitPsi);
-            Controls.Add(btnUnitBar);
             Controls.Add(lsbOutputConfig);
-            Controls.Add(lblMaxPressure);
-            Controls.Add(numMaxPressure);
-            Controls.Add(lblMinPressure);
-            Controls.Add(numMinPressure);
-            Controls.Add(lblPressureRange);
-            Controls.Add(btnNoPChange);
-            Controls.Add(label2);
-            Controls.Add(label1);
             Controls.Add(btnExit);
             Controls.Add(btnConfigDevice);
-            Controls.Add(lblOutputMode);
-            Controls.Add(lblVoltageRange);
-            Controls.Add(lstVoltageRange);
-            Controls.Add(btnOutputV);
-            Controls.Add(btnOutputRM);
-            Controls.Add(btnOutputC);
-            Controls.Add(lsbAPT10MetaData);
-            Controls.Add(btnConnectDevice);
-            Controls.Add(dgvHardware);
-            Controls.Add(btnScanHardware);
             Name = "I2COutputConfigForm";
             Text = "I2COutputConfigForm";
             ((System.ComponentModel.ISupportInitialize)dgvHardware).EndInit();
             ((System.ComponentModel.ISupportInitialize)numMinPressure).EndInit();
             ((System.ComponentModel.ISupportInitialize)numMaxPressure).EndInit();
+            gbxScanHardware.ResumeLayout(false);
+            gbxScanHardware.PerformLayout();
+            gbxConnectDevice.ResumeLayout(false);
+            gbxConfigOutput.ResumeLayout(false);
+            gbxConfigOutput.PerformLayout();
+            gbxConfigPressure.ResumeLayout(false);
+            gbxConfigPressure.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -509,7 +512,6 @@
         private UIControls.ATPButton btnConnectDevice;
         private ListBox lsbAPT10MetaData;
         private UIControls.ATPButton btnConfigDevice;
-        private Label lblOutputMode;
         private Label lblVoltageRange;
         private ListBox lstVoltageRange;
         private UIControls.ATPButton btnOutputV;
@@ -519,7 +521,6 @@
         private Label label1;
         private Label label2;
         private UIControls.ATPButton btnNoPChange;
-        private Label lblPressureRange;
         private NumericUpDown numMinPressure;
         private Label lblMinPressure;
         private NumericUpDown numMaxPressure;
@@ -528,8 +529,10 @@
         private UIControls.ATPButton btnUnitBar;
         private UIControls.ATPButton btnUnitPsi;
         private Label lblSelectUnit;
-        private Label lblPressureError;
-        private Label label3;
         private Label lblConfigueSensor;
+        private GroupBox gbxScanHardware;
+        private GroupBox gbxConnectDevice;
+        private GroupBox gbxConfigOutput;
+        private GroupBox gbxConfigPressure;
     }
 }

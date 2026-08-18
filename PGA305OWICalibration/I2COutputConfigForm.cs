@@ -39,16 +39,16 @@ namespace PGA305OWICalibration
             btnOutputRM.Visible = visible;
             btnOutputC.Visible = visible;
             btnConfigDevice.Visible = visible;
-            lblOutputMode.Visible = visible;
+            //lblOutputMode.Visible = visible;
             lblVoltageRange.Visible = visible && _selectedOutputConfig == "voltage";
             lstVoltageRange.Visible = visible && _selectedOutputConfig == "voltage";
-            lblPressureRange.Visible = visible;
+            //lblPressureRange.Visible = visible;
             numMinPressure.Visible = visible;
             numMaxPressure.Visible = visible;
             lblSelectUnit.Visible = visible;
             btnUnitBar.Visible = visible;
             btnUnitPsi.Visible = visible;
-            lblPressureError.Visible = visible;
+            //lblPressureError.Visible = visible;
             lblMinPressure.Visible = visible;
             lblMaxPressure.Visible = visible;
             lsbOutputConfig.Visible = visible;
@@ -156,7 +156,7 @@ namespace PGA305OWICalibration
             btnOutputV.Visible = true;
             btnOutputRM.Visible = true;
             btnOutputC.Visible = true;
-            lblOutputMode.Visible = true;
+            //lblOutputMode.Visible = true;
             lsbAPT10MetaData.Visible = true;
             lsbOutputConfig.Visible = true;
 
@@ -179,11 +179,11 @@ namespace PGA305OWICalibration
             string testSerialNumber = "2";
             string testStockCode = "TEST002";
 
-            if (lblPressureError.Visible)
+            /*if (lblPressureError.Visible)
             {
                 MessageBox.Show("Fix the pressure range before configuring.");
                 return;
-            }
+            }*/
 
             if (string.IsNullOrEmpty(_selectedVoltageRange))
             {
@@ -280,7 +280,7 @@ namespace PGA305OWICalibration
             {
                 _selectedVoltageRange = lstVoltageRange.SelectedItem.ToString();
                 UpdateOutputConfigSummary();
-                lblPressureRange.Visible = true;
+                //lblPressureRange.Visible = true;
                 lblSelectUnit.Visible = true;
                 btnUnitBar.Visible = true;
                 btnUnitPsi.Visible = true;
@@ -376,18 +376,18 @@ namespace PGA305OWICalibration
 
             if (maxAllowed == null)
             {
-                lblPressureError.Visible = false;
+                //lblPressureError.Visible = false;
                 return;
             }
 
             bool overLimit = numMaxPressure.Value > (decimal)maxAllowed || numMinPressure.Value > (decimal)maxAllowed;
 
-            if (overLimit)
+           /* if (overLimit)
             {
                 lblPressureError.Text = $"Pressure entered too high — max is {maxAllowed} {_pressureUnit.ToUpper()}.";
                 lblPressureError.ForeColor = Color.Red;
                 lblPressureError.Visible = true;
-            }
+            }*/
         }
 
         private void UpdateOutputConfigSummary()

@@ -1,4 +1,5 @@
 ﻿using PGA305OWICalibration.Instruments;
+using PGA305OWICalibration.PGA305;
 using System.Diagnostics;
 using System.IO.Ports;
 
@@ -14,76 +15,21 @@ namespace PGA305OWICalibration.Tabs
     {
         private STM32Controller _stm32;
         private USB2AnyDevice _u2a;
+        private PGA305Device _pga305;
 
-        public HardwareTab(STM32Controller stm32, USB2AnyDevice u2a)
+        private int? _serialNumber;
+        private string? _sensorSerialNumber;
+        private string? _pressureCode;
+
+        public HardwareTab(STM32Controller stm32, USB2AnyDevice u2a, PGA305Device pga305)
         {
             InitializeComponent();
             _stm32 = stm32;
             _u2a = u2a;
-            lblVoltageRange.Visible = false;
-            lstVoltageRange.Visible = false;
+            _pga305 = pga305;
+
         }
-
-        private void BtnGetPorts_Click(object sender, EventArgs e)
-        {
-            cmbPorts.Items.Clear();
-            string[] ports = SerialPort.GetPortNames();
-            if (ports.Length > 0)
-            {
-                cmbPorts.Items.AddRange(ports);
-                cmbPorts.SelectedIndex = 0;
-            }
-        }
-
-        private void BtnConnectSTM32_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                _stm32.Close();
-                string port = cmbPorts.SelectedItem?.ToString() ?? "";
-                bool connected = _stm32.Open(port);
-
-                if (!connected)
-                {
-                    lblSTM32Status.Text = "STM32: Failed";
-                    lblSTM32Status.ForeColor = Color.Red;
-                    return;
-                }
-
-                string identity = _stm32.GetIdentity();
-                lblSTM32Status.Text = $"STM32: {identity}";
-                lblSTM32Status.ForeColor = Color.Green;
-            }
-            catch (Exception ex)
-            {
-                lblSTM32Status.Text = $"STM32: Error - {ex.Message}";
-                lblSTM32Status.ForeColor = Color.Red;
-            }
-        }
-
-        private void BtnConnectUSB2ANY_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                int numFound = _u2a.FindControllers();
-                if (numFound == 0)
-                {
-                    lblUSB2ANYStatus.Text = "USB2ANY: Not Found";
-                    lblUSB2ANYStatus.ForeColor = Color.Red;
-                    return;
-                }
-
-                bool opened = _u2a.Open("");
-                lblUSB2ANYStatus.Text = opened ? $"USB2ANY: Connected (Handle={_u2a.GetHandle()})" : "USB2ANY: Failed";
-                lblUSB2ANYStatus.ForeColor = opened ? Color.Green : Color.Red;
-            }
-            catch (Exception ex)
-            {
-                lblUSB2ANYStatus.Text = $"USB2ANY: Error - {ex.Message}";
-                lblUSB2ANYStatus.ForeColor = Color.Red;
-            }
-        }
-
+          
         private void BtnSetCompensation_Click(object sender, EventArgs e)
         {
             try
@@ -92,13 +38,10 @@ namespace PGA305OWICalibration.Tabs
                     vcompa0High: chkVCOMPA0.Checked,
                     vcompa1High: chkVCOMPA1.Checked);
 
-                lblCompensationStatus.Text = ok ? "Compensation Set" : "Failed";
-                lblCompensationStatus.ForeColor = ok ? Color.Green : Color.Red;
             }
             catch (Exception ex)
             {
-                lblCompensationStatus.Text = $"Error: {ex.Message}";
-                lblCompensationStatus.ForeColor = Color.Red;
+
             }
         }
 
@@ -112,13 +55,11 @@ namespace PGA305OWICalibration.Tabs
                     voRelayClosed: rdoOWI.Checked || rdoVO.Checked);
 
                 string mode = rdoOWI.Checked ? "OWI" : rdoVO.Checked ? "VO" : "MA";
-                lblRelayStatus.Text = ok ? $"{mode} Relay Set" : "Failed";
-                lblRelayStatus.ForeColor = ok ? Color.Green : Color.Red;
+              
             }
             catch (Exception ex)
             {
-                lblRelayStatus.Text = $"Error: {ex.Message}";
-                lblRelayStatus.ForeColor = Color.Red;
+
             }
         }
 
@@ -178,8 +119,6 @@ namespace PGA305OWICalibration.Tabs
                 {
                     row.Cells[0].Value = identity;
                     row.Cells[2].Value = "Connected";
-                    lblSTM32Status.Text = $"STM32: {identity}";
-                    lblSTM32Status.ForeColor = Color.Green;
                     break;
                 }
                 else
@@ -193,8 +132,7 @@ namespace PGA305OWICalibration.Tabs
             try
             {
                 bool opened = _u2a.Open("");
-                lblUSB2ANYStatus.Text = opened ? $"USB2ANY: Connected (Handle={_u2a.GetHandle()})" : "USB2ANY: Failed";
-                lblUSB2ANYStatus.ForeColor = opened ? Color.Green : Color.Red;
+             
 
                 foreach (DataGridViewRow row in dgvHardware.Rows)
                 {
@@ -207,29 +145,53 @@ namespace PGA305OWICalibration.Tabs
             }
             catch (Exception ex)
             {
-                lblUSB2ANYStatus.Text = $"USB2ANY: Error - {ex.Message}";
-                lblUSB2ANYStatus.ForeColor = Color.Red;
+               
             }
         }
 
-        private void BtnOutputV_Click(object sender, EventArgs e)
+
+        private void btnInitHW_Click(object sender, EventArgs e)
         {
-            lblVoltageRange.Visible = true;
-            lstVoltageRange.Visible = true;
+            bool initOk = _pga305.Initialize();
         }
 
-        private void BtnOutputRM_Click(object sender, EventArgs e)
+        private void btnConnectDevice_Click(object sender, EventArgs e)
         {
-        }
+            try
+            {
+                bool ok = _stm32.SelectChannel(0);
+                if (!ok)
+                {
+                    Debug.WriteLine("Failed to select channel 0");
+                }
 
-        private void BtnOutputC_Click(object sender, EventArgs e)
-        {
-        }
+                bool activate = _pga305.Activate();
 
-        private void LstVoltageRange_Click(object sender, EventArgs e)
-        {
-            if (lstVoltageRange.SelectedItem != null)
-                Debug.WriteLine($"Voltage range selected: {lstVoltageRange.SelectedItem}");
+                if (!activate)
+                {
+                    Debug.WriteLine("Device failed to activate.");
+                    return;
+                }
+                _serialNumber = _pga305.ReadInternalSerialNumber();
+                _pressureCode = _pga305.ReadPressureCode();
+                _sensorSerialNumber = _pga305.ReadSerialNumber();
+
+
+                if (!_serialNumber.HasValue)
+                {
+                    Debug.WriteLine("Failed to read internal serial number.");
+                    return;
+                }
+
+                Debug.WriteLine($"Pressure code: {_pressureCode}");
+                Debug.WriteLine($"Serial number: {_sensorSerialNumber}");
+                Debug.WriteLine($"Internal serial number: {_serialNumber}");
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error: {ex.Message}");
+            }
         }
     }
 }

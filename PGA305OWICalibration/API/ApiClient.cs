@@ -10,10 +10,43 @@ namespace PGA305OWICalibration.API
         public int session_id { get; set; }
         public int serial_number { get; set; }
         public Dictionary<string, string> coefficients { get; set; } = new();
-        public string padc_gain { get; set; } = "";
-        public string tadc_gain { get; set; } = "";
-        public string padc_offset { get; set; } = "";
-        public string tadc_offset { get; set; } = "";
+        public int padc_gain { get; set; }
+        public int tadc_gain { get; set; }
+        public int padc_offset { get; set; }
+        public int tadc_offset { get; set; }
+    }
+
+    //Remove once I get right of the get initial coefficients
+    // the get initial coefficients was use for testing
+    public class InitialCoefficients
+    {
+        public int session_id { get; set; }
+        public int serial_number { get; set; }
+
+        public double? h0 { get; set; }
+        public double? h1 { get; set; }
+        public double? h2 { get; set; }
+        public double? h3 { get; set; }
+
+        public double? g0 { get; set; }
+        public double? g1 { get; set; }
+        public double? g2 { get; set; }
+        public double? g3 { get; set; }
+
+        public double? m0 { get; set; }
+        public double? m1 { get; set; }
+        public double? m2 { get; set; }
+        public double? m3 { get; set; }
+
+        public double? n0 { get; set; }
+        public double? n1 { get; set; }
+        public double? n2 { get; set; }
+        public double? n3 { get; set; }
+
+        public double? padc_gain { get; set; }
+        public double? tadc_gain { get; set; }
+        public double? padc_offset { get; set; }
+        public double? tadc_offset { get; set; }
     }
 
     public class ApiClient
@@ -38,6 +71,7 @@ namespace PGA305OWICalibration.API
             if (!response.IsSuccessStatusCode) return null;
 
             string resultJson = await response.Content.ReadAsStringAsync();
+            
             return JsonSerializer.Deserialize<ConvertOutputResult>(resultJson);
         }
 
@@ -52,17 +86,17 @@ namespace PGA305OWICalibration.API
         public async Task<bool> CreateFinalCoefficients(
             int sessionId, int serialNumber, string? stockCode,
             Dictionary<string, string> coefficients,
-            string padcGain, string tadcGain, string padcOffset, string tadcOffset)
+            double padcGain, double tadcGain, double padcOffset, double tadcOffset)
         {
             var payload = new Dictionary<string, object?>
             {
                 ["session_id"] = sessionId,
                 ["serial_number"] = serialNumber,
                 ["stock_code"] = stockCode,
-                ["padc_gain"] = HexToSignedInt24(padcGain),
-                ["tadc_gain"] = HexToSignedInt24(tadcGain),
-                ["padc_offset"] = HexToSignedInt24(padcOffset),
-                ["tadc_offset"] = HexToSignedInt24(tadcOffset)
+                ["padc_gain"] = padcGain,
+                ["tadc_gain"] = tadcGain,
+                ["padc_offset"] = padcOffset,
+                ["tadc_offset"] = tadcOffset
             };
 
             foreach (var kv in coefficients)
@@ -97,6 +131,21 @@ namespace PGA305OWICalibration.API
             var response = await _client.PostAsync($"{AppConfig.API_URL}/transducer", content);
             Debug.WriteLine(response);
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<InitialCoefficients?> GetInitialCoefficients(
+        int sessionId,
+        int serialNumber)
+        {
+            var response = await _client.GetAsync(
+                $"{AppConfig.API_URL}/initial-coefficients/{sessionId}/{serialNumber}");
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            string resultJson = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<InitialCoefficients>(resultJson);
         }
     }
 }
