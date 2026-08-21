@@ -6,35 +6,40 @@ namespace PGA305OWICalibration.PGA305
 {
     public class PGA305Device
     {
-        private USB2AnyDevice _u2a;
+        private readonly USB2AnyDevice _u2a;
         public PGA305Device(USB2AnyDevice device) => _u2a = device;
 
         public bool Initialize()
         {
-            Debug.WriteLine("Initialise() device called Mux");
-            _u2a.EnableDebugLogging();
+            Debug.WriteLine("Initialise() called");
 
             int result = _u2a.OneWire_SetMode(AppConfig.OW_MODE);
             Debug.WriteLine($"OneWire_SetMode({AppConfig.OW_MODE}) result: {result}");
+            
             if (result < 0) return false;
 
             _u2a.OneWire_SetOutput(0);
-
             _u2a.SetReceiveTimeout(25);
 
             int uartResult = _u2a.UART_Control();
-            Debug.WriteLine($"UART_Control result: {uartResult}");
 
             int modeResult = _u2a.UART_SetMode(2);
-            Debug.WriteLine($"UART_SetMode(RecvAfterXmit) result: {modeResult}");
 
-            _u2a.GPIO_SetPort(AppConfig.GPIO7, AppConfig.FN_OUTPUT);
-            _u2a.GPIO_WritePort(AppConfig.GPIO7, AppConfig.STATE_LOW);
+            _u2a.GPIO_SetPort(AppConfig.GPIO10, AppConfig.FN_OUTPUT);
+            _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
 
             _u2a.GPIO_SetPort(AppConfig.GPIO11, AppConfig.FN_OUTPUT);
             _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
 
             return true;
+        }
+
+        //Did this and was measureing 6.4V on the pin so the activate signal level is correect.
+        // I believe it has to be above 5.8V
+        public void ActivatePinHigh()
+        {
+            _u2a.GPIO_SetPort(AppConfig.GPIO7, AppConfig.FN_OUTPUT);
+            _u2a.GPIO_WritePort(AppConfig.GPIO7, AppConfig.STATE_HIGH);
         }
 
         public bool Activate()
@@ -87,11 +92,13 @@ namespace PGA305OWICalibration.PGA305
             _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, AppConfig.CMD_READ_INIT, registerAddress, AppConfig.SYNC_BYTE, AppConfig.CMD_READ_RESPONSE }, 5);
             int count = _u2a.UART_Read(response, 54);
             Debug.WriteLine($"Poll : got {count} bytes");
+            
             for (int i = 0; i < count; i++)
             {
                 Debug.WriteLine($"  [{i}] = 0x{response[i]:X2}");
             }
             Debug.WriteLine($"Reg 0x{registerAddress:X2} count Raw: [0x{response[0]:X2}]");
+            
             //this works as long as UART.SET_MODE is set to 2 (RecvAfterXmit)
             return response[0];
         }
@@ -103,11 +110,14 @@ namespace PGA305OWICalibration.PGA305
             int accuracyByte = ReadRegister(EEPROMRegister.ACCURACY);
             
             Debug.WriteLine($"Pressure code: lsb:0x{lsb:X2} msb:0x{msb:X2} accuracy:0x{accuracyByte:X2}");
+            
             if (lsb < 0 || msb < 0 || accuracyByte < 0) return "Read error";
+            
             int pressureValue = lsb | (msb << 8);
             char accuracy = (char)accuracyByte;
             string pressureCode = $"{pressureValue:D3}{accuracy}";
             Debug.WriteLine($"Pressure Code: {pressureCode}");
+            
             return pressureCode;
         }
 
@@ -116,26 +126,35 @@ namespace PGA305OWICalibration.PGA305
             int lsb = ReadRegister(EEPROMRegister.SENSOR_SN_B0);
             int mid = ReadRegister(EEPROMRegister.SENSOR_SN_B1);
             int msb = ReadRegister(EEPROMRegister.SENSOR_SN_B2);
+            
             Debug.WriteLine($"Sensor serial: msb:0x{msb:X2} mid:0x{mid:X2} lsb:0x{lsb:X2}");
+            
             if (lsb < 0 || mid < 0 || msb < 0) return "Read error";
+            
             int serialValue = lsb + (mid << 8) + (msb << 16);
             string serialNumber = serialValue.ToString("D6");
+            
             Debug.WriteLine($"Serial Number: {serialNumber}");
             return serialNumber;
         }
 
         public int ReadInternalSerialNumber()
         {
+            //maybe use the cache to read the internal serial number and ignore the 0-3 bytes instead
+            // also there my need to be a wait or something so that this comes back clean, becuase right now when I read everything it is messy.
             int b4 = ReadRegister(EEPROMRegister.INTERNAL_SN_B0);
             int b5 = ReadRegister(EEPROMRegister.INTERNAL_SN_B1);
             int b6 = ReadRegister(EEPROMRegister.INTERNAL_SN_B2);
             int b7 = ReadRegister(EEPROMRegister.INTERNAL_SN_B3);
-            
+
             Debug.WriteLine($"Transducer Serial: b7:0x{b7:X2} b6:0x{b6:X2} b5:0x{b5:X2} b4:0x{b4:X2}");
+
             if (b4 < 0 || b5 < 0 || b6 < 0 || b7 < 0)
                 return -1;
+
             int serialNumber = (b7 << 24) | (b6 << 16) | (b5 << 8) | b4;
             Debug.WriteLine($"Transducer Serial Number: {serialNumber}");
+
             return serialNumber;
         }
 
@@ -147,6 +166,7 @@ namespace PGA305OWICalibration.PGA305
                 Debug.WriteLine($"Write reg 0x{registerAddress:X2} = 0x{value:X2}");
                 return true;
             }
+            
             return false;
         }
 
@@ -164,7 +184,9 @@ namespace PGA305OWICalibration.PGA305
                 Debug.WriteLine("ERROR: analog register write failed.");
                 return false;
             }
+            
             byte crc = GetCRCValue();
+            
             if (!BatchWriteRegisters(new Dictionary<byte, byte>
             { { (byte)EEPROMRegister.PAGE_F_CRC, crc } }))
             {
@@ -179,6 +201,7 @@ namespace PGA305OWICalibration.PGA305
         {
             const int pageSize = EEPROMRegister.EEPROM_PAGE_SIZE;
             var targetUpdates = new Dictionary<byte, byte>();
+            
             foreach (var coefficient in coefficients)
             {
                 if (!EEPROMRegister.COEFFICIENT_ADDRESSES.TryGetValue(
@@ -197,9 +220,11 @@ namespace PGA305OWICalibration.PGA305
                 byte msb = Convert.ToByte(hex.Substring(0, 2), 16);
                 byte mid = Convert.ToByte(hex.Substring(2, 2), 16);
                 byte lsb = Convert.ToByte(hex.Substring(4, 2), 16);
+                
                 targetUpdates[addresses[0]] = lsb;
                 targetUpdates[addresses[1]] = mid;
                 targetUpdates[addresses[2]] = msb;
+                
                 Debug.WriteLine(
                     $"{coefficient.Key}: {hex} -> " +
                     $"LSB=0x{lsb:X2}, MID=0x{mid:X2}, MSB=0x{msb:X2}");
@@ -208,6 +233,7 @@ namespace PGA305OWICalibration.PGA305
                 .Select(address => address / pageSize)
                 .Distinct()
                 .OrderBy(page => page);
+            
             foreach (int page in pages)
             {
                 int pageStart = page * pageSize;

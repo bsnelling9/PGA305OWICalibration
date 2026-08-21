@@ -1,8 +1,9 @@
 ﻿using PGA305OWICalibration.API;
 using PGA305OWICalibration.Config;
 using PGA305OWICalibration.Instruments;
-using PGA305OWICalibration.PGA305EVM;
 using PGA305OWICalibration.PGA305;
+using PGA305OWICalibration.PGA305EVM;
+using PGA305OWICalibration.UIControls;
 using System.Diagnostics;
 
 namespace PGA305OWICalibration
@@ -13,21 +14,21 @@ namespace PGA305OWICalibration
         private PGA305Owi _pga305OWI = null!;
         private ApiClient _api = new ApiClient();
         private PGAOutputConfig _outputconfig = new PGAOutputConfig();
-
+        private ATPButton? _selectedOutputMode;
         private string? _sensorSerialNumber;
+        private bool _deviceConnected;
+        private bool _hardwareReady;
 
         public Form2()
         {
             InitializeComponent();
-            SetOutputConfigVisible(false);
+            lblMinPressure.Visible = false;
+            lblMaxPressure.Visible = false;
+            numMinPressure.Visible = false;
+            numMaxPressure.Visible = false;
             btnConfigDevice.Enabled = false;
-            gbxConfigOutput.Visible = false;
-            gbxConfigPressure.Visible = false;
-            lblStep2.Visible = false;
-            btnConnectDevice.Visible = false;
-            gbxConfigDevice.Visible = false;
-            lblJobCode.Visible = false;
-            txtJobCode.Visible = false;
+
+            SetDisconnected();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -37,38 +38,38 @@ namespace PGA305OWICalibration
         }
 
         private void btnClose_Click(object sender, EventArgs e) => this.Close();
-
-        private void ParkOwiLines()
+             
+        private void UpdateVisibility()
         {
-            _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
-            _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
+            bool modeSelected = _selectedOutputMode != null;
+            bool isVoltage = _selectedOutputMode == btnVoltagePOT;
+
+            btnVoltagePOT.Visible = _hardwareReady;
+            btnRatioPOT.Visible = _hardwareReady;
+            btnCurrentPOT.Visible = _hardwareReady;
+            btnNextDevice.Visible = _hardwareReady;
+
+            lblStep2.Visible = modeSelected;
+            btnConnectDevice.Visible = modeSelected;
+            lblJobCode.Visible = modeSelected;
+            txtJobCode.Visible = modeSelected;
+
+            gbxConfigOutput.Visible = _deviceConnected && isVoltage;
+            gbxConfigPressure.Visible = _deviceConnected;
+            gbxConfigDevice.Visible = _deviceConnected;
         }
 
-        private void SetOutputConfigVisible(bool visible)
+        private void ShowActiveOutputMode()
         {
-            gbxConfigOutput.Visible = visible;
-            gbxConfigPressure.Visible = visible;
+            SetOutputModeState(btnRatioPOT, _selectedOutputMode == btnRatioPOT);
+            SetOutputModeState(btnVoltagePOT, _selectedOutputMode == btnVoltagePOT);
+            SetOutputModeState(btnCurrentPOT, _selectedOutputMode == btnCurrentPOT);
         }
 
-        private void btnHandlePOT_Click(object sender, EventArgs e)
+        private void SetOutputModeState(ATPButton btn, bool active)
         {
-            this.HandlePOT();
-        }
-
-        // This method handles the potentiometer configuration for the EVM
-        private void HandlePOT()
-        {
-            int i2cResult = _u2a.I2C_Control(0, 0, 1);
-            Debug.WriteLine($"I2C_Control result: {i2cResult}");
-
-            int writeResult = _u2a.I2C_RegisterWrite(AppConfig.DIGIPOT_ADDR, AppConfig.DIGIPOT_REG, AppConfig.DIGIPOT_VALUE);
-            Debug.WriteLine($"DigiPot write result: {writeResult}");
-
-            int result = _u2a.I2C_RegisterWrite(AppConfig.TPL0102_ADDR, 0x00, 0x00);
-            Debug.WriteLine($"TPL0102 Pot0 write result: {result}");
-
-            result = _u2a.I2C_RegisterWrite(AppConfig.TPL0102_ADDR, 0x01, 0x00);
-            Debug.WriteLine($"TPL0102 Pot1 write result: {result}");
+            btn.Enabled = active;
+            btn.BorderColor = active ? Color.Green : Color.Black;
         }
 
         private void btnInitHW_Click(object sender, EventArgs e)
@@ -76,6 +77,7 @@ namespace PGA305OWICalibration
             listBoxDebug.Items.Clear();
             int status = listBoxDebug.Items.Add("Connecting to hardware...");
             listBoxDebug.Refresh();
+
             try
             {
                 listBoxDebug.Items.Clear();
@@ -101,23 +103,23 @@ namespace PGA305OWICalibration
                 }
 
                 int powerResult = _u2a.Power_WriteControl(Power_3V3.ON, Power_5V0.ON);
-                listBoxDebug.Items.Add($"Power result: {powerResult}");
 
                 listBoxDebug.Items.Add($"USB2ANY opened. Handle = {_u2a.GetHandle()}");
                 _pga305OWI = new PGA305Owi(_u2a);
 
-                this.HandlePOT();
+                ParkOwiLines();
 
                 bool initOk = _pga305OWI.Initialize();
-                listBoxDebug.Items.Add($"PGA305 init: {(initOk ? "OK" : "FAILED")}");
 
                 if (initOk)
                 {
-                    listBoxDebug.Items.Add("Please click Connect to Device.");
-                    lblStep2.Visible = true;
-                    btnConnectDevice.Visible = true;
-                    lblJobCode.Visible = true;
-                    txtJobCode.Visible = true;
+                    _hardwareReady = true;
+                    listBoxDebug.Items.Add("Select the output type.");
+                    UpdateVisibility();
+                }
+                else
+                {
+                    listBoxDebug.Items.Add("PGA305 init FAILED.");
                 }
             }
             catch (Exception ex)
@@ -130,8 +132,78 @@ namespace PGA305OWICalibration
             }
         }
 
+        private void ResetOutputModes()
+        {
+            btnRatioPOT.Enabled = true;
+            btnVoltagePOT.Enabled = true;
+            btnCurrentPOT.Enabled = true;
+
+            btnRatioPOT.BorderColor = Color.Black;
+            btnVoltagePOT.BorderColor = Color.Black;
+            btnCurrentPOT.BorderColor = Color.Black;
+        }
+
+        private void SetPots(byte rloop, byte addVolt)
+        {
+            _u2a.I2C_Control(0, 0, 1);
+            
+            _u2a.I2C_RegisterWrite(AppConfig.RLOOP_ADDR, AppConfig.RLOOP_REG, rloop);
+            
+            _u2a.I2C_RegisterWrite(AppConfig.TPL0102_ADDR, AppConfig.ADDVOLT_REG_WA, addVolt);
+            _u2a.I2C_RegisterWrite(AppConfig.TPL0102_ADDR, AppConfig.ADDVOLT_REG_WB, addVolt);
+
+            Debug.WriteLine($"Pots set: Rloop 0x{rloop:X2}, AddVolt 0x{addVolt:X2}");
+        }
+
+        private void SelectVoltageOutput(string range = "0-10V")
+        {
+            SetPots(AppConfig.RLOOP_22R, AppConfig.ADDVOLT_0V5);
+            lstVoltageRange.SelectedItem = range;
+            SetVoltageRange(range);
+            UpdateVisibility();
+        }
+
+        private void btnVoltagePOT_Click(object sender, EventArgs e)
+        {
+            _selectedOutputMode = btnVoltagePOT;
+            SelectVoltageOutput();
+        }
+
+        private void btnRatioPOT_Click(object sender, EventArgs e)
+        {
+            _selectedOutputMode = btnRatioPOT;
+            SetPots(AppConfig.RLOOP_10R, AppConfig.ADDVOLT_0V0);
+            _outputconfig.SelectRatiometric();
+            UpdateOutputConfigSummary();
+            UpdateVisibility();
+        }
+
+        private void btnCurrentPOT_Click(object sender, EventArgs e)
+        {
+            // This needs to be done the issue is the EVM Jumpers need to be completely changed
+        }
+
+        private void SetDisconnected()
+        {
+            _deviceConnected = false;
+            UpdateVisibility();
+            ResetOutputModes();
+        }
+
+        private void ParkOwiLines()
+        {
+            _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
+            _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
+        }
+
         private void btnConnectDevice_Click(object sender, EventArgs e)
         {
+            if (_selectedOutputMode == null)
+            {
+                listBoxDebug.Items.Add("Select the output type before connecting.");
+                return;
+            }
+
             try
             {
                 bool activate = _pga305OWI.Activate();
@@ -139,9 +211,10 @@ namespace PGA305OWICalibration
                 if (!activate)
                 {
                     listBoxDebug.Items.Add("Device failed to activate.");
-                    SetOutputConfigVisible(false);
+                    SetDisconnected();
                     return;
                 }
+
                 _outputconfig.SerialNumber = _pga305OWI.ReadInternalSerialNumber();
                 _outputconfig.PressureCode = _pga305OWI.ReadPressureCode();
                 _sensorSerialNumber = _pga305OWI.ReadSerialNumber();
@@ -149,32 +222,35 @@ namespace PGA305OWICalibration
                 if (_outputconfig.SerialNumber == -1)
                 {
                     listBoxDebug.Items.Add("Failed to read internal serial number.");
-                    SetOutputConfigVisible(true);
+                    SetDisconnected();
                     return;
                 }
+
                 _outputconfig.SetPressureRangeFromCode();
                 SetPressureLimits();
+                UpdateOutputConfigSummary();
 
                 Debug.WriteLine($"Pressure range set to: {_outputconfig.maxPSI} - {_outputconfig.maxBar} {_outputconfig.PressureUnit}");
-                                
+
                 listBoxDebug.Items.Add($"Serial number: {_sensorSerialNumber}");
                 listBoxDebug.Items.Add($"Pressure code: {_outputconfig.PressureCode}");
                 listBoxDebug.Items.Add($"Internal serial number: {_outputconfig.SerialNumber}");
 
-                SetOutputConfigVisible(true);
-                SelectVoltageOutput();
-
+                _deviceConnected = true;
+                UpdateVisibility();
+                ShowActiveOutputMode();
             }
             catch (Exception ex)
             {
                 listBoxDebug.Items.Add($"Error: {ex.Message}");
-                SetOutputConfigVisible(false);
+                SetDisconnected();
+                return;
             }
         }
 
         private void btnNoPChange_Click(object sender, EventArgs e)
         {
-            _outputconfig.ResetPressureRange();
+            _outputconfig.SetPressureRangeFromCode();
 
             numMinPressure.Value = _outputconfig.pMin;
             numMaxPressure.Value = _outputconfig.maxPSI;
@@ -210,12 +286,6 @@ namespace PGA305OWICalibration
             _outputconfig.pMax = _outputconfig.maxBar;
 
             UpdateOutputConfigSummary();
-
-            lblMinPressure.Visible = true;
-            lblMaxPressure.Visible = true;
-            numMinPressure.Visible = true;
-            numMaxPressure.Visible = true;
-            btnConfigDevice.Visible = true;
         }
 
         private void btnUnitPsi_Click(object sender, EventArgs e)
@@ -235,58 +305,19 @@ namespace PGA305OWICalibration
             _outputconfig.pMax = _outputconfig.maxPSI;
 
             UpdateOutputConfigSummary();
-
-            lblMinPressure.Visible = true;
-            lblMaxPressure.Visible = true;
-            numMinPressure.Visible = true;
-            numMaxPressure.Visible = true;
-            btnConfigDevice.Visible = true;
         }
 
         private void SetVoltageRange(string range)
         {
             _outputconfig.SelectVoltage(range);
             UpdateOutputConfigSummary();
-            gbxConfigDevice.Visible = true;
         }
 
         private void lstVoltageRange_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (lstVoltageRange.SelectedItem is string range)
                 SetVoltageRange(range);
-        }
-
-        private void SelectVoltageOutput(string range = "0-10V")
-        {
-            lblVoltageRange.Visible = true;
-            lstVoltageRange.Visible = true;
-            gbxConfigPressure.Visible = true;
-
-            lstVoltageRange.SelectedItem = range;
-            SetVoltageRange(range);               
-        }
-
-        private void BtnOutputV_Click(object sender, EventArgs e) => SelectVoltageOutput();
-
-        private void BtnOutputRM_Click(object sender, EventArgs e)
-        {
-            _outputconfig.SelectRatiometric();
-
-            lblVoltageRange.Visible = false;
-            lstVoltageRange.Visible = false;
-
-            UpdateOutputConfigSummary();
-        }
-
-        private void BtnOutputC_Click(object sender, EventArgs e)
-        {
-            _outputconfig.SelectCurrent();
-
-            lblVoltageRange.Visible = false;
-            lstVoltageRange.Visible = false;
-
-            UpdateOutputConfigSummary();
-        }
+        }    
 
         private void btnConfirmPressure_Click(object sender, EventArgs e)
         {
@@ -439,8 +470,6 @@ namespace PGA305OWICalibration
                 MessageBox.Show("ENSURE TO TURN OFF THE POWERSUPPLY FIRST! Fit the next device, then click OK.",
                                 "Next Device", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                HandlePOT();
-
                 if (!_pga305OWI.Initialize())
                 {
                     listBoxDebug.Items.Add("Re-init FAILED.");
@@ -468,13 +497,15 @@ namespace PGA305OWICalibration
             lsbOutputConfig.Items.Clear();
             listBoxDebug.Items.Clear();
 
-            SetOutputConfigVisible(false);
+            _selectedOutputMode = null;
+            SetDisconnected();
+
             lblMinPressure.Visible = false;
             lblMaxPressure.Visible = false;
             numMinPressure.Visible = false;
             numMaxPressure.Visible = false;
 
             btnConfigDevice.Enabled = !string.IsNullOrWhiteSpace(txtJobCode.Text);
-        }
+        }     
     }
 }

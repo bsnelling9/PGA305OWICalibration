@@ -1,0 +1,49 @@
+{
+  "stock_codes": {
+    "A106985": {
+      "stock_code": "A106985",
+      "output": {
+        "min": 0.5,
+        "max": 4.5,
+        "units": "V",
+        "type": "ratiometric"
+      },
+      "pressure": {
+        "min": 0,
+        "max": 1300,
+        "units": "psi",
+        "type": "absolute"
+      }
+    },
+    "A106986": {
+      "stock_code": "A106986",
+      "output": {
+        "min": 0.5,
+        "max": 4.5,
+        "units": "V",
+        "type": "ratiometric"
+      },
+      "pressure": {
+        "min": 0,
+        "max": 2000,
+        "units": "psi",
+        "type": "absolute"
+      }
+    },
+    "A106987": {
+      "stock_code": "A106986",
+      "output": {
+        "min": 4,
+        "max": 20,
+        "units": "mA",
+        "type": "current"
+      },
+      "pressure": {
+        "min": 0,
+        "max": 1300,
+        "units": "psi",
+        "type": "absolute"
+      }
+    }
+  }
+}

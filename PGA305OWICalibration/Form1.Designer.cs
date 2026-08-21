@@ -43,7 +43,7 @@ namespace PGA305OWICalibration
             tabControl1.Location = new Point(0, 0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(1238, 738);
+            tabControl1.Size = new Size(1539, 895);
             tabControl1.TabIndex = 21;
             // 
             // TabMainPage
@@ -57,7 +57,7 @@ namespace PGA305OWICalibration
             TabMainPage.Location = new Point(4, 24);
             TabMainPage.Name = "TabMainPage";
             TabMainPage.Padding = new Padding(3);
-            TabMainPage.Size = new Size(1230, 710);
+            TabMainPage.Size = new Size(1531, 867);
             TabMainPage.TabIndex = 0;
             TabMainPage.Text = "Main";
             TabMainPage.UseVisualStyleBackColor = true;
@@ -80,7 +80,7 @@ namespace PGA305OWICalibration
             btnStart.FlatStyle = FlatStyle.Flat;
             btnStart.Font = new Font("Segoe UI", 10F);
             btnStart.ForeColor = Color.Black;
-            btnStart.Location = new Point(1034, 418);
+            btnStart.Location = new Point(732, 65);
             btnStart.Name = "btnStart";
             btnStart.Size = new Size(150, 50);
             btnStart.TabIndex = 43;
@@ -97,7 +97,7 @@ namespace PGA305OWICalibration
             btnConfigI2C.FlatStyle = FlatStyle.Flat;
             btnConfigI2C.Font = new Font("Segoe UI", 10F);
             btnConfigI2C.ForeColor = Color.Black;
-            btnConfigI2C.Location = new Point(1034, 490);
+            btnConfigI2C.Location = new Point(732, 126);
             btnConfigI2C.Name = "btnConfigI2C";
             btnConfigI2C.Size = new Size(150, 50);
             btnConfigI2C.TabIndex = 42;
@@ -114,7 +114,7 @@ namespace PGA305OWICalibration
             btnSettings.FlatStyle = FlatStyle.Flat;
             btnSettings.Font = new Font("Segoe UI", 10F);
             btnSettings.ForeColor = Color.Black;
-            btnSettings.Location = new Point(1034, 631);
+            btnSettings.Location = new Point(732, 267);
             btnSettings.Name = "btnSettings";
             btnSettings.Size = new Size(150, 50);
             btnSettings.TabIndex = 41;
@@ -131,7 +131,7 @@ namespace PGA305OWICalibration
             btnDebug.FlatStyle = FlatStyle.Flat;
             btnDebug.Font = new Font("Segoe UI", 10F);
             btnDebug.ForeColor = Color.Black;
-            btnDebug.Location = new Point(1034, 564);
+            btnDebug.Location = new Point(732, 200);
             btnDebug.Name = "btnDebug";
             btnDebug.Size = new Size(150, 50);
             btnDebug.TabIndex = 40;
@@ -144,7 +144,7 @@ namespace PGA305OWICalibration
             hardwareTab.Location = new Point(4, 24);
             hardwareTab.Name = "hardwareTab";
             hardwareTab.Padding = new Padding(3);
-            hardwareTab.Size = new Size(1230, 710);
+            hardwareTab.Size = new Size(1531, 867);
             hardwareTab.TabIndex = 1;
             hardwareTab.Text = "Hardware";
             hardwareTab.UseVisualStyleBackColor = true;
@@ -154,7 +154,7 @@ namespace PGA305OWICalibration
             deviceTab.Location = new Point(4, 24);
             deviceTab.Name = "deviceTab";
             deviceTab.Padding = new Padding(3);
-            deviceTab.Size = new Size(1230, 710);
+            deviceTab.Size = new Size(1531, 867);
             deviceTab.TabIndex = 2;
             deviceTab.Text = "Device";
             deviceTab.UseVisualStyleBackColor = true;
@@ -164,7 +164,7 @@ namespace PGA305OWICalibration
             tabPage4.Location = new Point(4, 24);
             tabPage4.Name = "tabPage4";
             tabPage4.Padding = new Padding(3);
-            tabPage4.Size = new Size(1230, 710);
+            tabPage4.Size = new Size(1531, 867);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "tabPage4";
             tabPage4.UseVisualStyleBackColor = true;
@@ -173,7 +173,7 @@ namespace PGA305OWICalibration
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1238, 738);
+            ClientSize = new Size(1539, 895);
             Controls.Add(tabControl1);
             Name = "Form1";
             Text = "PGA305 OWI Calibration";
@@ -184,7 +184,6 @@ namespace PGA305OWICalibration
 
         #endregion
 
-        private Label label1;
         private TabControl tabControl1;
         private TabPage TabMainPage;
         private TabPage hardwareTab;

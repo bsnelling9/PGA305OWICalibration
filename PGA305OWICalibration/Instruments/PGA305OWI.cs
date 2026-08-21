@@ -7,7 +7,6 @@ namespace PGA305OWICalibration.PGA305EVM
     public class PGA305Owi
     {
         private USB2AnyDevice _u2a;
-
         public PGA305Owi(USB2AnyDevice device) => _u2a = device;
 
         public bool Initialize()

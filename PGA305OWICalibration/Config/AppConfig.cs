@@ -18,6 +18,7 @@ namespace PGA305OWICalibration.Config
         }
 
         public static string API_URL => _config["ApiUrl"] ?? "http://localhost:3000";
+        public static bool TestMode => bool.Parse(_config["TestMode"] ?? "false");
 
         public static void SaveApiUrl(string newUrl)
         {
@@ -48,6 +49,12 @@ namespace PGA305OWICalibration.Config
             }
         };
 
+        public static readonly Dictionary<string, (bool VCompA0High, bool VCompA1High)> Compensation = new()
+        {
+            ["Ratiometric"] = (true, true),
+            ["Voltage"] = (false, false),
+            ["Current"] = (false, false),
+        };
 
         public const int BAUD_RATE = 115200;
         public const string DEVICE_IDENTITY = "PGA305_Mux_01";
@@ -56,8 +63,32 @@ namespace PGA305OWICalibration.Config
         public const int DIGIPOT_ADDR = 0x2D;
         public const byte DIGIPOT_REG = 0x00;
         public const byte DIGIPOT_VALUE = 0x19;
-        public const int TPL0102_ADDR = 0x57;
+                        
+        //Rloop
+        public const int RLOOP_ADDR = 0x2D;
+        public const byte RLOOP_REG = 0x00;
+        public const byte RLOOP_10R = 0x19;
+        public const byte RLOOP_22R = 0x21;
 
+        // Additional Voltage
+        public const int TPL0102_ADDR = 0x57;
+        public const byte ADDVOLT_REG_WA = 0x00;
+        public const byte ADDVOLT_REG_WB = 0x01;
+        
+        public const byte ADDVOLT_0V0 = 0x00;
+        public const byte ADDVOLT_0V5 = 0x09;
+        public const byte ADDVOLT_0V6 = 0x0C;
+        public const byte ADDVOLT_0V7 = 0x0E;
+        public const byte ADDVOLT_1V0 = 0x17;
+
+        // Ratiometric board — no series drop to compensate. Identical to legacy HandlePOT().
+        public const byte RATIO_RLOOP = RLOOP_10R;
+        public const byte RATIO_ADDV = ADDVOLT_0V0;
+
+        // Voltage board — compensates R2 (22 Ω) + D2 (BAS16J) in the supply line.
+        public const byte VOLT_RLOOP = RLOOP_22R;
+        public const byte VOLT_ADDV = ADDVOLT_0V5;
+              
         // OWI timing constants in microseconds — OWI-protocol specific, stay local
         public const ushort TIME_SETUP = 1000;
         public const ushort TIME_STORE = 1000;
@@ -81,8 +112,8 @@ namespace PGA305OWICalibration.Config
         public const byte CMD_WRITE_PAGE0 = 0x01;
 
         /*
-       GPIO5 is used for OWI Rx
        GPIO4 is used for OWI Tx
+       GPIO5 is used for OWI Rx
        GPIO7 is used for OWI activation pulse (GPIO_OWI_ACT)
        GPIO10 is used for OWI VDD control (GPIO_OWI_VDD)
        GPIO11 is used for OWI TX control (GPIO_OWI_TX)

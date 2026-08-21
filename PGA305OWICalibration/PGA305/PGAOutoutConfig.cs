@@ -2,10 +2,12 @@
 
 namespace PGA305OWICalibration.PGA305
 {
-    internal class PGAOutputConfig
+    public class PGAOutputConfig
     {
         public int SerialNumber { get; set; }
         public string PressureCode { get; set; } = string.Empty;
+        public string SensorSerialNumber { get; set; } = string.Empty;
+        public string StockCode { get; set; } = string.Empty;
 
         public string JobCode { get; set; } = string.Empty;
 
@@ -22,7 +24,8 @@ namespace PGA305OWICalibration.PGA305
         public string ElectricalOutput { get; private set; } = string.Empty;
 
         //Has no effect on the convert output
-        public string PressureUnit { get; set; } = "psiG";       
+        public string PressureUnit { get; set; } = "psi";       
+
 
         public Dictionary<byte, byte> SelectedRegisters { get; private set; } = new();
 
@@ -70,17 +73,7 @@ namespace PGA305OWICalibration.PGA305
             ElectricalOutput = "4-20mA";
 
             SelectedRegisters = Current;
-        }
-
-        public void ResetPressureRange()
-        {
-            pMin = 0;
-
-            if (PressureUnit == "psiG")
-                pMax = maxPSI;
-            else if (PressureUnit == "bar")
-                pMax = maxBar;
-        }
+        }          
 
         public void SelectVoltage(string range)
         {
@@ -124,19 +117,13 @@ namespace PGA305OWICalibration.PGA305
                         $"Unknown voltage range '{range}'");
             }
         }
-
+       
         public void SetPressureUnit(string unit)
         {
             PressureUnit = unit;
 
-            if (unit == "psi")
-            {
-                pMax = maxPSI;
-            }
-            else if (unit == "bar")
-            {
-                pMax = maxBar;
-            }
+            pMin = 0;
+            pMax = unit == "bar" ? maxBar : maxPSI;
         }
 
         public void SetPressureRangeFromCode()
@@ -145,10 +132,14 @@ namespace PGA305OWICalibration.PGA305
                 throw new ArgumentException(
                     $"No pressure range configured for pressure code '{PressureCode}'");
 
-            pMin = 0;
-            pMax = range.MaxPsi;
             maxPSI = range.MaxPsi;
             maxBar = range.MaxBar;
+
+            if (StockCode.Length == 0)
+            {
+                pMin = 0;
+                pMax = PressureUnit == "bar" ? maxBar : maxPSI;
+            }
         }
     }
 }

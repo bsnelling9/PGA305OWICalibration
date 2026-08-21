@@ -41,17 +41,16 @@ namespace PGA305OWICalibration
             numMinPressure = new NumericUpDown();
             btnNoPChange = new ATPButton();
             gbxConfigOutput = new GroupBox();
-            BtnOutputV = new ATPButton();
-            btnOutputRM = new ATPButton();
-            btnOutputC = new ATPButton();
             lstVoltageRange = new ListBox();
-            lblVoltageRange = new Label();
             lsbOutputConfig = new ListBox();
             btnConfigDevice = new ATPButton();
             txtJobCode = new TextBox();
             lblJobCode = new Label();
             btnNextDevice = new ATPButton();
             gbxConfigDevice = new GroupBox();
+            btnVoltagePOT = new ATPButton();
+            btnRatioPOT = new ATPButton();
+            btnCurrentPOT = new ATPButton();
             gbxConfigPressure.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numMaxPressure).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numMinPressure).BeginInit();
@@ -74,7 +73,7 @@ namespace PGA305OWICalibration
             listBoxDebug.ItemHeight = 15;
             listBoxDebug.Location = new Point(12, 27);
             listBoxDebug.Name = "listBoxDebug";
-            listBoxDebug.Size = new Size(312, 304);
+            listBoxDebug.Size = new Size(269, 304);
             listBoxDebug.TabIndex = 21;
             // 
             // btnInitHW
@@ -123,7 +122,7 @@ namespace PGA305OWICalibration
             btnConnectDevice.FlatStyle = FlatStyle.Flat;
             btnConnectDevice.Font = new Font("Segoe UI", 10F);
             btnConnectDevice.ForeColor = Color.Black;
-            btnConnectDevice.Location = new Point(560, 28);
+            btnConnectDevice.Location = new Point(916, 28);
             btnConnectDevice.Name = "btnConnectDevice";
             btnConnectDevice.Size = new Size(160, 45);
             btnConnectDevice.TabIndex = 39;
@@ -145,7 +144,7 @@ namespace PGA305OWICalibration
             // 
             lblStep2.AutoSize = true;
             lblStep2.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblStep2.Location = new Point(560, 10);
+            lblStep2.Location = new Point(916, 10);
             lblStep2.Name = "lblStep2";
             lblStep2.Size = new Size(50, 17);
             lblStep2.TabIndex = 41;
@@ -292,94 +291,25 @@ namespace PGA305OWICalibration
             // 
             // gbxConfigOutput
             // 
-            gbxConfigOutput.Controls.Add(BtnOutputV);
-            gbxConfigOutput.Controls.Add(btnOutputRM);
-            gbxConfigOutput.Controls.Add(btnOutputC);
             gbxConfigOutput.Controls.Add(lstVoltageRange);
-            gbxConfigOutput.Controls.Add(lblVoltageRange);
             gbxConfigOutput.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             gbxConfigOutput.Location = new Point(342, 102);
             gbxConfigOutput.Name = "gbxConfigOutput";
             gbxConfigOutput.Size = new Size(388, 214);
             gbxConfigOutput.TabIndex = 63;
             gbxConfigOutput.TabStop = false;
-            gbxConfigOutput.Text = "Step 4: Select Output";
-            // 
-            // BtnOutputV
-            // 
-            BtnOutputV.BackColor = Color.White;
-            BtnOutputV.BorderColor = Color.Black;
-            BtnOutputV.BorderSize = 2;
-            BtnOutputV.CornerRadius = 10;
-            BtnOutputV.Cursor = Cursors.Hand;
-            BtnOutputV.FlatStyle = FlatStyle.Flat;
-            BtnOutputV.Font = new Font("Segoe UI", 10F);
-            BtnOutputV.ForeColor = Color.Black;
-            BtnOutputV.Location = new Point(15, 35);
-            BtnOutputV.Name = "BtnOutputV";
-            BtnOutputV.Size = new Size(107, 45);
-            BtnOutputV.TabIndex = 37;
-            BtnOutputV.Text = "Voltage";
-            BtnOutputV.UseVisualStyleBackColor = false;
-            BtnOutputV.Click += BtnOutputV_Click;
-            // 
-            // btnOutputRM
-            // 
-            btnOutputRM.BackColor = Color.White;
-            btnOutputRM.BorderColor = Color.Black;
-            btnOutputRM.BorderSize = 2;
-            btnOutputRM.CornerRadius = 10;
-            btnOutputRM.Cursor = Cursors.Hand;
-            btnOutputRM.FlatStyle = FlatStyle.Flat;
-            btnOutputRM.Font = new Font("Segoe UI", 10F);
-            btnOutputRM.ForeColor = Color.Black;
-            btnOutputRM.Location = new Point(143, 36);
-            btnOutputRM.Name = "btnOutputRM";
-            btnOutputRM.Size = new Size(110, 45);
-            btnOutputRM.TabIndex = 38;
-            btnOutputRM.Text = "Ratio Metric";
-            btnOutputRM.UseVisualStyleBackColor = false;
-            btnOutputRM.Click += BtnOutputRM_Click;
-            // 
-            // btnOutputC
-            // 
-            btnOutputC.BackColor = Color.White;
-            btnOutputC.BorderColor = Color.Black;
-            btnOutputC.BorderSize = 2;
-            btnOutputC.CornerRadius = 10;
-            btnOutputC.Cursor = Cursors.Hand;
-            btnOutputC.FlatStyle = FlatStyle.Flat;
-            btnOutputC.Font = new Font("Segoe UI", 10F);
-            btnOutputC.ForeColor = Color.Black;
-            btnOutputC.Location = new Point(274, 36);
-            btnOutputC.Name = "btnOutputC";
-            btnOutputC.Size = new Size(104, 45);
-            btnOutputC.TabIndex = 39;
-            btnOutputC.Text = "Current";
-            btnOutputC.UseVisualStyleBackColor = false;
+            gbxConfigOutput.Text = "Step 4: Select Voltage Range";
             // 
             // lstVoltageRange
             // 
             lstVoltageRange.Font = new Font("Segoe UI", 10F);
             lstVoltageRange.ItemHeight = 17;
             lstVoltageRange.Items.AddRange(new object[] { "0-10V", "0-5V", "1-5V", "0.5-4.5V", "1-6V" });
-            lstVoltageRange.Location = new Point(148, 113);
+            lstVoltageRange.Location = new Point(94, 41);
             lstVoltageRange.Name = "lstVoltageRange";
             lstVoltageRange.Size = new Size(105, 89);
             lstVoltageRange.TabIndex = 41;
-            lstVoltageRange.Visible = false;
             lstVoltageRange.SelectedIndexChanged += lstVoltageRange_SelectedIndexChanged;
-            // 
-            // lblVoltageRange
-            // 
-            lblVoltageRange.AutoSize = true;
-            lblVoltageRange.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblVoltageRange.Location = new Point(15, 91);
-            lblVoltageRange.Name = "lblVoltageRange";
-            lblVoltageRange.Size = new Size(141, 17);
-            lblVoltageRange.TabIndex = 40;
-            lblVoltageRange.Text = "Select Voltage Range:";
-            lblVoltageRange.Visible = false;
             // 
             // lsbOutputConfig
             // 
@@ -411,7 +341,7 @@ namespace PGA305OWICalibration
             // 
             // txtJobCode
             // 
-            txtJobCode.Location = new Point(750, 39);
+            txtJobCode.Location = new Point(796, 422);
             txtJobCode.Name = "txtJobCode";
             txtJobCode.Size = new Size(215, 23);
             txtJobCode.TabIndex = 68;
@@ -421,7 +351,7 @@ namespace PGA305OWICalibration
             // 
             lblJobCode.AutoSize = true;
             lblJobCode.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblJobCode.Location = new Point(750, 9);
+            lblJobCode.Location = new Point(796, 392);
             lblJobCode.Name = "lblJobCode";
             lblJobCode.Size = new Size(147, 17);
             lblJobCode.TabIndex = 69;
@@ -457,11 +387,68 @@ namespace PGA305OWICalibration
             gbxConfigDevice.TabStop = false;
             gbxConfigDevice.Text = "Step 6: Confirm and Configure Device";
             // 
+            // btnVoltagePOT
+            // 
+            btnVoltagePOT.BackColor = Color.White;
+            btnVoltagePOT.BorderColor = Color.Black;
+            btnVoltagePOT.BorderSize = 2;
+            btnVoltagePOT.CornerRadius = 10;
+            btnVoltagePOT.Cursor = Cursors.Hand;
+            btnVoltagePOT.FlatStyle = FlatStyle.Flat;
+            btnVoltagePOT.Font = new Font("Segoe UI", 10F);
+            btnVoltagePOT.ForeColor = Color.Black;
+            btnVoltagePOT.Location = new Point(538, 27);
+            btnVoltagePOT.Name = "btnVoltagePOT";
+            btnVoltagePOT.Size = new Size(107, 45);
+            btnVoltagePOT.TabIndex = 72;
+            btnVoltagePOT.Text = "Voltage";
+            btnVoltagePOT.UseVisualStyleBackColor = false;
+            btnVoltagePOT.Click += btnVoltagePOT_Click;
+            // 
+            // btnRatioPOT
+            // 
+            btnRatioPOT.BackColor = Color.White;
+            btnRatioPOT.BorderColor = Color.Black;
+            btnRatioPOT.BorderSize = 2;
+            btnRatioPOT.CornerRadius = 10;
+            btnRatioPOT.Cursor = Cursors.Hand;
+            btnRatioPOT.FlatStyle = FlatStyle.Flat;
+            btnRatioPOT.Font = new Font("Segoe UI", 10F);
+            btnRatioPOT.ForeColor = Color.Black;
+            btnRatioPOT.Location = new Point(651, 27);
+            btnRatioPOT.Name = "btnRatioPOT";
+            btnRatioPOT.Size = new Size(110, 45);
+            btnRatioPOT.TabIndex = 73;
+            btnRatioPOT.Text = "Ratiometric";
+            btnRatioPOT.UseVisualStyleBackColor = false;
+            btnRatioPOT.Click += btnRatioPOT_Click;
+            // 
+            // btnCurrentPOT
+            // 
+            btnCurrentPOT.BackColor = Color.White;
+            btnCurrentPOT.BorderColor = Color.Black;
+            btnCurrentPOT.BorderSize = 2;
+            btnCurrentPOT.CornerRadius = 10;
+            btnCurrentPOT.Cursor = Cursors.Hand;
+            btnCurrentPOT.FlatStyle = FlatStyle.Flat;
+            btnCurrentPOT.Font = new Font("Segoe UI", 10F);
+            btnCurrentPOT.ForeColor = Color.Black;
+            btnCurrentPOT.Location = new Point(767, 27);
+            btnCurrentPOT.Name = "btnCurrentPOT";
+            btnCurrentPOT.Size = new Size(104, 45);
+            btnCurrentPOT.TabIndex = 74;
+            btnCurrentPOT.Text = "Current";
+            btnCurrentPOT.UseVisualStyleBackColor = false;
+            btnCurrentPOT.Click += btnCurrentPOT_Click;
+            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1125, 692);
+            ClientSize = new Size(1201, 654);
+            Controls.Add(btnCurrentPOT);
+            Controls.Add(btnRatioPOT);
+            Controls.Add(btnVoltagePOT);
             Controls.Add(txtJobCode);
             Controls.Add(lblJobCode);
             Controls.Add(btnNextDevice);
@@ -482,7 +469,6 @@ namespace PGA305OWICalibration
             ((System.ComponentModel.ISupportInitialize)numMaxPressure).EndInit();
             ((System.ComponentModel.ISupportInitialize)numMinPressure).EndInit();
             gbxConfigOutput.ResumeLayout(false);
-            gbxConfigOutput.PerformLayout();
             gbxConfigDevice.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -506,11 +492,7 @@ namespace PGA305OWICalibration
         private NumericUpDown numMinPressure;
         private ATPButton btnNoPChange;
         private GroupBox gbxConfigOutput;
-        private ATPButton BtnOutputV;
-        private ATPButton btnOutputRM;
-        private ATPButton btnOutputC;
         private ListBox lstVoltageRange;
-        private Label lblVoltageRange;
         private ListBox lsbOutputConfig;
         private ATPButton btnConfigDevice;
         private ATPButton btnConfirmPressure;
@@ -518,5 +500,8 @@ namespace PGA305OWICalibration
         private Label lblJobCode;
         private ATPButton btnNextDevice;
         private GroupBox gbxConfigDevice;
+        private ATPButton btnVoltagePOT;
+        private ATPButton btnRatioPOT;
+        private ATPButton btnCurrentPOT;
     }
 }

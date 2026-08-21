@@ -38,6 +38,7 @@ namespace PGA305OWICalibration.Tabs
             btnConnectAll = new ATPButton();
             btnConnectDevice = new ATPButton();
             btnInitHW = new ATPButton();
+            btnPinHigh = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvHardware).BeginInit();
             SuspendLayout();
             // 
@@ -45,7 +46,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblComp.AutoSize = true;
             lblComp.Font = new Font("Segoe UI", 10F);
-            lblComp.Location = new Point(372, 254);
+            lblComp.Location = new Point(173, 229);
             lblComp.Name = "lblComp";
             lblComp.Size = new Size(142, 19);
             lblComp.TabIndex = 7;
@@ -57,7 +58,7 @@ namespace PGA305OWICalibration.Tabs
             chkVCOMPA0.Checked = true;
             chkVCOMPA0.CheckState = CheckState.Checked;
             chkVCOMPA0.Font = new Font("Segoe UI", 10F);
-            chkVCOMPA0.Location = new Point(372, 284);
+            chkVCOMPA0.Location = new Point(173, 259);
             chkVCOMPA0.Name = "chkVCOMPA0";
             chkVCOMPA0.Size = new Size(94, 23);
             chkVCOMPA0.TabIndex = 8;
@@ -69,7 +70,7 @@ namespace PGA305OWICalibration.Tabs
             chkVCOMPA1.Checked = true;
             chkVCOMPA1.CheckState = CheckState.Checked;
             chkVCOMPA1.Font = new Font("Segoe UI", 10F);
-            chkVCOMPA1.Location = new Point(372, 314);
+            chkVCOMPA1.Location = new Point(173, 289);
             chkVCOMPA1.Name = "chkVCOMPA1";
             chkVCOMPA1.Size = new Size(94, 23);
             chkVCOMPA1.TabIndex = 9;
@@ -85,7 +86,7 @@ namespace PGA305OWICalibration.Tabs
             btnSetCompensation.FlatStyle = FlatStyle.Flat;
             btnSetCompensation.Font = new Font("Segoe UI", 10F);
             btnSetCompensation.ForeColor = Color.Black;
-            btnSetCompensation.Location = new Point(372, 354);
+            btnSetCompensation.Location = new Point(173, 318);
             btnSetCompensation.Name = "btnSetCompensation";
             btnSetCompensation.Size = new Size(160, 45);
             btnSetCompensation.TabIndex = 10;
@@ -97,7 +98,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             lblRelay.AutoSize = true;
             lblRelay.Font = new Font("Segoe UI", 10F);
-            lblRelay.Location = new Point(372, 424);
+            lblRelay.Location = new Point(373, 238);
             lblRelay.Name = "lblRelay";
             lblRelay.Size = new Size(84, 19);
             lblRelay.TabIndex = 12;
@@ -108,7 +109,7 @@ namespace PGA305OWICalibration.Tabs
             rdoOWI.AutoSize = true;
             rdoOWI.Checked = true;
             rdoOWI.Font = new Font("Segoe UI", 10F);
-            rdoOWI.Location = new Point(372, 454);
+            rdoOWI.Location = new Point(373, 268);
             rdoOWI.Name = "rdoOWI";
             rdoOWI.Size = new Size(55, 23);
             rdoOWI.TabIndex = 13;
@@ -119,7 +120,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             rdoVO.AutoSize = true;
             rdoVO.Font = new Font("Segoe UI", 10F);
-            rdoVO.Location = new Point(432, 454);
+            rdoVO.Location = new Point(433, 268);
             rdoVO.Name = "rdoVO";
             rdoVO.Size = new Size(47, 23);
             rdoVO.TabIndex = 14;
@@ -129,7 +130,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             rdoMA.AutoSize = true;
             rdoMA.Font = new Font("Segoe UI", 10F);
-            rdoMA.Location = new Point(482, 454);
+            rdoMA.Location = new Point(483, 268);
             rdoMA.Name = "rdoMA";
             rdoMA.Size = new Size(49, 23);
             rdoMA.TabIndex = 15;
@@ -145,7 +146,7 @@ namespace PGA305OWICalibration.Tabs
             btnSetRelay.FlatStyle = FlatStyle.Flat;
             btnSetRelay.Font = new Font("Segoe UI", 10F);
             btnSetRelay.ForeColor = Color.Black;
-            btnSetRelay.Location = new Point(371, 490);
+            btnSetRelay.Location = new Point(372, 318);
             btnSetRelay.Name = "btnSetRelay";
             btnSetRelay.Size = new Size(160, 45);
             btnSetRelay.TabIndex = 16;
@@ -227,7 +228,7 @@ namespace PGA305OWICalibration.Tabs
             btnConnectAll.FlatStyle = FlatStyle.Flat;
             btnConnectAll.Font = new Font("Segoe UI", 10F);
             btnConnectAll.ForeColor = Color.Black;
-            btnConnectAll.Location = new Point(173, 234);
+            btnConnectAll.Location = new Point(7, 94);
             btnConnectAll.Name = "btnConnectAll";
             btnConnectAll.Size = new Size(160, 45);
             btnConnectAll.TabIndex = 20;
@@ -245,7 +246,7 @@ namespace PGA305OWICalibration.Tabs
             btnConnectDevice.FlatStyle = FlatStyle.Flat;
             btnConnectDevice.Font = new Font("Segoe UI", 10F);
             btnConnectDevice.ForeColor = Color.Black;
-            btnConnectDevice.Location = new Point(371, 665);
+            btnConnectDevice.Location = new Point(613, 304);
             btnConnectDevice.Name = "btnConnectDevice";
             btnConnectDevice.Size = new Size(160, 45);
             btnConnectDevice.TabIndex = 41;
@@ -263,7 +264,7 @@ namespace PGA305OWICalibration.Tabs
             btnInitHW.FlatStyle = FlatStyle.Flat;
             btnInitHW.Font = new Font("Segoe UI", 10F);
             btnInitHW.ForeColor = Color.Black;
-            btnInitHW.Location = new Point(371, 581);
+            btnInitHW.Location = new Point(613, 237);
             btnInitHW.Name = "btnInitHW";
             btnInitHW.Size = new Size(160, 45);
             btnInitHW.TabIndex = 40;
@@ -271,10 +272,21 @@ namespace PGA305OWICalibration.Tabs
             btnInitHW.UseVisualStyleBackColor = false;
             btnInitHW.Click += btnInitHW_Click;
             // 
+            // btnPinHigh
+            // 
+            btnPinHigh.Location = new Point(381, 405);
+            btnPinHigh.Name = "btnPinHigh";
+            btnPinHigh.Size = new Size(100, 39);
+            btnPinHigh.TabIndex = 42;
+            btnPinHigh.Text = "button1";
+            btnPinHigh.UseVisualStyleBackColor = true;
+            btnPinHigh.Click += btnPinHigh_Click;
+            // 
             // HardwareTab
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(btnPinHigh);
             Controls.Add(btnConnectDevice);
             Controls.Add(btnInitHW);
             Controls.Add(lblComp);
@@ -290,7 +302,7 @@ namespace PGA305OWICalibration.Tabs
             Controls.Add(dgvHardware);
             Controls.Add(btnConnectAll);
             Name = "HardwareTab";
-            Size = new Size(1725, 1112);
+            Size = new Size(1260, 755);
             ((System.ComponentModel.ISupportInitialize)dgvHardware).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -312,5 +324,6 @@ namespace PGA305OWICalibration.Tabs
         private DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
         private ATPButton btnConnectDevice;
         private ATPButton btnInitHW;
+        private Button btnPinHigh;
     }
 }

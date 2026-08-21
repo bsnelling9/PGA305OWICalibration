@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO.Ports;
+﻿using System.IO.Ports;
 using System.Diagnostics;
 
 namespace PGA305OWICalibration.Instruments
@@ -10,7 +9,7 @@ namespace PGA305OWICalibration.Instruments
         private byte _currentConfig = 0;
 
         // Byte mask is the location in the command byte for each control bit sent to the STM32
-        private const byte SETOWI_MASK = 0x40;  // PB4  - OWI relay
+        private const byte SETOWI_MASK = 0x40; // PB4  - OWI relay
         private const byte SETMA_MASK = 0x20;  // PA11 - mA relay
         private const byte SETVO_MASK = 0x10;  // PA8  - VO relay
         private const byte MEASRV_MASK = 0x0C;  // PB0  - measure reference voltage
@@ -92,6 +91,8 @@ namespace PGA305OWICalibration.Instruments
             if (maRelayClosed) _currentConfig |= SETMA_MASK;
             if (voRelayClosed) _currentConfig |= SETVO_MASK;
 
+            Debug.WriteLine($"Configure Relay:cfg{_currentConfig:X2}");
+
             string response = SendCommand($"cfg{_currentConfig:X2}");
             return response.Length > 0 && response[0] == 6;
         }
@@ -102,6 +103,7 @@ namespace PGA305OWICalibration.Instruments
             if (vcompa0High) _currentConfig |= VCOMP0_MASK;
             if (vcompa1High) _currentConfig |= VCOMP1_MASK;
 
+            Debug.WriteLine($"Configure Voltage Comparators cfg: 0x{_currentConfig:X2}");
             string response = SendCommand($"cfg{_currentConfig:X2}");
             return response.Length > 0 && response[0] == 6;
         }
@@ -110,10 +112,12 @@ namespace PGA305OWICalibration.Instruments
         {
             byte measMask = (byte)(MEASRV_MASK | MEASVO_MASK | MEASMA_MASK);
             _currentConfig = (byte)(_currentConfig & ~measMask);
+            
             if (measRV) _currentConfig |= MEASRV_MASK;
             else if (measVO) _currentConfig |= MEASVO_MASK;
             else if (measMA) _currentConfig |= MEASMA_MASK;
-
+            
+            Debug.WriteLine($"Configure Measurement cfg: 0x{_currentConfig:X2}");
             string response = SendCommand($"cfg{_currentConfig:X2}");
             return response.Length > 0 && response[0] == 6;
         }
