@@ -21,12 +21,14 @@ namespace PGA305OWICalibration.UIControls
         private int _channel;
         private Color _borderColor = Color.Gainsboro;
 
-        private Panel _overlay;
-        private Label _overlayText;
+        private Panel? _overlay;
+        private Label? _overlayText;
         private readonly List<string> _progress = new List<string>();
 
-        public event EventHandler ConnectRequested;
-        public event EventHandler ConfigureRequested;
+        public event EventHandler? ConnectRequested;
+        public event EventHandler? ConfigureRequested;
+
+        protected bool HasProgress => _progress.Count > 0;
 
         public ChannelCard()
         {
@@ -83,9 +85,8 @@ namespace PGA305OWICalibration.UIControls
 
         protected string ChannelLabel => "Channel " + (_channel + 1);
 
-        public virtual void UpdateDisplay()
-        {
-        }
+        /// Repaints the card from _outputconfig. Overridden by each card type.
+        public virtual void UpdateDisplay() { }
 
         public virtual void SetInteractive(bool enabled)
         {
@@ -140,7 +141,7 @@ namespace PGA305OWICalibration.UIControls
 
         public void ShowProgress(string line)
         {
-            if (_overlay == null) return;
+            if (_overlay == null || _overlayText == null) return;
 
             _progress.Add(line);
             _overlayText.Text = string.Join(Environment.NewLine, _progress);
@@ -150,7 +151,7 @@ namespace PGA305OWICalibration.UIControls
 
         public void ClearProgress()
         {
-            if (_overlay == null) return;
+            if (_overlay == null || _overlayText == null) return;
 
             _progress.Clear();
             _overlayText.Text = string.Empty;

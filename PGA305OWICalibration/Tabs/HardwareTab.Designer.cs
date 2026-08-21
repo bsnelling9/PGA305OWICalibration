@@ -1,7 +1,6 @@
 ﻿using PGA305OWICalibration.UIControls;
 using System.Windows.Forms;
 using System.Drawing;
-using PGA305OWICalibration.UIControls;
 
 namespace PGA305OWICalibration.Tabs
 {

@@ -9,12 +9,19 @@ namespace PGA305OWICalibration.PGA305
         private readonly USB2AnyDevice _u2a;
         public PGA305Device(USB2AnyDevice device) => _u2a = device;
 
+        public void ParkLines()
+        {
+            _u2a.GPIO_SetPort(AppConfig.GPIO10, AppConfig.FN_OUTPUT);
+            _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
+            _u2a.GPIO_SetPort(AppConfig.GPIO11, AppConfig.FN_OUTPUT);
+            _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
+        }
+
         public bool Initialize()
         {
             Debug.WriteLine("Initialise() called");
 
             int result = _u2a.OneWire_SetMode(AppConfig.OW_MODE);
-            Debug.WriteLine($"OneWire_SetMode({AppConfig.OW_MODE}) result: {result}");
             
             if (result < 0) return false;
 
@@ -25,11 +32,7 @@ namespace PGA305OWICalibration.PGA305
 
             int modeResult = _u2a.UART_SetMode(2);
 
-            _u2a.GPIO_SetPort(AppConfig.GPIO10, AppConfig.FN_OUTPUT);
-            _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
-
-            _u2a.GPIO_SetPort(AppConfig.GPIO11, AppConfig.FN_OUTPUT);
-            _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
+            ParkLines();
 
             return true;
         }
@@ -63,18 +66,17 @@ namespace PGA305OWICalibration.PGA305
             _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, 0x02, 0x0C, AppConfig.SYNC_BYTE, AppConfig.CMD_READ_RESPONSE }, 5);
             int count = _u2a.UART_Read(response, 54);
 
-            Debug.WriteLine($"Activate: got {count} bytes");
-            for (int i = 0; i < count; i++)
-                Debug.WriteLine($"  [{i}] = 0x{response[i]:X2}");
+            Debug.WriteLine($"Activate: got {count} bytes");            
 
             if (count > 0 && response[count - 1] == 0x03)
             {
-                Debug.WriteLine("Device entered Command modea.");
+                Debug.WriteLine("Device entered Command mode.");
                 FlushUartRx();
                 return true;
             }
 
             Debug.WriteLine("Error: Failed to establish OWI command mode.");
+
             return false;
         }
 
@@ -89,15 +91,10 @@ namespace PGA305OWICalibration.PGA305
         public int ReadRegister(byte registerAddress)
         {
             byte[] response = new byte[54];
-            _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, AppConfig.CMD_READ_INIT, registerAddress, AppConfig.SYNC_BYTE, AppConfig.CMD_READ_RESPONSE }, 5);
-            int count = _u2a.UART_Read(response, 54);
-            Debug.WriteLine($"Poll : got {count} bytes");
             
-            for (int i = 0; i < count; i++)
-            {
-                Debug.WriteLine($"  [{i}] = 0x{response[i]:X2}");
-            }
-            Debug.WriteLine($"Reg 0x{registerAddress:X2} count Raw: [0x{response[0]:X2}]");
+            _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, AppConfig.CMD_READ_INIT, registerAddress, AppConfig.SYNC_BYTE, AppConfig.CMD_READ_RESPONSE }, 5);
+            
+            int count = _u2a.UART_Read(response, 54);                        
             
             //this works as long as UART.SET_MODE is set to 2 (RecvAfterXmit)
             return response[0];
@@ -116,6 +113,7 @@ namespace PGA305OWICalibration.PGA305
             int pressureValue = lsb | (msb << 8);
             char accuracy = (char)accuracyByte;
             string pressureCode = $"{pressureValue:D3}{accuracy}";
+            
             Debug.WriteLine($"Pressure Code: {pressureCode}");
             
             return pressureCode;
@@ -150,7 +148,10 @@ namespace PGA305OWICalibration.PGA305
             Debug.WriteLine($"Transducer Serial: b7:0x{b7:X2} b6:0x{b6:X2} b5:0x{b5:X2} b4:0x{b4:X2}");
 
             if (b4 < 0 || b5 < 0 || b6 < 0 || b7 < 0)
-                return -1;
+            { 
+                //add error message
+                return -1;            
+            }                           
 
             int serialNumber = (b7 << 24) | (b6 << 16) | (b5 << 8) | b4;
             Debug.WriteLine($"Transducer Serial Number: {serialNumber}");
@@ -274,7 +275,9 @@ namespace PGA305OWICalibration.PGA305
                 Debug.WriteLine($"ERROR: EEPROM page must contain exactly {pageSize} bytes.");
                 return false;
             }
+           
             byte[] cmd = new byte[18];
+            
             cmd[0] = AppConfig.SYNC_BYTE;
             cmd[1] = AppConfig.CMD_WRITE;
             cmd[2] = (byte)EEPROMRegister.EEPROM_PAGE_ADDR;
@@ -286,13 +289,17 @@ namespace PGA305OWICalibration.PGA305
             cmd[15] = AppConfig.CMD_WRITE;
             cmd[16] = (byte)EEPROMRegister.EEPROM_CTRL;
             cmd[17] = (byte)EEPROMRegister.EEPROM_CTRL_ERASE_AND_PROGRAM;
+            
             _u2a.UART_Write(cmd, (byte)cmd.Length);
             Debug.WriteLine($"Page 0x{page:X2} cache: {string.Join(" ", pageData.Select(b => $"0x{b:X2}"))}");
+            
             Thread.Sleep(15);
             byte[] discard = new byte[54];
             int junk = _u2a.UART_Read(discard, 54);
+            
             if (junk > 0) Debug.WriteLine($"Discarded {junk} program-cycle byte(s)");
             int pageStart = page * pageSize;
+            
             for (int i = 0; i < pageSize; i++)
             {
                 int actual = ReadRegister((byte)(pageStart + i));
@@ -315,10 +322,12 @@ namespace PGA305OWICalibration.PGA305
         public bool BatchWriteRegisters(Dictionary<byte, byte> targetUpdates)
         {
             const int pageSize = EEPROMRegister.EEPROM_PAGE_SIZE;
+            
             var pages = targetUpdates.Keys
                 .Select(addr => addr / pageSize)
                 .Distinct()
                 .OrderBy(p => p);
+            
             foreach (int page in pages)
             {
                 int pageStart = page * pageSize;
@@ -350,13 +359,6 @@ namespace PGA305OWICalibration.PGA305
             return true;
         }
 
-        public string ReadDIG_IF_CNTRL()
-        {
-            int value = ReadRegister(0x0B);
-            if (value < 0) return "Read error";
-            return $"DIG_IF_CNTRL: 0x{value:X2}";
-        }
-
         public byte[] ReadEepromCache()
         {
             byte[] flush = new byte[54];
@@ -372,31 +374,6 @@ namespace PGA305OWICalibration.PGA305
                 Debug.WriteLine($"  cache[{i}] = 0x{data[i]:X2}");
 
             return data;
-        }
-
-        public (string partNumber, string serialNumber, int prange) ReadMetadata()
-        {
-            byte[] data = new byte[54];
-
-            _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, AppConfig.CMD_READ_INIT, EEPROMRegister.PRANGE_LSB }, 3);
-            _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, EEPROMRegister.CMD_BURST_READ_CACHE }, 2);
-            int count = _u2a.UART_Read(data, 54);
-
-            Debug.WriteLine($"Cache read count: {count}");
-            for (int i = 0; i < count; i++)
-                Debug.WriteLine($"  cache[{i}] = 0x{data[i]:X2}");
-
-            int pn_lsb = data[0];
-            int pn_mid = data[1];
-            int pn_msb = data[2];
-            string partNumber = $"0x{pn_msb:X2}{pn_mid:X2}{pn_lsb:X2}";
-
-            long serialValue = ((long)data[5] << 16) | ((long)data[4] << 8) | (long)data[3];
-            string serialNumber = serialValue.ToString("D6");
-
-            int prange = data[6] | (data[7] << 8);
-
-            return (partNumber, serialNumber, prange);
         }
     }
 }

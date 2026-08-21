@@ -25,6 +25,7 @@
             lblSummary = new Label();
             lblConfigure = new Label();
             lblConnectDevice = new Label();
+            chkInclude = new CheckBox();
             SuspendLayout();
             // 
             // lblChannelNum
@@ -119,10 +120,21 @@
             lblConnectDevice.TabIndex = 8;
             lblConnectDevice.Text = "Connect to Device:";
             // 
+            // chkInclude
+            // 
+            chkInclude.AutoSize = true;
+            chkInclude.Location = new Point(228, 9);
+            chkInclude.Name = "chkInclude";
+            chkInclude.Size = new Size(65, 19);
+            chkInclude.TabIndex = 9;
+            chkInclude.Text = "Include";
+            chkInclude.UseVisualStyleBackColor = true;
+            // 
             // StockCodeCard
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(chkInclude);
             Controls.Add(lblConnectDevice);
             Controls.Add(lblConfigure);
             Controls.Add(lblChannelNum);
@@ -147,5 +159,6 @@
         private Label lblSummary;
         private Label lblConfigure;
         private Label lblConnectDevice;
+        private CheckBox chkInclude;
     }
 }

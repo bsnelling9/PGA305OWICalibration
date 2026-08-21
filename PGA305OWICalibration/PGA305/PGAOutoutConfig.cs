@@ -4,17 +4,48 @@ namespace PGA305OWICalibration.PGA305
 {
     public class PGAOutputConfig
     {
-        public int SerialNumber { get; set; }
-        public string PressureCode { get; set; } = string.Empty;
-        public string SensorSerialNumber { get; set; } = string.Empty;
-        public string StockCode { get; set; } = string.Empty;
+        public const string Ratiometric = "Ratiometric";
+        public const string Voltage = "Voltage";
+        public const string Current = "Current";
 
+        private static readonly Dictionary<byte, byte> RatiometricRegisters = new()
+        {
+            { EEPROMRegister.DAC_CONFIG.Address, 0x01 },
+            { EEPROMRegister.OP_STAGE_CTRL.Address, 0x12 }
+        };
+
+        private static readonly Dictionary<byte, byte> CurrentRegisters = new()
+        {
+        };
+
+        private static readonly Dictionary<string, (double Min, double Max)> VoltageRanges = new()
+        {
+            ["0-10V"] = (0.0, 10.0),
+            ["0.5-4.5V"] = (0.5, 4.5),
+            ["0-5V"] = (0.0, 5.0),
+            ["1-5V"] = (1.0, 5.0),
+            ["1-6V"] = (1.0, 6.0),
+        };
+
+        private static readonly Dictionary<string, Dictionary<byte, byte>> VoltageRegisters = new()
+        {
+            ["0-5V"] = new() { { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V } },
+            ["1-5V"] = new() { { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V } },
+            ["1-6V"] = new() { { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V } },
+        };
+
+        public static IEnumerable<string> AvailableVoltageRanges => VoltageRanges.Keys;
+
+        public int SerialNumber { get; set; }
+        public string SensorSerialNumber { get; set; } = string.Empty;
+        public string PressureCode { get; set; } = string.Empty;
+        public string StockCode { get; set; } = string.Empty;
         public string JobCode { get; set; } = string.Empty;
 
         public int maxPSI { get; private set; }
         public int maxBar { get; private set; }
 
-        public double vMin { get; private set; } = 0;
+        public double vMin { get; private set; }
         public double vMax { get; private set; } = 10;
 
         public int pMin { get; set; }
@@ -23,107 +54,53 @@ namespace PGA305OWICalibration.PGA305
         public string SignalType { get; private set; } = string.Empty;
         public string ElectricalOutput { get; private set; } = string.Empty;
 
-        //Has no effect on the convert output
-        public string PressureUnit { get; set; } = "psi";       
-
+        public string PressureUnit { get; set; } = "psi";
 
         public Dictionary<byte, byte> SelectedRegisters { get; private set; } = new();
 
-        public Dictionary<byte, byte> Ratiometric { get; } = new()
-        {
-            { EEPROMRegister.DAC_CONFIG.Address, 0x01 },
-            { EEPROMRegister.OP_STAGE_CTRL.Address, 0x12 }
-        };
-             
-        public Dictionary<string, Dictionary<byte, byte>> Voltage { get; } = new()
-        {
-            ["1-6V"] = new()
-            {    
-                    { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V},   
-            },
-            ["0-5V"] = new()
-            {
-                    { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V},
-            },
-            ["1-5V"] = new()
-            {
-                    { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V},
-            },
-        };
+        public int MaxPressure => PressureUnit == "bar" ? maxBar : maxPSI;
 
-        public Dictionary<byte, byte> Current { get; } = new()
-        {
-            // Current register settings
-        };
+        public bool PressureRangeIsValid =>
+            pMin >= 0 && pMin < pMax && (MaxPressure == 0 || pMax <= MaxPressure);
 
         public void SelectRatiometric()
         {
-            SignalType = "Ratiometric";
+            SignalType = Ratiometric;
             ElectricalOutput = "0.5-4.5V";
-
             vMin = 0.5;
             vMax = 4.5;
-
-            SelectedRegisters = Ratiometric;
+            SelectedRegisters = new Dictionary<byte, byte>(RatiometricRegisters);
         }
 
         public void SelectCurrent()
         {
-            SignalType = "Current";
+            SignalType = Current;
             ElectricalOutput = "4-20mA";
-
-            SelectedRegisters = Current;
-        }          
+            vMin = 0;
+            vMax = 0;
+            SelectedRegisters = new Dictionary<byte, byte>(CurrentRegisters);
+        }
 
         public void SelectVoltage(string range)
         {
-            SignalType = "Voltage";
+            if (!VoltageRanges.TryGetValue(range, out var limits))
+                throw new ArgumentException($"Unknown voltage range '{range}'");
+
+            SignalType = Voltage;
             ElectricalOutput = range;
+            vMin = limits.Min;
+            vMax = limits.Max;
 
-            switch (range)
-            {
-                case "0-10V":
-                    vMin = 0;
-                    vMax = 10;
-                    SelectedRegisters.Clear();
-                    break;
-
-                case "0-5V":
-                    vMin = 0;
-                    vMax = 5;
-                    SelectedRegisters = Voltage[range];
-                    break;
-
-                case "1-6V":
-                    vMin = 1;
-                    vMax = 6;
-                    SelectedRegisters = Voltage[range];
-                    break;
-
-                case "1-5V":
-                    vMin = 1;
-                    vMax = 5;
-                    SelectedRegisters = Voltage[range];
-                    break;
-
-                case "0.5-4.5V":
-                    vMin = 0.5;
-                    vMax = 4.5;
-                    SelectedRegisters.Clear();
-                    break;
-
-                default:
-                    throw new ArgumentException(
-                        $"Unknown voltage range '{range}'");
-            }
+            SelectedRegisters = VoltageRegisters.TryGetValue(range, out var registers)
+                ? new Dictionary<byte, byte>(registers)
+                : new Dictionary<byte, byte>();
         }
-       
+
         public void SetPressureUnit(string unit)
         {
             PressureUnit = unit;
-
             pMin = 0;
-            pMax = unit == "bar" ? maxBar : maxPSI;
+            pMax = MaxPressure;
         }
 
         public void SetPressureRangeFromCode()
@@ -138,7 +115,7 @@ namespace PGA305OWICalibration.PGA305
             if (StockCode.Length == 0)
             {
                 pMin = 0;
-                pMax = PressureUnit == "bar" ? maxBar : maxPSI;
+                pMax = MaxPressure;
             }
         }
     }

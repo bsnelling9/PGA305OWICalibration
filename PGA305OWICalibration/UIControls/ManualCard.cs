@@ -53,8 +53,8 @@ namespace PGA305OWICalibration.UIControls
                 ? _outputconfig.PressureCode
                 : "--";
 
-            int deviceLimit = unit == "bar" ? _outputconfig.maxBar : _outputconfig.maxPSI;
-            bool mismatch = _deviceConnected && deviceLimit > 0 && _outputconfig.pMax > deviceLimit;
+            int deviceLimit = _outputconfig.MaxPressure;
+            bool mismatch = _deviceConnected && !_outputconfig.PressureRangeIsValid;
             int limit = Math.Max(deviceLimit, Math.Max(_outputconfig.pMax, 1));
 
             numMinPressure.Maximum = limit;

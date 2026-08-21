@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 
 namespace PGA305OWICalibration.Instruments
@@ -117,7 +116,6 @@ namespace PGA305OWICalibration.Instruments
         public int UART_Read(byte[] buffer, byte length)
         {
             int result = u2aUART_Read(_handle, length, buffer);
-            Debug.WriteLine($"UART_Read raw result: {result}");
             return result;
         }
 

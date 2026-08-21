@@ -16,8 +16,6 @@ namespace PGA305OWICalibration.API
         public int tadc_offset { get; set; }
     }
 
-    //Remove once I get right of the get initial coefficients
-    // the get initial coefficients was use for testing
     public class InitialCoefficients
     {
         public int session_id { get; set; }
