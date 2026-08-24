@@ -147,17 +147,17 @@ namespace PGA305OWICalibration
         {
             _u2a.I2C_Control(0, 0, 1);
             
-            _u2a.I2C_RegisterWrite(AppConfig.RLOOP_ADDR, AppConfig.RLOOP_REG, rloop);
+            _u2a.I2C_RegisterWrite(EVMConfig.RLOOP_ADDR, EVMConfig.RLOOP_REG, rloop);
             
-            _u2a.I2C_RegisterWrite(AppConfig.TPL0102_ADDR, AppConfig.ADDVOLT_REG_WA, addVolt);
-            _u2a.I2C_RegisterWrite(AppConfig.TPL0102_ADDR, AppConfig.ADDVOLT_REG_WB, addVolt);
+            _u2a.I2C_RegisterWrite(EVMConfig.TPL0102_ADDR, EVMConfig.ADDVOLT_REG_WA, addVolt);
+            _u2a.I2C_RegisterWrite(EVMConfig.TPL0102_ADDR, EVMConfig.ADDVOLT_REG_WB, addVolt);
 
             Debug.WriteLine($"Pots set: Rloop 0x{rloop:X2}, AddVolt 0x{addVolt:X2}");
         }
 
         private void SelectVoltageOutput(string range = "0-10V")
         {
-            SetPots(AppConfig.RLOOP_22R, AppConfig.ADDVOLT_0V5);
+            SetPots(EVMConfig.RLOOP_22R, EVMConfig.ADDVOLT_0V5);
             lstVoltageRange.SelectedItem = range;
             SetVoltageRange(range);
             UpdateVisibility();
@@ -172,7 +172,7 @@ namespace PGA305OWICalibration
         private void btnRatioPOT_Click(object sender, EventArgs e)
         {
             _selectedOutputMode = btnRatioPOT;
-            SetPots(AppConfig.RLOOP_10R, AppConfig.ADDVOLT_0V0);
+            SetPots(EVMConfig.RLOOP_10R, EVMConfig.ADDVOLT_0V0);
             _outputconfig.SelectRatiometric();
             UpdateOutputConfigSummary();
             UpdateVisibility();
@@ -192,8 +192,8 @@ namespace PGA305OWICalibration
 
         private void ParkOwiLines()
         {
-            _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
-            _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
+            _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_LOW);
+            _u2a.GPIO_WritePort(USB2AnyConfig.GPIO10, USB2AnyConfig.STATE_LOW);
         }
 
         private void btnConnectDevice_Click(object sender, EventArgs e)
@@ -464,8 +464,8 @@ namespace PGA305OWICalibration
             try
             {
                 // put the OWI lines back to idle before the swap
-                _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
-                _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
+                _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_LOW);
+                _u2a.GPIO_WritePort(USB2AnyConfig.GPIO10, USB2AnyConfig.STATE_LOW);
 
                 MessageBox.Show("ENSURE TO TURN OFF THE POWERSUPPLY FIRST! Fit the next device, then click OK.",
                                 "Next Device", MessageBoxButtons.OK, MessageBoxIcon.Information);

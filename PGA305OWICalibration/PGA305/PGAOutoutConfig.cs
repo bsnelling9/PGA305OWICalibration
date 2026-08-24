@@ -2,6 +2,7 @@
 
 namespace PGA305OWICalibration.PGA305
 {
+    // Clean up this file
     public class PGAOutputConfig
     {
         public const string Ratiometric = "Ratiometric";
@@ -11,7 +12,7 @@ namespace PGA305OWICalibration.PGA305
         private static readonly Dictionary<byte, byte> RatiometricRegisters = new()
         {
             { EEPROMRegister.DAC_CONFIG.Address, 0x01 },
-            { EEPROMRegister.OP_STAGE_CTRL.Address, 0x12 }
+            { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_4V }
         };
 
         private static readonly Dictionary<byte, byte> CurrentRegisters = new()
@@ -29,12 +30,12 @@ namespace PGA305OWICalibration.PGA305
 
         private static readonly Dictionary<string, Dictionary<byte, byte>> VoltageRegisters = new()
         {
+            ["0.5-4.5V"] = new() { { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_4V } },
             ["0-5V"] = new() { { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V } },
             ["1-5V"] = new() { { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V } },
             ["1-6V"] = new() { { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V } },
+            ["0-10V"] = new() { { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.OP_STAGE_CTRL.DefaultValue } },
         };
-
-        public static IEnumerable<string> AvailableVoltageRanges => VoltageRanges.Keys;
 
         public int SerialNumber { get; set; }
         public string SensorSerialNumber { get; set; } = string.Empty;

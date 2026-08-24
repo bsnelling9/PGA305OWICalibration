@@ -31,7 +31,7 @@
       }
     },
     "A106987": {
-      "stock_code": "A106986",
+      "stock_code": "A106987",
       "output": {
         "min": 4,
         "max": 20,
@@ -41,6 +41,21 @@
       "pressure": {
         "min": 0,
         "max": 1300,
+        "units": "psi",
+        "type": "absolute"
+      }
+    },
+    "A106988": {
+      "stock_code": "A106988",
+      "output": {
+        "min": 1,
+        "max": 6,
+        "units": "V",
+        "type": "voltage"
+      },
+      "pressure": {
+        "min": 0,
+        "max": 1200,
         "units": "psi",
         "type": "absolute"
       }

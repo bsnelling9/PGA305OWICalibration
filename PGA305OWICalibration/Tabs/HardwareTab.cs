@@ -11,9 +11,11 @@ namespace PGA305OWICalibration.Tabs
         private USB2AnyDevice _u2a;
         private PGA305Device _pga305;
 
-        private int? _serialNumber;
-        private string? _sensorSerialNumber;
-        private string? _pressureCode;
+        // This will need to go into the appsettingsJSON or the hardware.
+        private const string Stm32Port = "COM15";
+
+        private const int RowStm32 = 0;
+        private const int RowUsb2Any = 1;
 
         public HardwareTab(STM32Controller stm32, USB2AnyDevice u2a, PGA305Device pga305)
         {
@@ -22,41 +24,7 @@ namespace PGA305OWICalibration.Tabs
             _u2a = u2a;
             _pga305 = pga305;
         }
-
-        private void BtnSetCompensation_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                int powerResult = _u2a.Power_WriteControl(Power_3V3.ON, Power_5V0.ON);
-                Debug.WriteLine($"Power result: {powerResult}");
-
-                bool ok = _stm32.ConfigureVoltageComparators(
-                    vcompa0High: chkVCOMPA0.Checked,
-                    vcompa1High: chkVCOMPA1.Checked);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Set Compensation error: {ex.Message}");
-            }
-        }
-
-        private void BtnSetRelay_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                bool ok = _stm32.ConfigureRelays(
-                    owiRelayClosed: rdoOWI.Checked,
-                    maRelayClosed: rdoMA.Checked,
-                    voRelayClosed: rdoOWI.Checked || rdoVO.Checked);
-
-                string mode = rdoOWI.Checked ? "OWI" : rdoVO.Checked ? "VO" : "MA";
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Set Relay error: {ex.Message}");
-            }
-        }
-
+                
         private void BtnScanHardware_Click(object sender, EventArgs e)
         {
             dgvHardware.Rows.Clear();
@@ -92,9 +60,6 @@ namespace PGA305OWICalibration.Tabs
             }
         }
 
-        private const int RowStm32 = 0;
-        private const int RowUsb2Any = 1;
-
         private void BtnConnectAll_Click(object sender, EventArgs e)
         {
             dgvHardware.Rows.Clear();
@@ -103,9 +68,7 @@ namespace PGA305OWICalibration.Tabs
 
             ConnectStm32();
             ConnectUsb2Any();
-        }
-
-        private const string Stm32Port = "COM15";
+        }       
 
         private void ConnectStm32()
         {
@@ -165,62 +128,6 @@ namespace PGA305OWICalibration.Tabs
             dgvHardware.Rows[index].Cells[0].Value = device;
             dgvHardware.Rows[index].Cells[1].Value = id;
             dgvHardware.Rows[index].Cells[2].Value = status;
-        }
-
-        private void btnInitHW_Click(object sender, EventArgs e)
-        {
-            bool initOk = _pga305.Initialize();
-        }
-
-        private void btnPinHigh_Click(object sender, EventArgs e)
-        {
-            bool ok = _stm32.SelectChannel(0);
-            if (!ok)
-            {
-                Debug.WriteLine("Failed to select channel 0");
-            }
-
-            _pga305.ActivatePinHigh();
-        }
-
-        private void btnConnectDevice_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                bool ok = _stm32.SelectChannel(0);
-                if (!ok)
-                {
-                    Debug.WriteLine("Failed to select channel 0");
-                }
-
-                bool activate = _pga305.Activate();
-
-                if (!activate)
-                {
-                    Debug.WriteLine("Device failed to activate.");
-                    return;
-                }
-
-                _serialNumber = _pga305.ReadInternalSerialNumber();
-                _pressureCode = _pga305.ReadPressureCode();
-                _sensorSerialNumber = _pga305.ReadSerialNumber();
-
-
-                if (!_serialNumber.HasValue)
-                {
-                    Debug.WriteLine("Failed to read internal serial number.");
-                    return;
-                }
-
-                Debug.WriteLine($"Pressure code: {_pressureCode}");
-                Debug.WriteLine($"Serial number: {_sensorSerialNumber}");
-                Debug.WriteLine($"Internal serial number: {_serialNumber}");
-
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error: {ex.Message}");
-            }
-        }
+        }         
     }
 }

@@ -1,7 +1,6 @@
 using PGA305OWICalibration.Config;
 using PGA305OWICalibration.Instruments;
 using PGA305OWICalibration.PGA305;
-using PGA305OWICalibration.PGA305EVM;
 using PGA305OWICalibration.Tabs;
 
 namespace PGA305OWICalibration
@@ -46,19 +45,18 @@ namespace PGA305OWICalibration
             outputForm.Show();
         }
 
-
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             try
             {
                 if (_u2a.GetHandle() > 0)
                 {
-                    _u2a.GPIO_WritePort(AppConfig.GPIO7, AppConfig.STATE_LOW);
-                    _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
-                    _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
-                    _u2a.GPIO_WritePort(AppConfig.GPIO7, AppConfig.STATE_LOW);
-                    _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
-                    _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(USB2AnyConfig.GPIO7, USB2AnyConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(USB2AnyConfig.GPIO10, USB2AnyConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(USB2AnyConfig.GPIO7, USB2AnyConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(USB2AnyConfig.GPIO10, USB2AnyConfig.STATE_LOW);
+                    _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_LOW);
                     _u2a.OneWire_SetOutput(0);
                     _u2a.OneWire_SetMode(0);
                     Thread.Sleep(10);

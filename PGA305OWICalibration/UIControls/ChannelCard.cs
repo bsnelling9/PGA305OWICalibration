@@ -90,6 +90,8 @@ namespace PGA305OWICalibration.UIControls
 
         public virtual void SetInteractive(bool enabled)
         {
+            if (_interactive == enabled) return;
+
             _interactive = enabled;
             UpdateDisplay();
         }

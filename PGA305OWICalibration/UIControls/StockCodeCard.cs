@@ -7,7 +7,6 @@ namespace PGA305OWICalibration.UIControls
     {
         private string _message = string.Empty;
         private string _lastAttempt = string.Empty;
-
         private bool _selectionMode;
 
         public StockCodeCard()
@@ -129,8 +128,8 @@ namespace PGA305OWICalibration.UIControls
                 {
                     lblSummary.Text = string.Join(Environment.NewLine,
                         $"Stock code: {Or(_outputconfig.StockCode)}",
-                        $"Serial: {_outputconfig.SerialNumber}",
-                        $"Sensor: {Or(_outputconfig.SensorSerialNumber)}",
+                        $"Serial Number: {_outputconfig.SerialNumber}",
+                        $"Sensor Number: {Or(_outputconfig.SensorSerialNumber)}",
                         $"Pressure code: {Or(_outputconfig.PressureCode)}",
                         $"Output: {_outputconfig.ElectricalOutput} ({type})",
                         $"Pressure: {range}",

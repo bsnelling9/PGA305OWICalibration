@@ -11,17 +11,17 @@ namespace PGA305OWICalibration.PGA305
 
         public void ParkLines()
         {
-            _u2a.GPIO_SetPort(AppConfig.GPIO10, AppConfig.FN_OUTPUT);
-            _u2a.GPIO_WritePort(AppConfig.GPIO10, AppConfig.STATE_LOW);
-            _u2a.GPIO_SetPort(AppConfig.GPIO11, AppConfig.FN_OUTPUT);
-            _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_LOW);
+            _u2a.GPIO_SetPort(USB2AnyConfig.GPIO10, USB2AnyConfig.FN_OUTPUT);
+            _u2a.GPIO_WritePort(USB2AnyConfig.GPIO10, USB2AnyConfig.STATE_LOW);
+            _u2a.GPIO_SetPort(USB2AnyConfig.GPIO11, USB2AnyConfig.FN_OUTPUT);
+            _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_LOW);
         }
 
         public bool Initialize()
         {
             Debug.WriteLine("Initialise() called");
 
-            int result = _u2a.OneWire_SetMode(AppConfig.OW_MODE);
+            int result = _u2a.OneWire_SetMode(USB2AnyConfig.OW_MODE);
             
             if (result < 0) return false;
 
@@ -37,33 +37,25 @@ namespace PGA305OWICalibration.PGA305
             return true;
         }
 
-        //Did this and was measureing 6.4V on the pin so the activate signal level is correect.
-        // I believe it has to be above 5.8V
-        public void ActivatePinHigh()
-        {
-            _u2a.GPIO_SetPort(AppConfig.GPIO7, AppConfig.FN_OUTPUT);
-            _u2a.GPIO_WritePort(AppConfig.GPIO7, AppConfig.STATE_HIGH);
-        }
-
         public bool Activate()
         {
             Debug.WriteLine("Activate called OWI");
             byte[] response = new byte[54];
 
-            _u2a.OneWire_PulseSetup(AppConfig.TIME_SETUP, AppConfig.ACT_TIME_LOW, AppConfig.ACT_TIME_HIGH, AppConfig.TIME_STORE, AppConfig.FLAGS);
+            _u2a.OneWire_PulseSetup(USB2AnyConfig.TIME_SETUP, USB2AnyConfig.ACT_TIME_LOW, USB2AnyConfig.ACT_TIME_HIGH, USB2AnyConfig.TIME_STORE, USB2AnyConfig.FLAGS);
 
             _u2a.OneWire_PulseWriteEx(0, 2);
             Thread.Sleep(25);
             _u2a.OneWire_PulseWriteEx(0, 2);
 
-            _u2a.GPIO_WritePort(AppConfig.GPIO11, AppConfig.STATE_HIGH);
+            _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_HIGH);
 
             _u2a.UART_Write(new byte[] {
-                AppConfig.SYNC_BYTE, AppConfig.CMD_WRITE_PAGE0, 0x08, AppConfig.SYNC_BYTE,
-                AppConfig.SYNC_BYTE, AppConfig.CMD_WRITE_PAGE0, 0x09, AppConfig.SYNC_BYTE
+                USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE0, 0x08, USB2AnyConfig.SYNC_BYTE,
+                USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE0, 0x09, USB2AnyConfig.SYNC_BYTE
             }, 8);
 
-            _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, 0x02, 0x0C, AppConfig.SYNC_BYTE, AppConfig.CMD_READ_RESPONSE }, 5);
+            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, 0x02, 0x0C, USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_RESPONSE }, 5);
             int count = _u2a.UART_Read(response, 54);
 
             Debug.WriteLine($"Activate: got {count} bytes");            
@@ -92,7 +84,7 @@ namespace PGA305OWICalibration.PGA305
         {
             byte[] response = new byte[54];
             
-            _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, AppConfig.CMD_READ_INIT, registerAddress, AppConfig.SYNC_BYTE, AppConfig.CMD_READ_RESPONSE }, 5);
+            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_INIT, registerAddress, USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_RESPONSE }, 5);
             
             int count = _u2a.UART_Read(response, 54);                        
             
@@ -161,7 +153,7 @@ namespace PGA305OWICalibration.PGA305
 
         public bool WriteRegister(byte registerAddress, byte value)
         {
-            int response = _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, AppConfig.CMD_WRITE, registerAddress, value }, 4);
+            int response = _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE, registerAddress, value }, 4);
             if (response == 0)
             {
                 Debug.WriteLine($"Write reg 0x{registerAddress:X2} = 0x{value:X2}");
@@ -278,15 +270,15 @@ namespace PGA305OWICalibration.PGA305
            
             byte[] cmd = new byte[18];
             
-            cmd[0] = AppConfig.SYNC_BYTE;
-            cmd[1] = AppConfig.CMD_WRITE;
+            cmd[0] = USB2AnyConfig.SYNC_BYTE;
+            cmd[1] = USB2AnyConfig.CMD_WRITE;
             cmd[2] = (byte)EEPROMRegister.EEPROM_PAGE_ADDR;
             cmd[3] = page;
-            cmd[4] = AppConfig.SYNC_BYTE;
+            cmd[4] = USB2AnyConfig.SYNC_BYTE;
             cmd[5] = EEPROMRegister.CMD_BURST_WRITE_CACHE;
             Array.Copy(pageData, 0, cmd, 6, pageSize);
-            cmd[14] = AppConfig.SYNC_BYTE;
-            cmd[15] = AppConfig.CMD_WRITE;
+            cmd[14] = USB2AnyConfig.SYNC_BYTE;
+            cmd[15] = USB2AnyConfig.CMD_WRITE;
             cmd[16] = (byte)EEPROMRegister.EEPROM_CTRL;
             cmd[17] = (byte)EEPROMRegister.EEPROM_CTRL_ERASE_AND_PROGRAM;
             
@@ -364,10 +356,10 @@ namespace PGA305OWICalibration.PGA305
             byte[] flush = new byte[54];
             byte[] data = new byte[54];
 
-            _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, AppConfig.CMD_READ_INIT, EEPROMRegister.PRANGE_LSB }, 3);
+            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_INIT, EEPROMRegister.PRANGE_LSB }, 3);
             _u2a.UART_Read(flush, 54);
 
-            _u2a.UART_Write(new byte[] { AppConfig.SYNC_BYTE, AppConfig.CMD_READ_RESPONSE }, 2);
+            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_RESPONSE }, 2);
             _u2a.UART_Read(data, 54);
 
             for (int i = 0; i < 8; i++)

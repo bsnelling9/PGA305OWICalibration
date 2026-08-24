@@ -1,7 +1,5 @@
 ﻿using Ivi.Visa.FormattedIO;
 using NationalInstruments.Visa;
-using System;
-using System.Linq;
 
 namespace PGA305OWICalibration.Instruments
 {

@@ -1,5 +1,6 @@
-﻿using System.IO.Ports;
+﻿using PGA305OWICalibration.Config;
 using System.Diagnostics;
+using System.IO.Ports;
 
 namespace PGA305OWICalibration.Instruments
 {
@@ -7,17 +8,6 @@ namespace PGA305OWICalibration.Instruments
     {
         private SerialPort? _serialPort;
         private byte _currentConfig = 0;
-
-        // Byte mask is the location in the command byte for each control bit sent to the STM32
-        private const byte SETOWI_MASK = 0x40; // PB4  - OWI relay
-        private const byte SETMA_MASK = 0x20;  // PA11 - mA relay
-        private const byte SETVO_MASK = 0x10;  // PA8  - VO relay
-        private const byte MEASRV_MASK = 0x0C;  // PB0  - measure reference voltage
-        private const byte MEASVO_MASK = 0x08;  // PA12 - measure voltage output
-        private const byte MEASMA_MASK = 0x04;  // PB7  - measure mA
-        private const byte VCOMP1_MASK = 0x02;  // PA4  - voltage comparator 1
-        private const byte VCOMP0_MASK = 0x01;  // PA5  - voltage comparator 0
-
         public bool IsConnected => _serialPort?.IsOpen ?? false;
 
         public bool Open(string portName)
@@ -84,12 +74,12 @@ namespace PGA305OWICalibration.Instruments
             return response.Length > 0 && response[0] == 6;
         }
 
-        public bool ConfigureRelays(bool owiRelayClosed, bool maRelayClosed, bool voRelayClosed)
+        public bool ConfigurePowerRelays(bool owiRelayClosed, bool maRelayClosed, bool voRelayClosed)
         {
-            _currentConfig = (byte)(_currentConfig & ~(SETOWI_MASK | SETMA_MASK | SETVO_MASK));
-            if (owiRelayClosed) _currentConfig |= SETOWI_MASK;
-            if (maRelayClosed) _currentConfig |= SETMA_MASK;
-            if (voRelayClosed) _currentConfig |= SETVO_MASK;
+            _currentConfig = (byte)(_currentConfig & ~MuxSTM32Config.RelayMask);
+            if (owiRelayClosed) _currentConfig |= MuxSTM32Config.OwiRelayBit;
+            if (maRelayClosed) _currentConfig |= MuxSTM32Config.MaRelayBit;
+            if (voRelayClosed) _currentConfig |= MuxSTM32Config.VoRelayBit;
 
             Debug.WriteLine($"Configure Relay:cfg{_currentConfig:X2}");
 
@@ -99,46 +89,53 @@ namespace PGA305OWICalibration.Instruments
 
         public bool ConfigureVoltageComparators(bool vcompa0High, bool vcompa1High)
         {
-            _currentConfig = (byte)(_currentConfig & ~(VCOMP0_MASK | VCOMP1_MASK));
-            if (vcompa0High) _currentConfig |= VCOMP0_MASK;
-            if (vcompa1High) _currentConfig |= VCOMP1_MASK;
+            _currentConfig = (byte)(_currentConfig & ~MuxSTM32Config.ComparatorMask);
+            if (vcompa0High) _currentConfig |= MuxSTM32Config.VCompA0Bit;
+            if (vcompa1High) _currentConfig |= MuxSTM32Config.VCompA1Bit;
 
             Debug.WriteLine($"Configure Voltage Comparators cfg: 0x{_currentConfig:X2}");
             string response = SendCommand($"cfg{_currentConfig:X2}");
             return response.Length > 0 && response[0] == 6;
         }
 
-        public bool ConfigureMeasurement(bool measRV, bool measVO, bool measMA)
+        public bool ConfigureMeasurementRelays(bool measRV, bool measVO, bool measMA)
         {
-            byte measMask = (byte)(MEASRV_MASK | MEASVO_MASK | MEASMA_MASK);
+            byte measMask = (byte)(MuxSTM32Config.MEASRV_MASK | MuxSTM32Config.MeasureVoBit | MuxSTM32Config.MeasureMaBit);
             _currentConfig = (byte)(_currentConfig & ~measMask);
-            
-            if (measRV) _currentConfig |= MEASRV_MASK;
-            else if (measVO) _currentConfig |= MEASVO_MASK;
-            else if (measMA) _currentConfig |= MEASMA_MASK;
-            
+
+            if (measRV) _currentConfig |= MuxSTM32Config.MEASRV_MASK;
+            else if (measVO) _currentConfig |= MuxSTM32Config.MeasureVoBit;
+            else if (measMA) _currentConfig |= MuxSTM32Config.MeasureMaBit;
+
             Debug.WriteLine($"Configure Measurement cfg: 0x{_currentConfig:X2}");
             string response = SendCommand($"cfg{_currentConfig:X2}");
             return response.Length > 0 && response[0] == 6;
         }
 
-        public bool ConnectOWI(int channel)
+        public bool ConfigureMuxForOWI(string signalType)
         {
-            if (!SelectChannel(channel)) return false;
+            if (!MuxSTM32Config.Compensation.TryGetValue(signalType, out var comp))
+            {
+                Debug.WriteLine($"Compensation for '{signalType}' has not been set up");
+                return false;
+            }
 
-            byte vcompBits = (byte)(_currentConfig & (VCOMP0_MASK | VCOMP1_MASK));
-            _currentConfig = vcompBits;
+            if (!ConfigureVoltageComparators(comp.VCompA0High, comp.VCompA1High))
+            {
+                Debug.WriteLine("Compensation failed");
+                return false;
+            }
 
-            Debug.WriteLine($"ConnectOWI reset cfg: 0x{_currentConfig:X2}");
-            string resetResponse = SendCommand($"cfg{_currentConfig:X2}");
-            if (resetResponse.Length == 0 || resetResponse[0] != 6) return false;
+            Thread.Sleep(MuxSTM32Config.ComparatorSettleMs);
 
-            _currentConfig |= SETOWI_MASK;
-            _currentConfig |= SETVO_MASK;
+            if (!ConfigurePowerRelays(owiRelayClosed: true, maRelayClosed: false, voRelayClosed: true))
+            {
+                Debug.WriteLine("Relay config failed");
+                return false;
+            }
 
-            Debug.WriteLine($"ConnectOWI final cfg: 0x{_currentConfig:X2}");
-            string response = SendCommand($"cfg{_currentConfig:X2}");
-            return response.Length > 0 && response[0] == 6;
+            Thread.Sleep(MuxSTM32Config.RelaySettleMs);
+            return true;
         }
 
         public bool DisconnectAll()

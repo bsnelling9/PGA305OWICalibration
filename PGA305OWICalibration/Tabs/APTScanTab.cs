@@ -9,6 +9,8 @@ namespace PGA305OWICalibration.Tabs
 {
     public partial class APTScanTab : UserControl
     {
+        
+        // Move these to a config file
         private const int ChannelCount = 8;
         private const int CompensationSettleMs = 10;
         private const int RelaySettleMs = 20;
@@ -23,6 +25,7 @@ namespace PGA305OWICalibration.Tabs
         private readonly ChannelCard[] _cards = new ChannelCard[ChannelCount];
 
         private ChannelCard? _activeCard;
+        private bool _cardBusy;
         private bool _batchRunning;
 
         public APTScanTab(STM32Controller stm32, PGA305Device pga305)
@@ -53,65 +56,40 @@ namespace PGA305OWICalibration.Tabs
             }
         }
 
-        private bool TryClaimBus(ChannelCard card)
+        private bool SetActiveChannelCard(ChannelCard card)
         {
             if (_activeCard != null && _activeCard != card)
                 return false;
 
             _activeCard = card;
-
-            foreach (var c in _cards)
-                c.SetInteractive(c == card);
-
+            UpdateCardsDisplay();
+            
             return true;
         }
 
-        private void ReleaseBus()
+        private void ClearActiveCard()
         {
             _activeCard = null;
-
-            if (_batchRunning)
-                return;
-
-            foreach (var c in _cards)
-                c.SetInteractive(true);
+            UpdateCardsDisplay();
         }
 
-        private bool SetChannel(int channel)
+        private void UpdateCardsDisplay()
+        {
+            foreach (var card in _cards)
+                card.SetInteractive(
+                    !_cardBusy && !_batchRunning
+                    && (_activeCard == null || _activeCard == card));
+        }
+
+        private bool SelectMuxChannel(int channel)
         {
             if (!_stm32.SelectChannel(channel))
             {
-                Debug.WriteLine($"Channel {channel}: STM32 select failed");
+                Debug.WriteLine($"Failed to select Channel {channel}");
                 return false;
             }
 
             Debug.WriteLine($"Channel {channel} selected, mux register 0x{_stm32.CurrentConfig:X2}");
-            return true;
-        }
-
-        private bool ConfigureMuxForOwi(string signalType)
-        {
-            if (!AppConfig.Compensation.TryGetValue(signalType, out var comp))
-            {
-                Debug.WriteLine($"No compensation defined for '{signalType}'");
-                return false;
-            }
-
-            if (!_stm32.ConfigureVoltageComparators(comp.VCompA0High, comp.VCompA1High))
-            {
-                Debug.WriteLine("Compensation failed");
-                return false;
-            }
-
-            Thread.Sleep(CompensationSettleMs);
-
-            if (!_stm32.ConfigureRelays(owiRelayClosed: true, maRelayClosed: false, voRelayClosed: true))
-            {
-                Debug.WriteLine("Relay config failed");
-                return false;
-            }
-
-            Thread.Sleep(RelaySettleMs);
             return true;
         }
 
@@ -152,16 +130,26 @@ namespace PGA305OWICalibration.Tabs
 
             switch (newType)
             {
-                case "Ratiometric":
+                case PGAOutputConfig.Ratiometric:
                     config.SelectRatiometric();
                     break;
 
-                case "Current":
+                case PGAOutputConfig.Current:
                     config.SelectCurrent();
                     break;
 
-                case "Voltage":
-                    config.SelectVoltage($"{spec.Output.Min:0.##}-{spec.Output.Max:0.##}V");
+                case PGAOutputConfig.Voltage:
+                    string voltageRange = $"{spec.Output.Min:0.##}-{spec.Output.Max:0.##}V";
+                    try
+                    {
+                        config.SelectVoltage(voltageRange);
+                    }
+                    catch (ArgumentException)
+                    {
+                        card.BorderColor = Color.Red;
+                        card.ShowMessage($"'{spec.StockCode}' asks for {voltageRange}, which isn't a configured voltage range.");
+                        return false;
+                    }
                     break;
             }
 
@@ -195,7 +183,7 @@ namespace PGA305OWICalibration.Tabs
                 return false;
             }
 
-            if (!TryClaimBus(card))
+            if (!SetActiveChannelCard(card))
                 return false;
 
             card.BorderColor = Color.RoyalBlue;
@@ -207,7 +195,7 @@ namespace PGA305OWICalibration.Tabs
                 card.DeviceConnected = false;
                 card.ShowProgress("Failed to activate");
                 card.BorderColor = Color.Red;
-                ReleaseBus();
+                ClearActiveCard();
                 return false;
             }
 
@@ -222,10 +210,10 @@ namespace PGA305OWICalibration.Tabs
                 _pga305.ParkLines();
                 Thread.Sleep(DeviceSettleMs);
 
-                if (!ConfigureMuxForOwi(config.SignalType))
+                if (!_stm32.ConfigureMuxForOWI(config.SignalType))
                     return false;
 
-                if (!SetChannel(channel))
+                if (!SelectMuxChannel(channel))
                     return false;
 
                 Thread.Sleep(ChannelSettleMs);
@@ -285,7 +273,8 @@ namespace PGA305OWICalibration.Tabs
                 return false;
             }
 
-            card.SetInteractive(false);
+            _cardBusy = true;
+            UpdateCardsDisplay();
             card.BorderColor = Color.RoyalBlue;
             card.ClearProgress();
             card.ShowProgress("Calculating coefficients...");
@@ -354,13 +343,18 @@ namespace PGA305OWICalibration.Tabs
 
                 card.DeviceConnected = false;
                 card.BorderColor = Color.Green;
-                ReleaseBus();
+                ClearActiveCard();
                 return true;
             }
             catch (Exception ex)
             {
                 card.ShowProgress($"Error: {ex.Message}");
                 return Fail(card, ex.Message);
+            }
+            finally
+            {
+                _cardBusy = false;
+                UpdateCardsDisplay();
             }
         }
 
@@ -430,7 +424,7 @@ namespace PGA305OWICalibration.Tabs
             {
                 _batchRunning = false;
                 btnConfigureAll.Enabled = true;
-                ReleaseBus();
+                ClearActiveCard();
 
                 foreach (var card in targets)
                     card.ClearSelection();
@@ -443,9 +437,6 @@ namespace PGA305OWICalibration.Tabs
         {
             Debug.WriteLine($"Channel {card.Channel}: {reason}");
             card.BorderColor = Color.Red;
-
-            if (!_batchRunning)
-                card.SetInteractive(true);
 
             return false;
         }              

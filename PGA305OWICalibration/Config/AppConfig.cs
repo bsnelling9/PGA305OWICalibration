@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 
-
 // move the EEPROM addresses and values to another config specifically for the EEPROM
 namespace PGA305OWICalibration.Config
 {
@@ -25,6 +24,7 @@ namespace PGA305OWICalibration.Config
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
             string json = File.ReadAllText(path);
             var node = System.Text.Json.Nodes.JsonNode.Parse(json)!;
+            
             node["ApiUrl"] = newUrl;
             File.WriteAllText(path, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
         }
@@ -34,7 +34,7 @@ namespace PGA305OWICalibration.Config
             public int MaxPsi { get; init; }
             public int MaxBar { get; init; }
         }
-
+        //this will need to be moved to a JSON file or something else because there is about 10 fixed ones
         public static readonly Dictionary<string, PressureRange> PressureRanges = new()
         {
             ["16G"] = new PressureRange
@@ -47,82 +47,9 @@ namespace PGA305OWICalibration.Config
                 MaxPsi = 1500,
                 MaxBar = 100
             }
-        };
-
-        public static readonly Dictionary<string, (bool VCompA0High, bool VCompA1High)> Compensation = new()
-        {
-            ["Ratiometric"] = (true, true),
-            ["Voltage"] = (false, false),
-            ["Current"] = (false, false),
-        };
+        };     
 
         public const int BAUD_RATE = 115200;
-        public const string DEVICE_IDENTITY = "PGA305_Mux_01";
-
-        // I2C devices on the EVM (DigiPot / TPL0102 signal conditioning)
-        public const int DIGIPOT_ADDR = 0x2D;
-        public const byte DIGIPOT_REG = 0x00;
-        public const byte DIGIPOT_VALUE = 0x19;
-                        
-        //Rloop
-        public const int RLOOP_ADDR = 0x2D;
-        public const byte RLOOP_REG = 0x00;
-        public const byte RLOOP_10R = 0x19;
-        public const byte RLOOP_22R = 0x21;
-
-        // Additional Voltage
-        public const int TPL0102_ADDR = 0x57;
-        public const byte ADDVOLT_REG_WA = 0x00;
-        public const byte ADDVOLT_REG_WB = 0x01;
-        
-        public const byte ADDVOLT_0V0 = 0x00;
-        public const byte ADDVOLT_0V5 = 0x09;
-        public const byte ADDVOLT_0V6 = 0x0C;
-        public const byte ADDVOLT_0V7 = 0x0E;
-        public const byte ADDVOLT_1V0 = 0x17;
-
-        // Ratiometric board — no series drop to compensate. Identical to legacy HandlePOT().
-        public const byte RATIO_RLOOP = RLOOP_10R;
-        public const byte RATIO_ADDV = ADDVOLT_0V0;
-
-        // Voltage board — compensates R2 (22 Ω) + D2 (BAS16J) in the supply line.
-        public const byte VOLT_RLOOP = RLOOP_22R;
-        public const byte VOLT_ADDV = ADDVOLT_0V5;
-              
-        // OWI timing constants in microseconds — OWI-protocol specific, stay local
-        public const ushort TIME_SETUP = 1000;
-        public const ushort TIME_STORE = 1000;
-        public const int FLAGS = 0;
-        public const ushort OW_MODE = 5;
-        public const ushort ACT_TIME_LOW = 1000;
-        public const ushort ACT_TIME_HIGH = 1000;
-
-        // GPIO pin function/state codes — protocol-level, stay local
-        public const byte FN_OUTPUT = 1;
-        public const byte FN_INPUT = 2;
-        public const byte FN_INPUT_PULLUP = 3;
-        public const byte STATE_HIGH = 2;
-        public const byte STATE_LOW = 1;
-
-        // PGA305 OWI command bytes — protocol-level, stay local
-        public const byte SYNC_BYTE = 0x55;
-        public const byte CMD_WRITE = 0x51;
-        public const byte CMD_READ_INIT = 0x52;
-        public const byte CMD_READ_RESPONSE = 0x73;
-        public const byte CMD_WRITE_PAGE0 = 0x01;
-
-        /*
-       GPIO4 is used for OWI Tx
-       GPIO5 is used for OWI Rx
-       GPIO7 is used for OWI activation pulse (GPIO_OWI_ACT)
-       GPIO10 is used for OWI VDD control (GPIO_OWI_VDD)
-       GPIO11 is used for OWI TX control (GPIO_OWI_TX)
-       */
-        public const byte GPIO4 = 4;
-        public const byte GPIO5 = 5;
-        public const byte GPIO7 = 7;
-        public const byte GPIO10 = 10;
-        public const byte GPIO11 = 11;
-
+        public const string DEVICE_IDENTITY = "PGA305_Mux_01";             
     }
 }
