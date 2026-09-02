@@ -19,6 +19,7 @@ namespace PGA305OWICalibration
 
             HardwareTab hardwareTab = new HardwareTab(_stm32, _u2a, _pga305);
             hardwareTab.Dock = DockStyle.Fill;
+            hardwareTab.HardwareReady += (s, e) => tabControl1.SelectedTab = deviceTab;
             this.hardwareTab.Controls.Add(hardwareTab);
 
             APTScanTab aptScanTab = new APTScanTab(_stm32, _pga305);

@@ -32,11 +32,14 @@
             lblAPIURL = new Label();
             btnClose = new PGA305OWICalibration.UIControls.ATPButton();
             btnSave = new PGA305OWICalibration.UIControls.ATPButton();
+            lblMuxPort = new Label();
+            txtMuxPort = new TextBox();
+            lblSettings = new Label();
             SuspendLayout();
             // 
             // txtAPIURL
             // 
-            txtAPIURL.Location = new Point(96, 48);
+            txtAPIURL.Location = new Point(153, 112);
             txtAPIURL.Name = "txtAPIURL";
             txtAPIURL.Size = new Size(173, 23);
             txtAPIURL.TabIndex = 0;
@@ -45,9 +48,10 @@
             // lblAPIURL
             // 
             lblAPIURL.AutoSize = true;
-            lblAPIURL.Location = new Point(17, 51);
+            lblAPIURL.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblAPIURL.Location = new Point(74, 115);
             lblAPIURL.Name = "lblAPIURL";
-            lblAPIURL.Size = new Size(52, 15);
+            lblAPIURL.Size = new Size(61, 17);
             lblAPIURL.TabIndex = 1;
             lblAPIURL.Text = "API URL:";
             // 
@@ -55,7 +59,6 @@
             // 
             btnClose.BackColor = Color.White;
             btnClose.BorderColor = Color.Black;
-            btnClose.BorderSize = 2;
             btnClose.CornerRadius = 10;
             btnClose.FlatStyle = FlatStyle.Flat;
             btnClose.Font = new Font("Segoe UI", 10F);
@@ -72,7 +75,6 @@
             // 
             btnSave.BackColor = Color.White;
             btnSave.BorderColor = Color.Black;
-            btnSave.BorderSize = 2;
             btnSave.CornerRadius = 10;
             btnSave.FlatStyle = FlatStyle.Flat;
             btnSave.Font = new Font("Segoe UI", 10F);
@@ -85,11 +87,42 @@
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += btnSave_Click;
             // 
+            // lblMuxPort
+            // 
+            lblMuxPort.AutoSize = true;
+            lblMuxPort.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblMuxPort.Location = new Point(74, 167);
+            lblMuxPort.Name = "lblMuxPort";
+            lblMuxPort.Size = new Size(69, 17);
+            lblMuxPort.TabIndex = 43;
+            lblMuxPort.Text = "Mux Port:";
+            // 
+            // txtMuxPort
+            // 
+            txtMuxPort.Location = new Point(153, 166);
+            txtMuxPort.Name = "txtMuxPort";
+            txtMuxPort.Size = new Size(173, 23);
+            txtMuxPort.TabIndex = 44;
+            txtMuxPort.TextChanged += txtMuxPort_TextChanged;
+            // 
+            // lblSettings
+            // 
+            lblSettings.AutoSize = true;
+            lblSettings.Font = new Font("Segoe UI", 20.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblSettings.Location = new Point(28, 24);
+            lblSettings.Name = "lblSettings";
+            lblSettings.Size = new Size(122, 37);
+            lblSettings.TabIndex = 45;
+            lblSettings.Text = "Settings";
+            // 
             // SettingsForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(lblSettings);
+            Controls.Add(txtMuxPort);
+            Controls.Add(lblMuxPort);
             Controls.Add(btnSave);
             Controls.Add(btnClose);
             Controls.Add(lblAPIURL);
@@ -106,5 +139,8 @@
         private Label lblAPIURL;
         private UIControls.ATPButton btnClose;
         private UIControls.ATPButton btnSave;
+        private Label lblMuxPort;
+        private TextBox txtMuxPort;
+        private Label lblSettings;
     }
 }

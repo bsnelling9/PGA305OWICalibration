@@ -26,6 +26,7 @@
             lblConfigure = new Label();
             lblConnectDevice = new Label();
             chkInclude = new CheckBox();
+            btnDisconnect = new ATPButton();
             SuspendLayout();
             // 
             // lblChannelNum
@@ -61,7 +62,6 @@
             // 
             btnConnectDevice.BackColor = Color.White;
             btnConnectDevice.BorderColor = Color.Black;
-            btnConnectDevice.BorderSize = 2;
             btnConnectDevice.CornerRadius = 10;
             btnConnectDevice.Cursor = Cursors.Hand;
             btnConnectDevice.FlatStyle = FlatStyle.Flat;
@@ -69,7 +69,7 @@
             btnConnectDevice.ForeColor = Color.Black;
             btnConnectDevice.Location = new Point(16, 87);
             btnConnectDevice.Name = "btnConnectDevice";
-            btnConnectDevice.Size = new Size(140, 42);
+            btnConnectDevice.Size = new Size(124, 42);
             btnConnectDevice.TabIndex = 4;
             btnConnectDevice.Text = "Connect";
             btnConnectDevice.UseVisualStyleBackColor = false;
@@ -79,7 +79,6 @@
             // 
             btnConfigDevice.BackColor = Color.White;
             btnConfigDevice.BorderColor = Color.Black;
-            btnConfigDevice.BorderSize = 2;
             btnConfigDevice.CornerRadius = 10;
             btnConfigDevice.Cursor = Cursors.Hand;
             btnConfigDevice.FlatStyle = FlatStyle.Flat;
@@ -87,7 +86,7 @@
             btnConfigDevice.ForeColor = Color.Black;
             btnConfigDevice.Location = new Point(16, 324);
             btnConfigDevice.Name = "btnConfigDevice";
-            btnConfigDevice.Size = new Size(140, 42);
+            btnConfigDevice.Size = new Size(124, 42);
             btnConfigDevice.TabIndex = 5;
             btnConfigDevice.Text = "Configure";
             btnConfigDevice.UseVisualStyleBackColor = false;
@@ -130,10 +129,28 @@
             chkInclude.Text = "Include";
             chkInclude.UseVisualStyleBackColor = true;
             // 
+            // btnDisconnect
+            // 
+            btnDisconnect.BackColor = Color.White;
+            btnDisconnect.BorderColor = Color.Black;
+            btnDisconnect.CornerRadius = 10;
+            btnDisconnect.Cursor = Cursors.Hand;
+            btnDisconnect.FlatStyle = FlatStyle.Flat;
+            btnDisconnect.Font = new Font("Segoe UI", 10F);
+            btnDisconnect.ForeColor = Color.Black;
+            btnDisconnect.Location = new Point(162, 87);
+            btnDisconnect.Name = "btnDisconnect";
+            btnDisconnect.Size = new Size(124, 42);
+            btnDisconnect.TabIndex = 10;
+            btnDisconnect.Text = "Disconnect";
+            btnDisconnect.UseVisualStyleBackColor = false;
+            btnDisconnect.Click += btnDisconnect_Click;
+            // 
             // StockCodeCard
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(btnDisconnect);
             Controls.Add(chkInclude);
             Controls.Add(lblConnectDevice);
             Controls.Add(lblConfigure);
@@ -160,5 +177,6 @@
         private Label lblConfigure;
         private Label lblConnectDevice;
         private CheckBox chkInclude;
+        private ATPButton btnDisconnect;
     }
 }

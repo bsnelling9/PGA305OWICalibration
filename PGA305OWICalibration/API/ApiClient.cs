@@ -1,4 +1,5 @@
 ﻿using PGA305OWICalibration.Config;
+using PGA305OWICalibration.Models;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -51,25 +52,36 @@ namespace PGA305OWICalibration.API
     {
         private readonly HttpClient _client = new();
 
-        public async Task<ConvertOutputResult?> ConvertOutput(int serialNumber, double voltageMin, double voltageMax, double pressureMin, double pressureMax, string pressureUnit)
+        public async Task<ConvertOutputResult?> ConvertOutput(int serialNumber, string outputType,
+            double outMin, double outMax, double pressureMin, double pressureMax, string pressureUnit)
         {
+            Debug.WriteLine($"convert-output: {outputType} {outMin}-{outMax}, {pressureMin}-{pressureMax} {pressureUnit}");
+
             var payload = new
             {
                 serial_number = serialNumber,
-                v_min = voltageMin,
-                v_max = voltageMax,
+                output_type = outputType.ToLowerInvariant(),
+                out_min = outMin,
+                out_max = outMax,
                 p_min = pressureMin,
                 p_max = pressureMax,
                 pressure_unit = pressureUnit
             };
+
             string json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _client.PostAsync($"{AppConfig.API_URL}/convert-output", content);
-            if (!response.IsSuccessStatusCode) return null;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string error = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"convert-output {(int)response.StatusCode}: {error}");
+                return null;
+            }
 
             string resultJson = await response.Content.ReadAsStringAsync();
-            
+
             return JsonSerializer.Deserialize<ConvertOutputResult>(resultJson);
         }
 
@@ -131,6 +143,46 @@ namespace PGA305OWICalibration.API
             return response.IsSuccessStatusCode;
         }
 
+        public async Task<bool> CreateStockCode(StockCode code)
+        {
+            Debug.WriteLine($"stock-codes create: {code}");
+
+            string json = JsonSerializer.Serialize(code);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync($"{AppConfig.API_URL}/stock-codes", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string error = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"stock-codes create {(int)response.StatusCode}: {error}");
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<StockCode?> GetStockCode(string stockCode)
+        {
+            var response = await _client.GetAsync(
+                $"{AppConfig.API_URL}/stock-codes/{Uri.EscapeDataString(stockCode)}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string error = await response.Content.ReadAsStringAsync();
+                Debug.WriteLine($"stock-codes get {(int)response.StatusCode}: {error}");
+                return null;
+            }
+
+            string resultJson = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrWhiteSpace(resultJson))
+                return null;
+
+            return JsonSerializer.Deserialize<StockCode>(resultJson);
+        }
+
+        //Production I will remove this. This was just for a test
         public async Task<InitialCoefficients?> GetInitialCoefficients(
         int sessionId,
         int serialNumber)

@@ -11,26 +11,31 @@
         public const int I2C_CONTROL_ADDR = 0x22;
         public const int I2C_EEPROM_ADDR = 0x25;
 
-        //OWI Commands
-        public const byte CMD_BURST_WRITE_CACHE = 0xD0;
-        public const byte CMD_BURST_READ_CACHE = 0xD3;
+        //Unlock Bytes
+        public const byte COM_DIF_TO_MCU_B1 = 0x08;
+        public const byte COM_DIF_TO_MCU_B2 = 0x09;
 
-        //EEPROM OP_STAGE_CTRL address and settings
-        public const int OP_STAGE_CTRL_ADD = 0x33;
+        public const byte COMPENSATION_CONTROL = 0x0C;   // address
+        public const byte IF_SEL_BIT = 0x01; // 1 = digital interface 
+        public const byte COMPENSATION_RESET_BIT = 0x02; // 1 = compensation engine in reset
+
+        //Both set (0x03) means that the device is in command mode
+        public const byte COMMAND_MODE = IF_SEL_BIT | COMPENSATION_RESET_BIT;
+
+
+        //EEPROM OP_STAGE_CTRL DAC Gain Settings
         public const byte DAC_GAIN_10V = 0x11;
         public const byte DAC_GAIN_4V = 0x12;
         public const byte DAC_GAIN_667V = 0x16;
 
-       
-        // ==========================================
-        // EEPROM REGISTER ADDRESSES
-        // ==========================================
+        //Current Mode for OP_STAGE_CTRL
+        public const byte CURRENT_MODE = 0x08;
 
         // Page 6 Registers Adresses
         public static readonly (byte Address, byte DefaultValue) DIG_IF_CTRL = (0x30, 0x66);
         public static readonly (byte Address, byte DefaultValue) DAC_CTRL_STATUS = (0x31, 0x00);
         public static readonly (byte Address, byte DefaultValue) DAC_CONFIG = (0x32, 0x00);
-        public static readonly (byte Address, byte DefaultValue) OP_STAGE_CTRL = (0x33, 0x11);
+        public static readonly (byte Address, byte DefaultValue) OP_STAGE_CTRL = (0x33, DAC_GAIN_10V);
         public static readonly (byte Address, byte DefaultValue) BRDG_CTRL = (0x34, 0x01);
         public static readonly (byte Address, byte DefaultValue) P_GAIN_SELECT = (0x35, 0x1F);
         public static readonly (byte Address, byte DefaultValue) T_GAIN_SELECT = (0x36, 0x02);
@@ -68,6 +73,7 @@
         public const int CACHE_B6 = 0x86;
         public const int CACHE_B7 = 0x87;
 
+
         // EEPROM Control Registers
         public const int EEPROM_PAGE_ADDR = 0x88;
         public const int EEPROM_CTRL = 0x89;
@@ -75,7 +81,6 @@
         public const int EEPROM_STATUS = 0x8B;
         public const int EEPROM_CRC_STAT = 0x8C;
         public const int EEPROM_CRC_VAL = 0x8D;
-
 
         // EEPROM Control values
         public const int EEPROM_CTRL_ERASE_AND_PROGRAM = 0x04;
@@ -91,7 +96,8 @@
         public const int PAGE_F_START = 0x78;
         public const int PAGE_F_CRC = 0x7F;
 
-        // Coefficients dictionary
+        // Coefficients dictionary, probably would be better if I got rid of the map.
+        // but then that would be a lot of code
         public static readonly Dictionary<string, byte[]> COEFFICIENT_ADDRESSES = new()
         {
             ["h0"] = new byte[] { 0x00, 0x01, 0x02 },

@@ -4,6 +4,8 @@ using PGA305OWICalibration.PGA305;
 using System.Diagnostics;
 using System.IO.Ports;
 
+//This needs to change completely to match Form2
+// Might delete as we dont need I2C anymore.
 namespace PGA305OWICalibration
 {
     public partial class I2COutputConfigForm : Form
@@ -204,7 +206,7 @@ namespace PGA305OWICalibration
             double pMax = (double)numMaxPressure.Value;
 
             var result = await _api.ConvertOutput(
-                int.Parse(testSerialNumber), vMin, vMax, pMin, pMax, _pressureUnit);
+                int.Parse(testSerialNumber), "cuurent", vMin, vMax, pMin, pMax, _pressureUnit);
 
             if (result == null)
             {

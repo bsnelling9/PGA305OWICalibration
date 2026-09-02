@@ -1,4 +1,5 @@
-﻿using PGA305OWICalibration.PGA305;
+﻿using PGA305OWICalibration.Config;
+using PGA305OWICalibration.PGA305;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 
@@ -6,13 +7,8 @@ namespace PGA305OWICalibration.UIControls
 {
     public class ChannelCard : UserControl
     {
-        protected const string Ratiometric = "Ratiometric";
-        protected const string Voltage = "Voltage";
-        protected const string Current = "Current";
-
         protected static readonly Color SelBack = Color.FromArgb(230, 238, 255);
         protected static readonly Color SelBorder = Color.RoyalBlue;
-
         protected PGAOutputConfig _outputconfig = new PGAOutputConfig();
         protected bool _deviceConnected;
         protected bool _interactive = true;
@@ -23,10 +19,12 @@ namespace PGA305OWICalibration.UIControls
 
         private Panel? _overlay;
         private Label? _overlayText;
+        private ATPButton? _overlayButton;
         private readonly List<string> _progress = new List<string>();
 
         public event EventHandler? ConnectRequested;
         public event EventHandler? ConfigureRequested;
+        public event EventHandler? DisconnectRequested;
 
         protected bool HasProgress => _progress.Count > 0;
 
@@ -85,7 +83,7 @@ namespace PGA305OWICalibration.UIControls
 
         protected string ChannelLabel => "Channel " + (_channel + 1);
 
-        /// Repaints the card from _outputconfig. Overridden by each card type.
+        // Repaints the card from _outputconfig. Overridden by each card type.
         public virtual void UpdateDisplay() { }
 
         public virtual void SetInteractive(bool enabled)
@@ -112,6 +110,9 @@ namespace PGA305OWICalibration.UIControls
         protected void RaiseConfigureRequested()
             => ConfigureRequested?.Invoke(this, EventArgs.Empty);
 
+        protected void RaiseDisconnectRequested()
+            => DisconnectRequested?.Invoke(this, EventArgs.Empty);
+
         protected static void StyleButton(ATPButton btn, bool selected)
         {
             btn.BackColor = selected ? SelBack : Color.White;
@@ -126,19 +127,91 @@ namespace PGA305OWICalibration.UIControls
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.TopLeft,
                 Padding = new Padding(16),
-                Font = new Font("Segoe UI", 9F),
+                Font = AppConfig.ResultFont,
                 BackColor = Color.Transparent
             };
 
+            _overlayButton = new ATPButton
+            {
+                Text = "Reset",
+                BackColor = Color.White,
+                BorderColor = Color.Black,
+                Visible = false
+            };
+            _overlayButton.Click += (s, e) => ResetConfig(string.Empty);
+
             _overlay = new Panel
             {
-                Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(246, 249, 255),
                 Visible = false
             };
 
             _overlay.Controls.Add(_overlayText);
+            _overlay.Controls.Add(_overlayButton);
             Controls.Add(_overlay);
+        }
+
+        private void LayoutOverlay()
+        {
+            if (_overlay == null) return;
+
+            _overlay.BackColor = CardBackColor;
+
+            int inset = CardBorderSize + 1;
+            var bounds = new Rectangle(inset, inset, Width - inset * 2, Height - inset * 2);
+
+            if (bounds.Width <= 0 || bounds.Height <= 0) return;
+
+            _overlay.Bounds = bounds;
+
+            using (var path = RoundedRect(
+                new Rectangle(0, 0, bounds.Width, bounds.Height),
+                Math.Max(1, CornerRadius - inset)))
+            {
+                _overlay.Region?.Dispose();
+                _overlay.Region = new Region(path);
+            }
+
+            if (_overlayButton == null) return;
+
+            const int buttonWidth = 125;
+            const int buttonHeight = 42;
+
+            _overlayButton.Bounds = new Rectangle(
+                (bounds.Width - buttonWidth) / 2,
+                (bounds.Height / 2) + 8,
+                buttonWidth,
+                buttonHeight);
+
+            _overlayButton.Visible = true;
+
+            _overlay.Controls.SetChildIndex(_overlayButton, 0);
+        }
+
+        public void ShowResult(string text, bool allowReset = false)
+        {
+            if (_overlay == null || _overlayText == null) return;
+
+            _progress.Clear();
+            _progress.Add(text);
+
+            LayoutOverlay();
+
+            _overlayText.TextAlign = ContentAlignment.MiddleCenter;
+            _overlayText.Padding = allowReset
+                ? new Padding(16, 16, 16, 64)
+                : new Padding(16);
+            _overlayText.Text = text;
+
+            if (_overlayButton != null)
+            {
+                _overlayButton.Visible = allowReset;
+
+                if (allowReset)
+                    _overlay.Controls.SetChildIndex(_overlayButton, 0);
+            }
+
+            _overlay.Visible = true;
+            _overlay.BringToFront();
         }
 
         public void ShowProgress(string line)
@@ -146,7 +219,16 @@ namespace PGA305OWICalibration.UIControls
             if (_overlay == null || _overlayText == null) return;
 
             _progress.Add(line);
+
+            LayoutOverlay();
+
+            _overlayText.TextAlign = ContentAlignment.TopLeft;
+            _overlayText.Padding = new Padding(16);
             _overlayText.Text = string.Join(Environment.NewLine, _progress);
+
+            if (_overlayButton != null)
+                _overlayButton.Visible = false;
+
             _overlay.Visible = true;
             _overlay.BringToFront();
         }
@@ -157,6 +239,10 @@ namespace PGA305OWICalibration.UIControls
 
             _progress.Clear();
             _overlayText.Text = string.Empty;
+
+            if (_overlayButton != null)
+                _overlayButton.Visible = false;
+
             _overlay.Visible = false;
         }
 
@@ -169,6 +255,8 @@ namespace PGA305OWICalibration.UIControls
                 Region?.Dispose();
                 Region = new Region(path);
             }
+
+            LayoutOverlay();
         }
 
         protected override void OnPaint(PaintEventArgs e)

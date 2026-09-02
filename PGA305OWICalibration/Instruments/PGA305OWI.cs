@@ -2,6 +2,9 @@
 using PGA305OWICalibration.Instruments;
 using System.Diagnostics;
 
+
+// This is for the EVM, because originally the Initialization was different between the Mux and the EVM
+// Keeping it for now incat they change again
 namespace PGA305OWICalibration.PGA305EVM
 {
     public class PGA305Owi
@@ -23,7 +26,7 @@ namespace PGA305OWICalibration.PGA305EVM
             int uartResult = _u2a.UART_Control();
             Debug.WriteLine($"UART_Control result: {uartResult}");
 
-            int modeResult = _u2a.UART_SetMode(2);
+            int modeResult = _u2a.UART_SetMode(USB2AnyConfig.UART_RecvAfterXmit);
             Debug.WriteLine($"UART_SetMode(RecvAfterXmit) result: {modeResult}");
 
             _u2a.GPIO_SetPort(USB2AnyConfig.GPIO10, USB2AnyConfig.FN_OUTPUT);
@@ -43,31 +46,37 @@ namespace PGA305OWICalibration.PGA305EVM
             _u2a.OneWire_PulseSetup(USB2AnyConfig.TIME_SETUP, USB2AnyConfig.ACT_TIME_LOW, USB2AnyConfig.ACT_TIME_HIGH, USB2AnyConfig.TIME_STORE, USB2AnyConfig.FLAGS);
 
             _u2a.OneWire_PulseWriteEx(0, 2);
-            Thread.Sleep(20);
+            Thread.Sleep(25);
             _u2a.OneWire_PulseWriteEx(0, 2);
 
             _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_HIGH);
 
+            // I do not think this is needed, but it is the unlock bytes
             _u2a.UART_Write(new byte[] {
-                USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE0, 0x08, USB2AnyConfig.SYNC_BYTE,
-                USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE0, 0x09, USB2AnyConfig.SYNC_BYTE
+                USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE0, EEPROMRegister.COM_DIF_TO_MCU_B1, USB2AnyConfig.SYNC_BYTE,
+                USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE0, EEPROMRegister.COM_DIF_TO_MCU_B2, USB2AnyConfig.SYNC_BYTE
             }, 8);
 
-            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, 0x02, 0x0C, USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_RESPONSE }, 5);
+            _u2a.UART_Write(new byte[] {
+                USB2AnyConfig.SYNC_BYTE,
+                USB2AnyConfig.CMD_READ_PAGE0,
+                EEPROMRegister.COMPENSATION_CONTROL,
+                USB2AnyConfig.SYNC_BYTE,
+                USB2AnyConfig.CMD_READ_RESPONSE }, 5);
+
             int count = _u2a.UART_Read(response, 54);
 
             Debug.WriteLine($"Activate: got {count} bytes");
-            for (int i = 0; i < count; i++)
-                Debug.WriteLine($"  [{i}] = 0x{response[i]:X2}");
 
-            if (count > 0 && response[count - 1] == 0x03)
+            if (count > 0 && response[count - 1] == EEPROMRegister.COMMAND_MODE)
             {
-                Debug.WriteLine("Device entered Command modea.");
+                Debug.WriteLine("Device entered Command mode.");
                 FlushUartRx();
                 return true;
             }
 
             Debug.WriteLine("Error: Failed to establish OWI command mode.");
+
             return false;
         }
 
@@ -83,7 +92,7 @@ namespace PGA305OWICalibration.PGA305EVM
         {
             byte[] response = new byte[54];
 
-            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_INIT, registerAddress, USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_RESPONSE }, 5);
+            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_INIT_PAGE5, registerAddress, USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_RESPONSE }, 5);
 
             int count = _u2a.UART_Read(response, 54);
 
@@ -158,7 +167,7 @@ namespace PGA305OWICalibration.PGA305EVM
 
         public bool WriteRegister(byte registerAddress, byte value)
         {
-            int response = _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE, registerAddress, value }, 4);
+            int response = _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE5, registerAddress, value }, 4);
             if (response == 0)
             {
                 Debug.WriteLine($"Write reg 0x{registerAddress:X2} = 0x{value:X2}");
@@ -287,16 +296,16 @@ namespace PGA305OWICalibration.PGA305EVM
 
             byte[] cmd = new byte[18];
             cmd[0] = USB2AnyConfig.SYNC_BYTE;
-            cmd[1] = USB2AnyConfig.CMD_WRITE;
+            cmd[1] = USB2AnyConfig.CMD_WRITE_PAGE5;
             cmd[2] = (byte)EEPROMRegister.EEPROM_PAGE_ADDR;
             cmd[3] = page;
 
             cmd[4] = USB2AnyConfig.SYNC_BYTE;
-            cmd[5] = EEPROMRegister.CMD_BURST_WRITE_CACHE;
+            cmd[5] = USB2AnyConfig.CMD_BURST_WRITE_CACHE;
             Array.Copy(pageData, 0, cmd, 6, pageSize);         
 
             cmd[14] = USB2AnyConfig.SYNC_BYTE;
-            cmd[15] = USB2AnyConfig.CMD_WRITE;
+            cmd[15] = USB2AnyConfig.CMD_WRITE_PAGE5;
             cmd[16] = (byte)EEPROMRegister.EEPROM_CTRL;
             cmd[17] = (byte)EEPROMRegister.EEPROM_CTRL_ERASE_AND_PROGRAM;
 

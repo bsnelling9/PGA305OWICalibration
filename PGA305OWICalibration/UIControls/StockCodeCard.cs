@@ -94,7 +94,7 @@ namespace PGA305OWICalibration.UIControls
             txtStockCode.Clear();
             base.ResetConfig(jobCode);
         }
-                
+
         public override void UpdateDisplay()
         {
             if (txtStockCode == null) return;
@@ -148,8 +148,6 @@ namespace PGA305OWICalibration.UIControls
                         $"Pressure: {range}");
                 }
 
-                btnConnectDevice.Text = !_deviceConnected ? "Connect" : codeChanged ? "Recheck code" : "Connected";
-
                 bool live = _interactive && !_selectionMode;
 
                 chkInclude.Visible = _selectionMode;
@@ -157,19 +155,32 @@ namespace PGA305OWICalibration.UIControls
 
                 txtStockCode.Enabled = live;
 
+                btnConnectDevice.Visible = !_deviceConnected || codeChanged;
+                btnDisconnect.Visible = _deviceConnected;
+
+                btnConnectDevice.Text = _deviceConnected ? "Recheck code" : "Connect";
+
                 btnConnectDevice.Enabled = live
                     && StockCodeText.Length > 0
                     && retryable
                     && (hasError || !_deviceConnected || codeChanged);
 
+                btnDisconnect.Enabled = _interactive && _deviceConnected;
+
                 btnConfigDevice.Enabled = live && _deviceConnected && !mismatch;
 
                 if (mismatch)
+                {
                     BorderColor = Color.Red;
+                }
                 else if (_deviceConnected && !hasError)
+                {
                     BorderColor = Color.RoyalBlue;
+                }
                 else if (_selectionMode && !HasProgress)
+                {
                     BorderColor = chkInclude.Checked ? Color.RoyalBlue : Color.Gainsboro;
+                }
             }
             catch (Exception ex)
             {
@@ -237,6 +248,12 @@ namespace PGA305OWICalibration.UIControls
 
             using (var pen = new Pen(Color.DarkOrange, 2))
                 e.Graphics.DrawRectangle(pen, Rectangle.Inflate(box, 2, 2));
+        }
+
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            if (!_deviceConnected) return;
+            RaiseDisconnectRequested();
         }
     }
 }

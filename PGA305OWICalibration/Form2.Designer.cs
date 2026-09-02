@@ -51,6 +51,9 @@ namespace PGA305OWICalibration
             btnVoltagePOT = new ATPButton();
             btnRatioPOT = new ATPButton();
             btnCurrentPOT = new ATPButton();
+            txtStockCode = new TextBox();
+            lblEnterStockCode = new Label();
+            btnLoadStockCode = new ATPButton();
             gbxConfigPressure.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numMaxPressure).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numMinPressure).BeginInit();
@@ -80,7 +83,6 @@ namespace PGA305OWICalibration
             // 
             btnInitHW.BackColor = Color.White;
             btnInitHW.BorderColor = Color.Black;
-            btnInitHW.BorderSize = 2;
             btnInitHW.CornerRadius = 10;
             btnInitHW.Cursor = Cursors.Hand;
             btnInitHW.FlatStyle = FlatStyle.Flat;
@@ -98,7 +100,6 @@ namespace PGA305OWICalibration
             // 
             btnClose.BackColor = Color.White;
             btnClose.BorderColor = Color.Black;
-            btnClose.BorderSize = 2;
             btnClose.CornerRadius = 10;
             btnClose.Cursor = Cursors.Hand;
             btnClose.FlatStyle = FlatStyle.Flat;
@@ -116,13 +117,12 @@ namespace PGA305OWICalibration
             // 
             btnConnectDevice.BackColor = Color.White;
             btnConnectDevice.BorderColor = Color.Black;
-            btnConnectDevice.BorderSize = 2;
             btnConnectDevice.CornerRadius = 10;
             btnConnectDevice.Cursor = Cursors.Hand;
             btnConnectDevice.FlatStyle = FlatStyle.Flat;
             btnConnectDevice.Font = new Font("Segoe UI", 10F);
             btnConnectDevice.ForeColor = Color.Black;
-            btnConnectDevice.Location = new Point(916, 28);
+            btnConnectDevice.Location = new Point(999, 27);
             btnConnectDevice.Name = "btnConnectDevice";
             btnConnectDevice.Size = new Size(160, 45);
             btnConnectDevice.TabIndex = 39;
@@ -144,7 +144,7 @@ namespace PGA305OWICalibration
             // 
             lblStep2.AutoSize = true;
             lblStep2.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblStep2.Location = new Point(916, 10);
+            lblStep2.Location = new Point(999, 9);
             lblStep2.Name = "lblStep2";
             lblStep2.Size = new Size(50, 17);
             lblStep2.TabIndex = 41;
@@ -162,7 +162,7 @@ namespace PGA305OWICalibration
             gbxConfigPressure.Controls.Add(numMinPressure);
             gbxConfigPressure.Controls.Add(btnNoPChange);
             gbxConfigPressure.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbxConfigPressure.Location = new Point(750, 102);
+            gbxConfigPressure.Location = new Point(717, 150);
             gbxConfigPressure.Name = "gbxConfigPressure";
             gbxConfigPressure.Size = new Size(340, 214);
             gbxConfigPressure.TabIndex = 64;
@@ -173,7 +173,6 @@ namespace PGA305OWICalibration
             // 
             btnConfirmPressure.BackColor = Color.White;
             btnConfirmPressure.BorderColor = Color.Black;
-            btnConfirmPressure.BorderSize = 2;
             btnConfirmPressure.CornerRadius = 10;
             btnConfirmPressure.Cursor = Cursors.Hand;
             btnConfirmPressure.FlatStyle = FlatStyle.Flat;
@@ -201,7 +200,6 @@ namespace PGA305OWICalibration
             // 
             btnUnitPsi.BackColor = Color.White;
             btnUnitPsi.BorderColor = Color.Black;
-            btnUnitPsi.BorderSize = 2;
             btnUnitPsi.CornerRadius = 10;
             btnUnitPsi.Cursor = Cursors.Hand;
             btnUnitPsi.FlatStyle = FlatStyle.Flat;
@@ -219,7 +217,6 @@ namespace PGA305OWICalibration
             // 
             btnUnitBar.BackColor = Color.White;
             btnUnitBar.BorderColor = Color.Black;
-            btnUnitBar.BorderSize = 2;
             btnUnitBar.CornerRadius = 10;
             btnUnitBar.Cursor = Cursors.Hand;
             btnUnitBar.FlatStyle = FlatStyle.Flat;
@@ -275,7 +272,6 @@ namespace PGA305OWICalibration
             // 
             btnNoPChange.BackColor = Color.White;
             btnNoPChange.BorderColor = Color.Black;
-            btnNoPChange.BorderSize = 2;
             btnNoPChange.CornerRadius = 10;
             btnNoPChange.Cursor = Cursors.Hand;
             btnNoPChange.FlatStyle = FlatStyle.Flat;
@@ -293,7 +289,7 @@ namespace PGA305OWICalibration
             // 
             gbxConfigOutput.Controls.Add(lstVoltageRange);
             gbxConfigOutput.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbxConfigOutput.Location = new Point(342, 102);
+            gbxConfigOutput.Location = new Point(309, 150);
             gbxConfigOutput.Name = "gbxConfigOutput";
             gbxConfigOutput.Size = new Size(388, 214);
             gbxConfigOutput.TabIndex = 63;
@@ -325,7 +321,6 @@ namespace PGA305OWICalibration
             // 
             btnConfigDevice.BackColor = Color.White;
             btnConfigDevice.BorderColor = Color.Black;
-            btnConfigDevice.BorderSize = 2;
             btnConfigDevice.CornerRadius = 10;
             btnConfigDevice.Cursor = Cursors.Hand;
             btnConfigDevice.FlatStyle = FlatStyle.Flat;
@@ -341,7 +336,7 @@ namespace PGA305OWICalibration
             // 
             // txtJobCode
             // 
-            txtJobCode.Location = new Point(796, 422);
+            txtJobCode.Location = new Point(763, 470);
             txtJobCode.Name = "txtJobCode";
             txtJobCode.Size = new Size(215, 23);
             txtJobCode.TabIndex = 68;
@@ -351,7 +346,7 @@ namespace PGA305OWICalibration
             // 
             lblJobCode.AutoSize = true;
             lblJobCode.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblJobCode.Location = new Point(796, 392);
+            lblJobCode.Location = new Point(763, 440);
             lblJobCode.Name = "lblJobCode";
             lblJobCode.Size = new Size(147, 17);
             lblJobCode.TabIndex = 69;
@@ -361,13 +356,12 @@ namespace PGA305OWICalibration
             // 
             btnNextDevice.BackColor = Color.White;
             btnNextDevice.BorderColor = Color.Black;
-            btnNextDevice.BorderSize = 2;
             btnNextDevice.CornerRadius = 10;
             btnNextDevice.Cursor = Cursors.Hand;
             btnNextDevice.FlatStyle = FlatStyle.Flat;
             btnNextDevice.Font = new Font("Segoe UI", 10F);
             btnNextDevice.ForeColor = Color.Black;
-            btnNextDevice.Location = new Point(887, 483);
+            btnNextDevice.Location = new Point(854, 531);
             btnNextDevice.Name = "btnNextDevice";
             btnNextDevice.Size = new Size(160, 45);
             btnNextDevice.TabIndex = 70;
@@ -380,7 +374,7 @@ namespace PGA305OWICalibration
             gbxConfigDevice.Controls.Add(lsbOutputConfig);
             gbxConfigDevice.Controls.Add(btnConfigDevice);
             gbxConfigDevice.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            gbxConfigDevice.Location = new Point(341, 336);
+            gbxConfigDevice.Location = new Point(308, 384);
             gbxConfigDevice.Name = "gbxConfigDevice";
             gbxConfigDevice.Size = new Size(389, 202);
             gbxConfigDevice.TabIndex = 71;
@@ -391,13 +385,12 @@ namespace PGA305OWICalibration
             // 
             btnVoltagePOT.BackColor = Color.White;
             btnVoltagePOT.BorderColor = Color.Black;
-            btnVoltagePOT.BorderSize = 2;
             btnVoltagePOT.CornerRadius = 10;
             btnVoltagePOT.Cursor = Cursors.Hand;
             btnVoltagePOT.FlatStyle = FlatStyle.Flat;
             btnVoltagePOT.Font = new Font("Segoe UI", 10F);
             btnVoltagePOT.ForeColor = Color.Black;
-            btnVoltagePOT.Location = new Point(538, 27);
+            btnVoltagePOT.Location = new Point(541, 90);
             btnVoltagePOT.Name = "btnVoltagePOT";
             btnVoltagePOT.Size = new Size(107, 45);
             btnVoltagePOT.TabIndex = 72;
@@ -409,13 +402,12 @@ namespace PGA305OWICalibration
             // 
             btnRatioPOT.BackColor = Color.White;
             btnRatioPOT.BorderColor = Color.Black;
-            btnRatioPOT.BorderSize = 2;
             btnRatioPOT.CornerRadius = 10;
             btnRatioPOT.Cursor = Cursors.Hand;
             btnRatioPOT.FlatStyle = FlatStyle.Flat;
             btnRatioPOT.Font = new Font("Segoe UI", 10F);
             btnRatioPOT.ForeColor = Color.Black;
-            btnRatioPOT.Location = new Point(651, 27);
+            btnRatioPOT.Location = new Point(654, 90);
             btnRatioPOT.Name = "btnRatioPOT";
             btnRatioPOT.Size = new Size(110, 45);
             btnRatioPOT.TabIndex = 73;
@@ -427,13 +419,12 @@ namespace PGA305OWICalibration
             // 
             btnCurrentPOT.BackColor = Color.White;
             btnCurrentPOT.BorderColor = Color.Black;
-            btnCurrentPOT.BorderSize = 2;
             btnCurrentPOT.CornerRadius = 10;
             btnCurrentPOT.Cursor = Cursors.Hand;
             btnCurrentPOT.FlatStyle = FlatStyle.Flat;
             btnCurrentPOT.Font = new Font("Segoe UI", 10F);
             btnCurrentPOT.ForeColor = Color.Black;
-            btnCurrentPOT.Location = new Point(767, 27);
+            btnCurrentPOT.Location = new Point(770, 90);
             btnCurrentPOT.Name = "btnCurrentPOT";
             btnCurrentPOT.Size = new Size(104, 45);
             btnCurrentPOT.TabIndex = 74;
@@ -441,11 +432,49 @@ namespace PGA305OWICalibration
             btnCurrentPOT.UseVisualStyleBackColor = false;
             btnCurrentPOT.Click += btnCurrentPOT_Click;
             // 
+            // txtStockCode
+            // 
+            txtStockCode.Font = new Font("Segoe UI", 10F);
+            txtStockCode.Location = new Point(633, 39);
+            txtStockCode.Name = "txtStockCode";
+            txtStockCode.Size = new Size(140, 25);
+            txtStockCode.TabIndex = 75;
+            // 
+            // lblEnterStockCode
+            // 
+            lblEnterStockCode.AutoSize = true;
+            lblEnterStockCode.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblEnterStockCode.Location = new Point(559, 19);
+            lblEnterStockCode.Name = "lblEnterStockCode";
+            lblEnterStockCode.Size = new Size(116, 17);
+            lblEnterStockCode.TabIndex = 76;
+            lblEnterStockCode.Text = "Enter Stock Code:";
+            // 
+            // btnLoadStockCode
+            // 
+            btnLoadStockCode.BackColor = Color.White;
+            btnLoadStockCode.BorderColor = Color.Black;
+            btnLoadStockCode.CornerRadius = 10;
+            btnLoadStockCode.Cursor = Cursors.Hand;
+            btnLoadStockCode.FlatStyle = FlatStyle.Flat;
+            btnLoadStockCode.Font = new Font("Segoe UI", 10F);
+            btnLoadStockCode.ForeColor = Color.Black;
+            btnLoadStockCode.Location = new Point(787, 28);
+            btnLoadStockCode.Name = "btnLoadStockCode";
+            btnLoadStockCode.Size = new Size(123, 45);
+            btnLoadStockCode.TabIndex = 77;
+            btnLoadStockCode.Text = "Load Stock Code";
+            btnLoadStockCode.UseVisualStyleBackColor = false;
+            btnLoadStockCode.Click += btnLoadStockCode_Click;
+            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1201, 654);
+            Controls.Add(btnLoadStockCode);
+            Controls.Add(lblEnterStockCode);
+            Controls.Add(txtStockCode);
             Controls.Add(btnCurrentPOT);
             Controls.Add(btnRatioPOT);
             Controls.Add(btnVoltagePOT);
@@ -503,5 +532,8 @@ namespace PGA305OWICalibration
         private ATPButton btnVoltagePOT;
         private ATPButton btnRatioPOT;
         private ATPButton btnCurrentPOT;
+        private TextBox txtStockCode;
+        private Label lblEnterStockCode;
+        private ATPButton btnLoadStockCode;
     }
 }

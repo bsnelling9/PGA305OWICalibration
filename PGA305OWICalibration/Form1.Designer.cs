@@ -65,7 +65,7 @@ namespace PGA305OWICalibration
             // label2
             // 
             label2.Font = new Font("Segoe UI", 48F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(8, 13);
+            label2.Location = new Point(431, 212);
             label2.Name = "label2";
             label2.Size = new Size(653, 221);
             label2.TabIndex = 44;
@@ -75,12 +75,11 @@ namespace PGA305OWICalibration
             // 
             btnStart.BackColor = Color.White;
             btnStart.BorderColor = Color.Black;
-            btnStart.BorderSize = 2;
             btnStart.CornerRadius = 10;
             btnStart.FlatStyle = FlatStyle.Flat;
             btnStart.Font = new Font("Segoe UI", 10F);
             btnStart.ForeColor = Color.Black;
-            btnStart.Location = new Point(732, 65);
+            btnStart.Location = new Point(1142, 500);
             btnStart.Name = "btnStart";
             btnStart.Size = new Size(150, 50);
             btnStart.TabIndex = 43;
@@ -92,12 +91,11 @@ namespace PGA305OWICalibration
             // 
             btnConfigI2C.BackColor = Color.White;
             btnConfigI2C.BorderColor = Color.Black;
-            btnConfigI2C.BorderSize = 2;
             btnConfigI2C.CornerRadius = 10;
             btnConfigI2C.FlatStyle = FlatStyle.Flat;
             btnConfigI2C.Font = new Font("Segoe UI", 10F);
             btnConfigI2C.ForeColor = Color.Black;
-            btnConfigI2C.Location = new Point(732, 126);
+            btnConfigI2C.Location = new Point(1142, 561);
             btnConfigI2C.Name = "btnConfigI2C";
             btnConfigI2C.Size = new Size(150, 50);
             btnConfigI2C.TabIndex = 42;
@@ -109,12 +107,11 @@ namespace PGA305OWICalibration
             // 
             btnSettings.BackColor = Color.White;
             btnSettings.BorderColor = Color.Black;
-            btnSettings.BorderSize = 2;
             btnSettings.CornerRadius = 10;
             btnSettings.FlatStyle = FlatStyle.Flat;
             btnSettings.Font = new Font("Segoe UI", 10F);
             btnSettings.ForeColor = Color.Black;
-            btnSettings.Location = new Point(732, 267);
+            btnSettings.Location = new Point(1142, 702);
             btnSettings.Name = "btnSettings";
             btnSettings.Size = new Size(150, 50);
             btnSettings.TabIndex = 41;
@@ -126,12 +123,11 @@ namespace PGA305OWICalibration
             // 
             btnDebug.BackColor = Color.White;
             btnDebug.BorderColor = Color.Black;
-            btnDebug.BorderSize = 2;
             btnDebug.CornerRadius = 10;
             btnDebug.FlatStyle = FlatStyle.Flat;
             btnDebug.Font = new Font("Segoe UI", 10F);
             btnDebug.ForeColor = Color.Black;
-            btnDebug.Location = new Point(732, 200);
+            btnDebug.Location = new Point(1142, 635);
             btnDebug.Name = "btnDebug";
             btnDebug.Size = new Size(150, 50);
             btnDebug.TabIndex = 40;

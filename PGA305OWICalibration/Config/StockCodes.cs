@@ -7,7 +7,6 @@ namespace PGA305OWICalibration.Config
     {
         [JsonPropertyName("stock_code")]
         public string StockCode { get; set; } = string.Empty;
-
         public OutputSpec Output { get; set; } = new();
         public PressureSpec Pressure { get; set; } = new();
     }

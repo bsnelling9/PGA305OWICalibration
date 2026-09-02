@@ -1,5 +1,6 @@
 ﻿using PGA305OWICalibration.API;
 using PGA305OWICalibration.Config;
+using PGA305OWICalibration.Forms;
 using PGA305OWICalibration.Instruments;
 using PGA305OWICalibration.PGA305;
 using PGA305OWICalibration.UIControls;
@@ -9,21 +10,10 @@ namespace PGA305OWICalibration.Tabs
 {
     public partial class APTScanTab : UserControl
     {
-        
-        // Move these to a config file
-        private const int ChannelCount = 8;
-        private const int CompensationSettleMs = 10;
-        private const int RelaySettleMs = 20;
-        private const int ChannelSettleMs = 10;
-        private const int DeviceSettleMs = 500;
-
         private readonly ApiClient _api = new ApiClient();
-        private readonly StockCodes _stockCodes = new StockCodes();
         private readonly STM32Controller _stm32;
         private readonly PGA305Device _pga305;
-
-        private readonly ChannelCard[] _cards = new ChannelCard[ChannelCount];
-
+        private readonly ChannelCard[] _cards = new ChannelCard[MuxSTM32Config.ChannelCount];
         private ChannelCard? _activeCard;
         private bool _cardBusy;
         private bool _batchRunning;
@@ -34,11 +24,14 @@ namespace PGA305OWICalibration.Tabs
             _stm32 = stm32;
             _pga305 = pga305;
             CreateCards();
+
+            rbnConfigureSingle.Checked = true;
+            BatchMode_CheckedChanged(this, EventArgs.Empty);
         }
 
         private void CreateCards()
         {
-            for (int i = 0; i < ChannelCount; i++)
+            for (int i = 0; i < MuxSTM32Config.ChannelCount; i++)
             {
                 ChannelCard card = AppConfig.TestMode
                     ? new ManualCard()
@@ -50,6 +43,7 @@ namespace PGA305OWICalibration.Tabs
 
                 card.ConnectRequested += async (s, e) => await ConnectChannel((ChannelCard)s!);
                 card.ConfigureRequested += async (s, e) => await ConfigureChannel((ChannelCard)s!);
+                card.DisconnectRequested += (s, e) => DisconnectChannel((ChannelCard)s!);
 
                 _cards[i] = card;
                 tlpCards.Controls.Add(card, i % 4, i / 4);
@@ -63,7 +57,7 @@ namespace PGA305OWICalibration.Tabs
 
             _activeCard = card;
             UpdateCardsDisplay();
-            
+
             return true;
         }
 
@@ -93,9 +87,9 @@ namespace PGA305OWICalibration.Tabs
             return true;
         }
 
-        private bool LoadStockCode(StockCodeCard card)
+        private async Task<bool> LoadStockCode(StockCodeCard card)
         {
-            var spec = _stockCodes.Lookup(card.StockCodeText);
+            var spec = await _api.GetStockCode(card.StockCodeText);
 
             if (spec == null)
             {
@@ -106,7 +100,7 @@ namespace PGA305OWICalibration.Tabs
 
             var config = card.OutputConfig;
 
-            string newType = spec.Output.Type.ToLowerInvariant() switch
+            string newType = spec.output_type.ToLowerInvariant() switch
             {
                 "ratiometric" => PGAOutputConfig.Ratiometric,
                 "voltage" => PGAOutputConfig.Voltage,
@@ -117,14 +111,14 @@ namespace PGA305OWICalibration.Tabs
             if (newType.Length == 0)
             {
                 card.BorderColor = Color.Red;
-                card.ShowMessage($"Stock code '{spec.StockCode}' has unknown output type '{spec.Output.Type}'.");
+                card.ShowMessage($"Stock code '{spec.stock_code}' has unknown output type '{spec.output_type}'.");
                 return false;
             }
 
             if (card.DeviceConnected && newType != config.SignalType)
             {
                 card.BorderColor = Color.Red;
-                card.ShowMessage($"'{spec.StockCode}' is {newType}, device connected as {config.SignalType}.{Environment.NewLine}Disconnect to change output type.");
+                card.ShowMessage($"'{spec.stock_code}' is {newType}, device connected as {config.SignalType}.{Environment.NewLine}Disconnect to change output type.");
                 return false;
             }
 
@@ -133,13 +127,11 @@ namespace PGA305OWICalibration.Tabs
                 case PGAOutputConfig.Ratiometric:
                     config.SelectRatiometric();
                     break;
-
                 case PGAOutputConfig.Current:
                     config.SelectCurrent();
                     break;
-
                 case PGAOutputConfig.Voltage:
-                    string voltageRange = $"{spec.Output.Min:0.##}-{spec.Output.Max:0.##}V";
+                    string voltageRange = $"{spec.output_min:0.##}-{spec.output_max:0.##}V";
                     try
                     {
                         config.SelectVoltage(voltageRange);
@@ -147,16 +139,18 @@ namespace PGA305OWICalibration.Tabs
                     catch (ArgumentException)
                     {
                         card.BorderColor = Color.Red;
-                        card.ShowMessage($"'{spec.StockCode}' asks for {voltageRange}, which isn't a configured voltage range.");
+                        card.ShowMessage($"'{spec.stock_code}' asks for {voltageRange}, which isn't a configured voltage range.");
                         return false;
                     }
                     break;
             }
 
-            config.StockCode = spec.StockCode;
-            config.PressureUnit = spec.Pressure.Units;
-            config.pMin = (int)spec.Pressure.Min;
-            config.pMax = (int)spec.Pressure.Max;
+            config.StockCode = spec.stock_code;
+            config.PressureUnit = spec.pressure_units;
+            config.pMin = (int)spec.pressure_min;
+            config.pMax = (int)spec.pressure_max;
+
+            Debug.WriteLine($"{config.StockCode}");
 
             card.ShowMessage(string.Empty);
             return true;
@@ -166,7 +160,7 @@ namespace PGA305OWICalibration.Tabs
         {
             if (card is StockCodeCard stockCard)
             {
-                if (!LoadStockCode(stockCard))
+                if (!await LoadStockCode(stockCard))
                     return false;
 
                 if (card.DeviceConnected)
@@ -193,7 +187,7 @@ namespace PGA305OWICalibration.Tabs
             if (!ok)
             {
                 card.DeviceConnected = false;
-                card.ShowProgress("Failed to activate");
+                card.ShowResult("Device failed to activate.", allowReset: true);
                 card.BorderColor = Color.Red;
                 ClearActiveCard();
                 return false;
@@ -208,15 +202,15 @@ namespace PGA305OWICalibration.Tabs
             try
             {
                 _pga305.ParkLines();
-                Thread.Sleep(DeviceSettleMs);
-
-                if (!_stm32.ConfigureMuxForOWI(config.SignalType))
-                    return false;
+                Thread.Sleep(MuxSTM32Config.DeviceSettleMs);
 
                 if (!SelectMuxChannel(channel))
                     return false;
 
-                Thread.Sleep(ChannelSettleMs);
+                if (!_stm32.ConfigureMuxForOWI(config.SignalType))
+                    return false;
+
+                Thread.Sleep(MuxSTM32Config.ChannelSettleMs);
 
                 if (!_pga305.Initialize())
                 {
@@ -282,7 +276,7 @@ namespace PGA305OWICalibration.Tabs
             try
             {
                 var result = await _api.ConvertOutput(
-                    config.SerialNumber, config.vMin, config.vMax,
+                    config.SerialNumber, config.SignalType, config.outputMin, config.outputMax,
                     config.pMin, config.pMax, config.PressureUnit);
 
                 if (result == null)
@@ -439,7 +433,7 @@ namespace PGA305OWICalibration.Tabs
             card.BorderColor = Color.Red;
 
             return false;
-        }              
+        }
 
         private void BatchMode_CheckedChanged(object sender, EventArgs e)
         {
@@ -457,5 +451,40 @@ namespace PGA305OWICalibration.Tabs
 
         private void rbnConfigureSingle_CheckedChanged(object sender, EventArgs e)
             => BatchMode_CheckedChanged(sender, e);
+
+        private void DisconnectChannel(ChannelCard card)
+        {
+            if (_activeCard != card) return;
+
+            _stm32.ConfigurePowerRelays(
+                owiRelayClosed: false,
+                maRelayClosed: false,
+                voRelayClosed: false);
+
+            card.ResetConfig(string.Empty);
+            ClearActiveCard();
+        }
+
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            _stm32.ConfigurePowerRelays(
+               owiRelayClosed: false,
+               maRelayClosed: false,
+               voRelayClosed: false);
+
+            foreach (var card in _cards)
+                card.ResetConfig(string.Empty);
+
+            ClearActiveCard();
+        }
+
+        private void btnCreateStockCode_Click(object sender, EventArgs e)
+        {
+            if (_batchRunning || _cardBusy)
+                return;
+
+            using var form = new StockCodeForm(_api);
+            form.ShowDialog(this);
+        }
     }
 }

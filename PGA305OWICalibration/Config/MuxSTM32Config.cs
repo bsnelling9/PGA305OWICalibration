@@ -15,17 +15,20 @@ namespace PGA305OWICalibration.Config
 
         public const int ComparatorSettleMs = 10;
         public const int RelaySettleMs = 20;
-        public const int ChannelSettleMs = 10;
+        public const int ChannelSettleMs = 20;
+        public const int CompensationSettleMs = 10;
+        public const int DeviceSettleMs = 500;
+        public const int ChannelCount = 8;
 
         public const byte RelayMask = OwiRelayBit | MaRelayBit | VoRelayBit;      
-        public const byte MeasureMask = MeasureRvBit | MeasureVoBit | MeasureMaBit;
-        public const byte ComparatorMask = VCompA0Bit | VCompA1Bit;                   
+        public const byte ComparatorMask = VCompA0Bit | VCompA1Bit;
 
+        //this is for testing but will need to make it simpler
         public static readonly Dictionary<string, (bool VCompA0High, bool VCompA1High)> Compensation = new()
         {
             ["Ratiometric"] = (true, true),
-            ["Voltage"] = (true, true),
-            ["Current"] = (false, false),
+            ["Voltage"] = (true, false),
+            ["Current"] = (false, true),
         };
     }
 }

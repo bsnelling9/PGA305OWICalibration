@@ -72,7 +72,6 @@
             // 
             btnScanHardware.BackColor = Color.White;
             btnScanHardware.BorderColor = Color.Black;
-            btnScanHardware.BorderSize = 2;
             btnScanHardware.CornerRadius = 10;
             btnScanHardware.Cursor = Cursors.Hand;
             btnScanHardware.FlatStyle = FlatStyle.Flat;
@@ -129,7 +128,6 @@
             // 
             btnConnectDevice.BackColor = Color.White;
             btnConnectDevice.BorderColor = Color.Black;
-            btnConnectDevice.BorderSize = 2;
             btnConnectDevice.CornerRadius = 10;
             btnConnectDevice.Cursor = Cursors.Hand;
             btnConnectDevice.FlatStyle = FlatStyle.Flat;
@@ -158,7 +156,6 @@
             // 
             btnConfigDevice.BackColor = Color.White;
             btnConfigDevice.BorderColor = Color.Black;
-            btnConfigDevice.BorderSize = 2;
             btnConfigDevice.CornerRadius = 10;
             btnConfigDevice.Cursor = Cursors.Hand;
             btnConfigDevice.FlatStyle = FlatStyle.Flat;
@@ -199,7 +196,6 @@
             // 
             btnOutputV.BackColor = Color.White;
             btnOutputV.BorderColor = Color.Black;
-            btnOutputV.BorderSize = 2;
             btnOutputV.CornerRadius = 10;
             btnOutputV.Cursor = Cursors.Hand;
             btnOutputV.FlatStyle = FlatStyle.Flat;
@@ -217,7 +213,6 @@
             // 
             btnOutputRM.BackColor = Color.White;
             btnOutputRM.BorderColor = Color.Black;
-            btnOutputRM.BorderSize = 2;
             btnOutputRM.CornerRadius = 10;
             btnOutputRM.Cursor = Cursors.Hand;
             btnOutputRM.FlatStyle = FlatStyle.Flat;
@@ -235,7 +230,6 @@
             // 
             btnOutputC.BackColor = Color.White;
             btnOutputC.BorderColor = Color.Black;
-            btnOutputC.BorderSize = 2;
             btnOutputC.CornerRadius = 10;
             btnOutputC.Cursor = Cursors.Hand;
             btnOutputC.FlatStyle = FlatStyle.Flat;
@@ -253,7 +247,6 @@
             // 
             btnExit.BackColor = Color.White;
             btnExit.BorderColor = Color.Black;
-            btnExit.BorderSize = 2;
             btnExit.CornerRadius = 10;
             btnExit.Cursor = Cursors.Hand;
             btnExit.FlatStyle = FlatStyle.Flat;
@@ -291,7 +284,6 @@
             // 
             btnNoPChange.BackColor = Color.White;
             btnNoPChange.BorderColor = Color.Black;
-            btnNoPChange.BorderSize = 2;
             btnNoPChange.CornerRadius = 10;
             btnNoPChange.Cursor = Cursors.Hand;
             btnNoPChange.FlatStyle = FlatStyle.Flat;
@@ -360,7 +352,6 @@
             // 
             btnUnitBar.BackColor = Color.White;
             btnUnitBar.BorderColor = Color.Black;
-            btnUnitBar.BorderSize = 2;
             btnUnitBar.CornerRadius = 10;
             btnUnitBar.Cursor = Cursors.Hand;
             btnUnitBar.FlatStyle = FlatStyle.Flat;
@@ -378,7 +369,6 @@
             // 
             btnUnitPsi.BackColor = Color.White;
             btnUnitPsi.BorderColor = Color.Black;
-            btnUnitPsi.BorderSize = 2;
             btnUnitPsi.CornerRadius = 10;
             btnUnitPsi.Cursor = Cursors.Hand;
             btnUnitPsi.FlatStyle = FlatStyle.Flat;

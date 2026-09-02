@@ -78,7 +78,6 @@
             // 
             btnUnitPsi.BackColor = Color.White;
             btnUnitPsi.BorderColor = Color.Black;
-            btnUnitPsi.BorderSize = 2;
             btnUnitPsi.CornerRadius = 10;
             btnUnitPsi.Cursor = Cursors.Hand;
             btnUnitPsi.FlatStyle = FlatStyle.Flat;
@@ -95,7 +94,6 @@
             // 
             btnUnitBar.BackColor = Color.White;
             btnUnitBar.BorderColor = Color.Black;
-            btnUnitBar.BorderSize = 2;
             btnUnitBar.CornerRadius = 10;
             btnUnitBar.Cursor = Cursors.Hand;
             btnUnitBar.FlatStyle = FlatStyle.Flat;
@@ -156,7 +154,6 @@
             // 
             btnOutputCurrent.BackColor = Color.White;
             btnOutputCurrent.BorderColor = Color.Black;
-            btnOutputCurrent.BorderSize = 2;
             btnOutputCurrent.CornerRadius = 10;
             btnOutputCurrent.Cursor = Cursors.Hand;
             btnOutputCurrent.FlatStyle = FlatStyle.Flat;
@@ -173,7 +170,6 @@
             // 
             btnOutputRM.BackColor = Color.White;
             btnOutputRM.BorderColor = Color.Black;
-            btnOutputRM.BorderSize = 2;
             btnOutputRM.CornerRadius = 10;
             btnOutputRM.Cursor = Cursors.Hand;
             btnOutputRM.FlatStyle = FlatStyle.Flat;
@@ -190,7 +186,6 @@
             // 
             btnOutputVolt.BackColor = Color.White;
             btnOutputVolt.BorderColor = Color.Black;
-            btnOutputVolt.BorderSize = 2;
             btnOutputVolt.CornerRadius = 10;
             btnOutputVolt.Cursor = Cursors.Hand;
             btnOutputVolt.FlatStyle = FlatStyle.Flat;
@@ -207,7 +202,6 @@
             // 
             btnConnectDevice.BackColor = Color.White;
             btnConnectDevice.BorderColor = Color.Black;
-            btnConnectDevice.BorderSize = 2;
             btnConnectDevice.CornerRadius = 10;
             btnConnectDevice.Cursor = Cursors.Hand;
             btnConnectDevice.FlatStyle = FlatStyle.Flat;
@@ -233,7 +227,6 @@
             // 
             btnConfigDevice.BackColor = Color.White;
             btnConfigDevice.BorderColor = Color.Black;
-            btnConfigDevice.BorderSize = 2;
             btnConfigDevice.CornerRadius = 10;
             btnConfigDevice.Cursor = Cursors.Hand;
             btnConfigDevice.FlatStyle = FlatStyle.Flat;

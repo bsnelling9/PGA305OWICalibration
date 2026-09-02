@@ -23,7 +23,7 @@ namespace PGA305OWICalibration.UIControls
         public int BorderSize
         {
             get => _borderSize;
-            set { _borderSize = value; UpdateRegion(); Invalidate(); }
+            set { _borderSize = value; Invalidate(); }
         }
 
         public ATPButton()
@@ -36,19 +36,26 @@ namespace PGA305OWICalibration.UIControls
             Cursor = Cursors.Hand;
         }
 
-        private GraphicsPath CreatePath()
+        private GraphicsPath CreatePath(float inset)
         {
-            Rectangle rect = new Rectangle(
-                _borderSize,
-                _borderSize,
-                Width - _borderSize * 2,
-                Height - _borderSize * 2);
+            RectangleF rect = new RectangleF(
+                inset, inset,
+                Math.Max(1, Width - inset * 2),
+                Math.Max(1, Height - inset * 2));
+
+            float d = Math.Min(_cornerRadius, Math.Min(rect.Width, rect.Height));
 
             GraphicsPath path = new GraphicsPath();
-            path.AddArc(rect.X, rect.Y, _cornerRadius, _cornerRadius, 180, 90);
-            path.AddArc(rect.Right - _cornerRadius, rect.Y, _cornerRadius, _cornerRadius, 270, 90);
-            path.AddArc(rect.Right - _cornerRadius, rect.Bottom - _cornerRadius, _cornerRadius, _cornerRadius, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - _cornerRadius, _cornerRadius, _cornerRadius, 90, 90);
+            if (d <= 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+
+            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
             path.CloseFigure();
             return path;
         }
@@ -57,7 +64,7 @@ namespace PGA305OWICalibration.UIControls
         {
             if (Width <= 0 || Height <= 0) return;
 
-            using (GraphicsPath path = CreatePath())
+            using (GraphicsPath path = CreatePath(0))
             {
                 Region old = Region;
                 Region = new Region(path);
@@ -92,7 +99,7 @@ namespace PGA305OWICalibration.UIControls
             Color border = Enabled ? _borderColor : SystemColors.ControlDark;
             Color text = Enabled ? ForeColor : SystemColors.GrayText;
 
-            using (GraphicsPath path = CreatePath())
+            using (GraphicsPath path = CreatePath(_borderSize / 2f))
             {
                 using (SolidBrush brush = new SolidBrush(back))
                     e.Graphics.FillPath(brush, path);

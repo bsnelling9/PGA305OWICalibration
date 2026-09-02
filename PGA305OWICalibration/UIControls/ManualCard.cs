@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using PGA305OWICalibration.PGA305;
+using System.ComponentModel;
 
 namespace PGA305OWICalibration.UIControls
 {
@@ -9,14 +10,7 @@ namespace PGA305OWICalibration.UIControls
             InitializeComponent();
 
             cbxVoltageRange.DropDownStyle = ComboBoxStyle.DropDownList;
-            cbxVoltageRange.Items.AddRange(new object[]
-            {
-                "0-10V",
-                "0.5-4.5V",
-                "0-5V",
-                "1-5V",
-                "1-6V",
-            });
+            cbxVoltageRange.Items.AddRange(PGAOutputConfig.AvailableVoltageRanges.ToArray());
             cbxVoltageRange.SelectedIndex = 0;
 
             UpdateDisplay();
@@ -35,13 +29,13 @@ namespace PGA305OWICalibration.UIControls
             string type = _outputconfig.SignalType;
             string unit = _outputconfig.PressureUnit;
 
-            StyleButton(btnOutputRM, type == Ratiometric);
-            StyleButton(btnOutputVolt, type == Voltage);
-            StyleButton(btnOutputCurrent, type == Current);
+            StyleButton(btnOutputRM, type == PGAOutputConfig.Ratiometric);
+            StyleButton(btnOutputVolt, type == PGAOutputConfig.Voltage);
+            StyleButton(btnOutputCurrent, type == PGAOutputConfig.Current);
             StyleButton(btnUnitPsi, unit == "psi");
             StyleButton(btnUnitBar, unit == "bar");
 
-            cbxVoltageRange.Visible = type == Voltage;
+            cbxVoltageRange.Visible = type == PGAOutputConfig.Voltage;
 
             lblChannelNum.Text = ChannelLabel;
 
@@ -119,7 +113,7 @@ namespace PGA305OWICalibration.UIControls
 
         private void cbxVoltageRange_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_updating || _outputconfig.SignalType != Voltage) return;
+            if (_updating || _outputconfig.SignalType != PGAOutputConfig.Voltage) return;
 
             _outputconfig.SelectVoltage(SelectedVoltageRange);
             UpdateDisplay();

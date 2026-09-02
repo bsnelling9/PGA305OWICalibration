@@ -40,7 +40,7 @@
       },
       "pressure": {
         "min": 0,
-        "max": 1300,
+        "max": 1500,
         "units": "psi",
         "type": "absolute"
       }
@@ -57,6 +57,21 @@
         "min": 0,
         "max": 1200,
         "units": "psi",
+        "type": "absolute"
+      }
+    },
+    "A106989": {
+      "stock_code": "A106989",
+      "output": {
+        "min": 1,
+        "max": 6,
+        "units": "V",
+        "type": "voltage"
+      },
+      "pressure": {
+        "min": 0,
+        "max": 100,
+        "units": "bar",
         "type": "absolute"
       }
     }
