@@ -1,62 +1,35 @@
 ﻿using PGA305OWICalibration.Config;
+using System.Globalization;
 
 namespace PGA305OWICalibration.PGA305
 {
-    // Clean up this file
     public class PGAOutputConfig
     {
         public const string Ratiometric = "Ratiometric";
         public const string Voltage = "Voltage";
         public const string Current = "Current";
 
-        private static readonly Dictionary<byte, byte> RatiometricRegisters = new()
-        {
-            { EEPROMRegister.DAC_CONFIG.Address, 0x01 },
-            { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_4V }
-        };
+        private const string Psi = "psi";
+        private const string Bar = "bar";
 
-        private static readonly Dictionary<byte, byte> CurrentRegisters = new()
-        {
-            { EEPROMRegister.DAC_CONFIG.Address, 0x00 },
-            { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.CURRENT_MODE }
-        };
+        private const string RatiometricOutput = "0.5-4.5V";
+        private const string CurrentOutput = "4-20mA";
 
-        private static readonly Dictionary<string, (double Min, double Max)> VoltageRanges = new()
-        {
-            ["0-10V"] = (0.0, 10.0),
-            ["0.5-4.5V"] = (0.5, 4.5),
-            ["0-5V"] = (0.0, 5.0),
-            ["1-5V"] = (1.0, 5.0),
-            ["1-6V"] = (1.0, 6.0),
-        };
+        private sealed record OutputConfiguration(double Min, double Max, byte DacConfig, byte OpStageCtrl);
 
-        private static readonly Dictionary<string, Dictionary<byte, byte>> VoltageRegisters = new()
+        private static readonly OutputConfiguration RatiometricSpec =
+            new(0.5, 4.5, EEPROMRegister.DAC_MODE_RATIOMETRIC, EEPROMRegister.DAC_GAIN_4V);
+
+        private static readonly OutputConfiguration CurrentSpec =
+            new(4, 20, EEPROMRegister.DAC_MODE_ABSOLUTE, EEPROMRegister.CURRENT_MODE);
+
+        private static readonly Dictionary<string, OutputConfiguration> VoltageSpecs = new()
         {
-            ["0-10V"] = new()
-            {
-                { EEPROMRegister.DAC_CONFIG.Address, 0x00 },
-                { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_10V }
-            },
-            ["0.5-4.5V"] = new()
-            {
-                { EEPROMRegister.DAC_CONFIG.Address, 0x00 },
-                { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_4V }
-            },
-            ["0-5V"] = new()
-            {
-                { EEPROMRegister.DAC_CONFIG.Address, 0x00 },
-                { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V }
-            },
-            ["1-5V"] = new()
-            {
-                { EEPROMRegister.DAC_CONFIG.Address, 0x00 },
-                { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V }
-            },
-            ["1-6V"] = new()
-            {
-                { EEPROMRegister.DAC_CONFIG.Address, 0x00 },
-                { EEPROMRegister.OP_STAGE_CTRL.Address, EEPROMRegister.DAC_GAIN_667V }
-            },
+            ["0-10V"] = new(0.0, 10.0, EEPROMRegister.DAC_MODE_ABSOLUTE, EEPROMRegister.DAC_GAIN_10V),
+            ["0.5-4.5V"] = new(0.5, 4.5, EEPROMRegister.DAC_MODE_ABSOLUTE, EEPROMRegister.DAC_GAIN_4V),
+            ["0-5V"] = new(0.0, 5.0, EEPROMRegister.DAC_MODE_ABSOLUTE, EEPROMRegister.DAC_GAIN_667V),
+            ["1-5V"] = new(1.0, 5.0, EEPROMRegister.DAC_MODE_ABSOLUTE, EEPROMRegister.DAC_GAIN_667V),
+            ["1-6V"] = new(1.0, 6.0, EEPROMRegister.DAC_MODE_ABSOLUTE, EEPROMRegister.DAC_GAIN_667V)
         };
 
         public int SerialNumber { get; set; }
@@ -65,67 +38,49 @@ namespace PGA305OWICalibration.PGA305
         public string StockCode { get; set; } = string.Empty;
         public string JobCode { get; set; } = string.Empty;
 
-        public int maxPSI { get; private set; }
-        public int maxBar { get; private set; }
+        public int MaxPsi { get; private set; }
+        public int MaxBar { get; private set; }
 
-        public double outputMin { get; private set; }
-        public double outputMax { get; private set; } = 10;
+        public double OutputMin { get; private set; }
+        public double OutputMax { get; private set; }
 
-        public int pMin { get; set; }
-        public int pMax { get; set; }
+        public int PressureMin { get; set; }
+        public int PressureMax { get; set; }
 
         public string SignalType { get; private set; } = string.Empty;
         public string ElectricalOutput { get; private set; } = string.Empty;
 
-        public string PressureUnit { get; set; } = "psi";
+        public string PressureUnit { get; set; } = Psi;
 
         public Dictionary<byte, byte> SelectedRegisters { get; private set; } = new();
 
-        public int MaxPressure => PressureUnit == "bar" ? maxBar : maxPSI;
+        public int MaxPressure =>
+            string.Equals(PressureUnit, Bar, StringComparison.OrdinalIgnoreCase) ? MaxBar : MaxPsi;
 
-        public static IEnumerable<string> AvailableVoltageRanges => VoltageRanges.Keys;
+        public static IEnumerable<string> AvailableVoltageRanges => VoltageSpecs.Keys;
 
         public bool PressureRangeIsValid =>
-            pMin >= 0 && pMin < pMax && (MaxPressure == 0 || pMax <= MaxPressure);
+            PressureMin >= 0
+            && PressureMin < PressureMax
+            && (MaxPressure == 0 || PressureMax <= MaxPressure);
 
-        public void SelectRatiometric()
-        {
-            SignalType = Ratiometric;
-            ElectricalOutput = "0.5-4.5V";
-            outputMin = 0.5;
-            outputMax = 4.5;
-            SelectedRegisters = new Dictionary<byte, byte>(RatiometricRegisters);
-        }
+        public void SelectRatiometric() => SetOutputConfiguration(Ratiometric, RatiometricOutput, RatiometricSpec);
 
-        public void SelectCurrent()
-        {
-            SignalType = Current;
-            ElectricalOutput = "4-20mA";
-            outputMin = 4;
-            outputMax = 20;
-            SelectedRegisters = new Dictionary<byte, byte>(CurrentRegisters);
-        }
+        public void SelectCurrent() => SetOutputConfiguration(Current, CurrentOutput, CurrentSpec);
 
         public void SelectVoltage(string range)
         {
-            if (!VoltageRanges.TryGetValue(range, out var limits))
+            if (!VoltageSpecs.TryGetValue(range, out var spec))
                 throw new ArgumentException($"Unknown voltage range '{range}'");
 
-            SignalType = Voltage;
-            ElectricalOutput = range;
-            outputMin = limits.Min;
-            outputMax = limits.Max;
-
-            SelectedRegisters = VoltageRegisters.TryGetValue(range, out var registers)
-                ? new Dictionary<byte, byte>(registers)
-                : new Dictionary<byte, byte>();
+            SetOutputConfiguration(Voltage, range, spec);
         }
 
         public void SetPressureUnit(string unit)
         {
             PressureUnit = unit;
-            pMin = 0;
-            pMax = MaxPressure;
+            PressureMin = 0;
+            PressureMax = MaxPressure;
         }
 
         public void SetPressureRangeFromCode()
@@ -134,14 +89,28 @@ namespace PGA305OWICalibration.PGA305
                 throw new ArgumentException(
                     $"No pressure range configured for pressure code '{PressureCode}'");
 
-            maxPSI = range.MaxPsi;
-            maxBar = range.MaxBar;
+            MaxPsi = range.MaxPsi;
+            MaxBar = range.MaxBar;
 
             if (StockCode.Length == 0)
             {
-                pMin = 0;
-                pMax = MaxPressure;
+                PressureMin = 0;
+                PressureMax = MaxPressure;
             }
+        }
+
+        private void SetOutputConfiguration(string signalType, string electricalOutput, OutputConfiguration spec)
+        {
+            SignalType = signalType;
+            ElectricalOutput = electricalOutput;
+            OutputMin = spec.Min;
+            OutputMax = spec.Max;
+
+            SelectedRegisters = new Dictionary<byte, byte>
+            {
+                { EEPROMRegister.DAC_CONFIG.Address, spec.DacConfig },
+                { EEPROMRegister.OP_STAGE_CTRL.Address, spec.OpStageCtrl }
+            };
         }
     }
 }

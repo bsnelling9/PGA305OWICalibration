@@ -221,19 +221,19 @@ namespace PGA305OWICalibration
 
             lsbAPT10MetaData.Items.Add("EEPROM write skipped — pending hardware fix.");
 
-            bool transducerWritten = await _api.CreateTransducer(
-                testStockCode, result.serial_number, _selectedVoltageRange,
-                _pressureCode ?? "100G", _selectedOutputConfig ?? "voltage");
+            /* bool transducerWritten = await _api.CreateTransducer(
+                 testStockCode, result.serial_number, _selectedVoltageRange,
+                 _pressureCode ?? "100G", _selectedOutputConfig ?? "voltage");
 
-            lsbAPT10MetaData.Items.Add(transducerWritten
-                ? "transducer written to database."
-                : "transducer write FAILED.");
+             lsbAPT10MetaData.Items.Add(transducerWritten
+                 ? "transducer written to database."
+                 : "transducer write FAILED.");
 
-            if (!transducerWritten)
-            {
-                lsbAPT10MetaData.Items.Add("Skipping final-coefficients write since transducer failed.");
-                return;
-            }
+             if (!transducerWritten)
+             {
+                 lsbAPT10MetaData.Items.Add("Skipping final-coefficients write since transducer failed.");
+                 return;
+             }*/
 
             bool dbWritten = await _api.CreateFinalCoefficients(
                 result.session_id, result.serial_number, testStockCode,

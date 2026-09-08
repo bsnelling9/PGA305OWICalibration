@@ -11,7 +11,7 @@
         public const int I2C_CONTROL_ADDR = 0x22;
         public const int I2C_EEPROM_ADDR = 0x25;
 
-        //Unlock Bytes
+        //Unlock Bytes for OWI
         public const byte COM_DIF_TO_MCU_B1 = 0x08;
         public const byte COM_DIF_TO_MCU_B2 = 0x09;
 
@@ -22,7 +22,6 @@
         //Both set (0x03) means that the device is in command mode
         public const byte COMMAND_MODE = IF_SEL_BIT | COMPENSATION_RESET_BIT;
 
-
         //EEPROM OP_STAGE_CTRL DAC Gain Settings
         public const byte DAC_GAIN_10V = 0x11;
         public const byte DAC_GAIN_4V = 0x12;
@@ -31,10 +30,14 @@
         //Current Mode for OP_STAGE_CTRL
         public const byte CURRENT_MODE = 0x08;
 
+        //EEPROM DAC_CONFIG Modes
+        public const byte DAC_MODE_RATIOMETRIC = 0x01;
+        public const byte DAC_MODE_ABSOLUTE = 0x00;
+
         // Page 6 Registers Adresses
         public static readonly (byte Address, byte DefaultValue) DIG_IF_CTRL = (0x30, 0x66);
         public static readonly (byte Address, byte DefaultValue) DAC_CTRL_STATUS = (0x31, 0x00);
-        public static readonly (byte Address, byte DefaultValue) DAC_CONFIG = (0x32, 0x00);
+        public static readonly (byte Address, byte DefaultValue) DAC_CONFIG = (0x32, DAC_MODE_ABSOLUTE);
         public static readonly (byte Address, byte DefaultValue) OP_STAGE_CTRL = (0x33, DAC_GAIN_10V);
         public static readonly (byte Address, byte DefaultValue) BRDG_CTRL = (0x34, 0x01);
         public static readonly (byte Address, byte DefaultValue) P_GAIN_SELECT = (0x35, 0x1F);
@@ -73,11 +76,13 @@
         public const int CACHE_B6 = 0x86;
         public const int CACHE_B7 = 0x87;
 
+        // Trigger EEPROM CRC calculation (0x8A)
+        public const byte EEPROM_CALCULATE_CRC = 0x01;
 
         // EEPROM Control Registers
         public const int EEPROM_PAGE_ADDR = 0x88;
         public const int EEPROM_CTRL = 0x89;
-        public const int EEPROM_CRC_TRIG = 0x8A;
+        public const int EEPROM_CRC = 0x8A;
         public const int EEPROM_STATUS = 0x8B;
         public const int EEPROM_CRC_STAT = 0x8C;
         public const int EEPROM_CRC_VAL = 0x8D;
@@ -85,15 +90,6 @@
         // EEPROM Control values
         public const int EEPROM_CTRL_ERASE_AND_PROGRAM = 0x04;
 
-        // EEPROM Pages
-        //Analog config and settings
-        public const int Page_6 = 0x06;
-        public const int PAGE_C = 0x0C;
-        public const int PAGE_E = 0x0E;
-        public const int PAGE_F = 0x0F;
-
-        // Page F CRC byte address
-        public const int PAGE_F_START = 0x78;
         public const int PAGE_F_CRC = 0x7F;
 
         // Coefficients dictionary, probably would be better if I got rid of the map.
@@ -118,6 +114,7 @@
             ["m3"] = new byte[] { 0x2D, 0x2E, 0x2F },
         };
 
+        // Leaving these here for now, but configuring the output the gains and offset should not be changed
         public static readonly byte[] PADC_GAIN_ADDR = { 0x44, 0x45, 0x46 };
         public static readonly byte[] PADC_OFFSET_ADDR = { 0x47, 0x48, 0x49 };
         public static readonly byte[] TADC_GAIN_ADDR = { 0x5E, 0x5F, 0x60 };

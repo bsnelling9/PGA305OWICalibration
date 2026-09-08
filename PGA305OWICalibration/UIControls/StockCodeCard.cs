@@ -49,6 +49,25 @@ namespace PGA305OWICalibration.UIControls
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public string JobCodeText => txtJobCode.Text.Trim();
+
+        public void SetJobCode(string jobCode)
+        {
+            txtJobCode.Text = jobCode;
+            UpdateDisplay();
+            Invalidate();
+        }
+
+        private void txtJobCode_TextChanged(object sender, EventArgs e)
+        {
+            if (_updating) return;
+            UpdateDisplay();
+            Invalidate();
+        }
+
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Included => chkInclude.Checked;
 
         public void SetStockCode(string code)
@@ -92,6 +111,7 @@ namespace PGA305OWICalibration.UIControls
             _message = string.Empty;
             _lastAttempt = string.Empty;
             txtStockCode.Clear();
+            txtJobCode.Text = jobCode;
             base.ResetConfig(jobCode);
         }
 
@@ -113,12 +133,13 @@ namespace PGA305OWICalibration.UIControls
 
                 bool codeChanged = !string.Equals(StockCodeText, _outputconfig.StockCode, StringComparison.OrdinalIgnoreCase);
 
-                bool retryable = !string.Equals(StockCodeText, _lastAttempt, StringComparison.OrdinalIgnoreCase);
+                bool retryable = !string.Equals($"{StockCodeText}|{JobCodeText}", _lastAttempt,
+                                StringComparison.OrdinalIgnoreCase);
 
                 lblChannelNum.Text = ChannelLabel;
 
                 string range = type.Length > 0
-                    ? $"{_outputconfig.pMin}-{_outputconfig.pMax} {unit}" : "--";
+                    ? $"{_outputconfig.PressureMin}-{_outputconfig.PressureMax} {unit}" : "--";
 
                 if (hasError)
                 {
@@ -128,6 +149,7 @@ namespace PGA305OWICalibration.UIControls
                 {
                     lblSummary.Text = string.Join(Environment.NewLine,
                         $"Stock code: {Or(_outputconfig.StockCode)}",
+                        $"Job code: {Or(_outputconfig.JobCode)}",
                         $"Serial Number: {_outputconfig.SerialNumber}",
                         $"Sensor Number: {Or(_outputconfig.SensorSerialNumber)}",
                         $"Pressure code: {Or(_outputconfig.PressureCode)}",
@@ -136,7 +158,7 @@ namespace PGA305OWICalibration.UIControls
                          mismatch
                             ? string.Join(Environment.NewLine, string.Empty,
                                 "Error",
-                                $"Stock code {Or(_outputconfig.StockCode)} needs {_outputconfig.pMax} {unit}",
+                                $"Stock code {Or(_outputconfig.StockCode)} needs {_outputconfig.PressureMax} {unit}",
                                 $"Device {Or(_outputconfig.PressureCode)} max is {deviceLimit} {unit}")
                             : string.Empty);
                 }
@@ -154,6 +176,7 @@ namespace PGA305OWICalibration.UIControls
                 chkInclude.Enabled = _selectionMode && _interactive && !_deviceConnected;
 
                 txtStockCode.Enabled = live;
+                txtJobCode.Enabled = live;
 
                 btnConnectDevice.Visible = !_deviceConnected || codeChanged;
                 btnDisconnect.Visible = _deviceConnected;
@@ -162,6 +185,7 @@ namespace PGA305OWICalibration.UIControls
 
                 btnConnectDevice.Enabled = live
                     && StockCodeText.Length > 0
+                    && JobCodeText.Length > 0
                     && retryable
                     && (hasError || !_deviceConnected || codeChanged);
 
@@ -218,9 +242,9 @@ namespace PGA305OWICalibration.UIControls
 
         private void btnConnectDevice_Click(object sender, EventArgs e)
         {
-            if (StockCodeText.Length == 0) return;
+            if (StockCodeText.Length == 0 || JobCodeText.Length == 0) return;
 
-            _lastAttempt = StockCodeText;
+            _lastAttempt = $"{StockCodeText}|{JobCodeText}";
             RaiseConnectRequested();
         }
 
@@ -255,5 +279,7 @@ namespace PGA305OWICalibration.UIControls
             if (!_deviceConnected) return;
             RaiseDisconnectRequested();
         }
+
+
     }
 }

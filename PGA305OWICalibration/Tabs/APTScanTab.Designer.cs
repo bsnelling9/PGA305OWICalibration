@@ -23,6 +23,8 @@ namespace PGA305OWICalibration.Tabs
             rbnBatchConfigure = new RadioButton();
             btnDisconnect = new ATPButton();
             btnCreateStockCode = new ATPButton();
+            lblJobCode = new Label();
+            txtJobCode = new TextBox();
             SuspendLayout();
             // 
             // tlpCards
@@ -44,12 +46,13 @@ namespace PGA305OWICalibration.Tabs
             // 
             btnConfigureAll.BackColor = Color.White;
             btnConfigureAll.BorderColor = Color.Black;
+            btnConfigureAll.BorderSize = 2;
             btnConfigureAll.CornerRadius = 10;
             btnConfigureAll.Cursor = Cursors.Hand;
             btnConfigureAll.FlatStyle = FlatStyle.Flat;
             btnConfigureAll.Font = new Font("Segoe UI", 10F);
             btnConfigureAll.ForeColor = Color.Black;
-            btnConfigureAll.Location = new Point(19, 239);
+            btnConfigureAll.Location = new Point(19, 305);
             btnConfigureAll.Name = "btnConfigureAll";
             btnConfigureAll.Size = new Size(112, 45);
             btnConfigureAll.TabIndex = 81;
@@ -101,6 +104,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             btnDisconnect.BackColor = Color.White;
             btnDisconnect.BorderColor = Color.Black;
+            btnDisconnect.BorderSize = 2;
             btnDisconnect.CornerRadius = 10;
             btnDisconnect.Cursor = Cursors.Hand;
             btnDisconnect.FlatStyle = FlatStyle.Flat;
@@ -118,6 +122,7 @@ namespace PGA305OWICalibration.Tabs
             // 
             btnCreateStockCode.BackColor = Color.White;
             btnCreateStockCode.BorderColor = Color.Black;
+            btnCreateStockCode.BorderSize = 2;
             btnCreateStockCode.CornerRadius = 10;
             btnCreateStockCode.Cursor = Cursors.Hand;
             btnCreateStockCode.FlatStyle = FlatStyle.Flat;
@@ -131,10 +136,29 @@ namespace PGA305OWICalibration.Tabs
             btnCreateStockCode.UseVisualStyleBackColor = false;
             btnCreateStockCode.Click += btnCreateStockCode_Click;
             // 
+            // lblJobCode
+            // 
+            lblJobCode.AutoSize = true;
+            lblJobCode.Location = new Point(19, 245);
+            lblJobCode.Name = "lblJobCode";
+            lblJobCode.Size = new Size(89, 15);
+            lblJobCode.TabIndex = 89;
+            lblJobCode.Text = "Enter Job Code:";
+            // 
+            // txtJobCode
+            // 
+            txtJobCode.Location = new Point(19, 263);
+            txtJobCode.Name = "txtJobCode";
+            txtJobCode.Size = new Size(144, 23);
+            txtJobCode.TabIndex = 88;
+            txtJobCode.TextChanged += txtJobCode_TextChanged;
+            // 
             // APTScanTab
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(lblJobCode);
+            Controls.Add(txtJobCode);
             Controls.Add(btnCreateStockCode);
             Controls.Add(btnDisconnect);
             Controls.Add(rbnBatchConfigure);
@@ -157,5 +181,7 @@ namespace PGA305OWICalibration.Tabs
         private RadioButton rbnBatchConfigure;
         private ATPButton btnDisconnect;
         private ATPButton btnCreateStockCode;
+        private Label lblJobCode;
+        private TextBox txtJobCode;
     }
 }

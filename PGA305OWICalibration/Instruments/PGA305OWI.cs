@@ -278,7 +278,7 @@ namespace PGA305OWICalibration.PGA305EVM
         
         public byte GetCRCValue()
         {
-            WriteRegister(EEPROMRegister.EEPROM_CRC_TRIG, 0x01);
+            WriteRegister(EEPROMRegister.EEPROM_CRC, 0x01);
 
             byte newCRC = (byte)ReadRegister(EEPROMRegister.EEPROM_CRC_VAL);
 

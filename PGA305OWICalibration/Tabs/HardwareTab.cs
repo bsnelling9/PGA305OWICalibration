@@ -128,7 +128,7 @@ namespace PGA305OWICalibration.Tabs
 
                 _u2a.Power_WriteControl(Power_3V3.ON, Power_5V0.ON);
 
-                bool linkOk = _pga305.Initialize();
+                bool linkOk = _pga305.SetUSB2ANYOWIMode();
 
                 SetRow(RowUsb2Any, "USB2ANY", serial, linkOk ? "Connected" : "Failed");
                 return linkOk;
@@ -191,7 +191,7 @@ namespace PGA305OWICalibration.Tabs
 
         private void btnInit_Click(object sender, EventArgs e)
         {
-            _pga305.Initialize();
+            _pga305.SetUSB2ANYOWIMode();
         }
 
         private void btnActivate_Click(object sender, EventArgs e)
@@ -201,7 +201,7 @@ namespace PGA305OWICalibration.Tabs
                 Debug.WriteLine($"Channel {channel}: PGA305 activate failed");
             }
 
-            var serialNumber = _pga305.ReadInternalSerialNumber();
+            var serialNumber = _pga305.ReadSerialNumber();
             Debug.WriteLine($"Serial Number {serialNumber}");
         }
 

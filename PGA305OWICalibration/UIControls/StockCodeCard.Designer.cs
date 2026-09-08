@@ -27,6 +27,8 @@
             lblConnectDevice = new Label();
             chkInclude = new CheckBox();
             btnDisconnect = new ATPButton();
+            lblJobCode = new Label();
+            txtJobCode = new TextBox();
             SuspendLayout();
             // 
             // lblChannelNum
@@ -62,12 +64,13 @@
             // 
             btnConnectDevice.BackColor = Color.White;
             btnConnectDevice.BorderColor = Color.Black;
+            btnConnectDevice.BorderSize = 2;
             btnConnectDevice.CornerRadius = 10;
             btnConnectDevice.Cursor = Cursors.Hand;
             btnConnectDevice.FlatStyle = FlatStyle.Flat;
             btnConnectDevice.Font = new Font("Segoe UI", 10F);
             btnConnectDevice.ForeColor = Color.Black;
-            btnConnectDevice.Location = new Point(16, 87);
+            btnConnectDevice.Location = new Point(16, 118);
             btnConnectDevice.Name = "btnConnectDevice";
             btnConnectDevice.Size = new Size(124, 42);
             btnConnectDevice.TabIndex = 4;
@@ -79,12 +82,13 @@
             // 
             btnConfigDevice.BackColor = Color.White;
             btnConfigDevice.BorderColor = Color.Black;
+            btnConfigDevice.BorderSize = 2;
             btnConfigDevice.CornerRadius = 10;
             btnConfigDevice.Cursor = Cursors.Hand;
             btnConfigDevice.FlatStyle = FlatStyle.Flat;
             btnConfigDevice.Font = new Font("Segoe UI", 10F);
             btnConfigDevice.ForeColor = Color.Black;
-            btnConfigDevice.Location = new Point(16, 324);
+            btnConfigDevice.Location = new Point(16, 321);
             btnConfigDevice.Name = "btnConfigDevice";
             btnConfigDevice.Size = new Size(124, 42);
             btnConfigDevice.TabIndex = 5;
@@ -94,16 +98,16 @@
             // 
             // lblSummary
             // 
-            lblSummary.Location = new Point(16, 144);
+            lblSummary.Location = new Point(16, 163);
             lblSummary.Name = "lblSummary";
-            lblSummary.Size = new Size(277, 150);
+            lblSummary.Size = new Size(277, 138);
             lblSummary.TabIndex = 6;
             // 
             // lblConfigure
             // 
             lblConfigure.AutoSize = true;
             lblConfigure.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblConfigure.Location = new Point(16, 304);
+            lblConfigure.Location = new Point(16, 301);
             lblConfigure.Name = "lblConfigure";
             lblConfigure.Size = new Size(199, 17);
             lblConfigure.TabIndex = 7;
@@ -113,7 +117,7 @@
             // 
             lblConnectDevice.AutoSize = true;
             lblConnectDevice.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblConnectDevice.Location = new Point(16, 67);
+            lblConnectDevice.Location = new Point(16, 98);
             lblConnectDevice.Name = "lblConnectDevice";
             lblConnectDevice.Size = new Size(124, 17);
             lblConnectDevice.TabIndex = 8;
@@ -133,12 +137,13 @@
             // 
             btnDisconnect.BackColor = Color.White;
             btnDisconnect.BorderColor = Color.Black;
+            btnDisconnect.BorderSize = 2;
             btnDisconnect.CornerRadius = 10;
             btnDisconnect.Cursor = Cursors.Hand;
             btnDisconnect.FlatStyle = FlatStyle.Flat;
             btnDisconnect.Font = new Font("Segoe UI", 10F);
             btnDisconnect.ForeColor = Color.Black;
-            btnDisconnect.Location = new Point(162, 87);
+            btnDisconnect.Location = new Point(169, 118);
             btnDisconnect.Name = "btnDisconnect";
             btnDisconnect.Size = new Size(124, 42);
             btnDisconnect.TabIndex = 10;
@@ -146,10 +151,31 @@
             btnDisconnect.UseVisualStyleBackColor = false;
             btnDisconnect.Click += btnDisconnect_Click;
             // 
+            // lblJobCode
+            // 
+            lblJobCode.AutoSize = true;
+            lblJobCode.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblJobCode.Location = new Point(16, 72);
+            lblJobCode.Name = "lblJobCode";
+            lblJobCode.Size = new Size(70, 17);
+            lblJobCode.TabIndex = 11;
+            lblJobCode.Text = "Enter Job:";
+            // 
+            // txtJobCode
+            // 
+            txtJobCode.Font = new Font("Segoe UI", 10F);
+            txtJobCode.Location = new Point(153, 69);
+            txtJobCode.Name = "txtJobCode";
+            txtJobCode.Size = new Size(140, 25);
+            txtJobCode.TabIndex = 12;
+            txtJobCode.TextChanged += txtJobCode_TextChanged;
+            // 
             // StockCodeCard
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(txtJobCode);
+            Controls.Add(lblJobCode);
             Controls.Add(btnDisconnect);
             Controls.Add(chkInclude);
             Controls.Add(lblConnectDevice);
@@ -178,5 +204,7 @@
         private Label lblConnectDevice;
         private CheckBox chkInclude;
         private ATPButton btnDisconnect;
+        private Label lblJobCode;
+        private TextBox txtJobCode;
     }
 }

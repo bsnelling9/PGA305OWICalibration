@@ -49,12 +49,12 @@ namespace PGA305OWICalibration.UIControls
 
             int deviceLimit = _outputconfig.MaxPressure;
             bool mismatch = _deviceConnected && !_outputconfig.PressureRangeIsValid;
-            int limit = Math.Max(deviceLimit, Math.Max(_outputconfig.pMax, 1));
+            int limit = Math.Max(deviceLimit, Math.Max(_outputconfig.PressureMax, 1));
 
             numMinPressure.Maximum = limit;
             numMaxPressure.Maximum = limit;
-            numMinPressure.Value = Math.Min(_outputconfig.pMin, limit);
-            numMaxPressure.Value = Math.Min(_outputconfig.pMax, limit);
+            numMinPressure.Value = Math.Min(_outputconfig.PressureMin, limit);
+            numMaxPressure.Value = Math.Min(_outputconfig.PressureMax, limit);
 
             if (mismatch)
                 BorderColor = Color.Red;
@@ -62,7 +62,7 @@ namespace PGA305OWICalibration.UIControls
                 BorderColor = Color.RoyalBlue;
 
             string range = type.Length > 0
-                ? $"{_outputconfig.pMin}-{_outputconfig.pMax} {unit}"
+                ? $"{_outputconfig.PressureMin}-{_outputconfig.PressureMax} {unit}"
                 : "--";
 
             lblSummary.Text = _deviceConnected
@@ -123,7 +123,7 @@ namespace PGA305OWICalibration.UIControls
         {
             if (_updating) return;
 
-            _outputconfig.pMin = (int)numMinPressure.Value;
+            _outputconfig.PressureMin = (int)numMinPressure.Value;
             UpdateDisplay();
         }
 
@@ -131,7 +131,7 @@ namespace PGA305OWICalibration.UIControls
         {
             if (_updating) return;
 
-            _outputconfig.pMax = (int)numMaxPressure.Value;
+            _outputconfig.PressureMax = (int)numMaxPressure.Value;
             UpdateDisplay();
         }
 

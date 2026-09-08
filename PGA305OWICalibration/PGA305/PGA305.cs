@@ -6,6 +6,8 @@ namespace PGA305OWICalibration.PGA305
 {
     public class PGA305Device
     {
+        private const int PageSize = EEPROMRegister.EEPROM_PAGE_SIZE;
+
         private readonly USB2AnyDevice _u2a;
         public PGA305Device(USB2AnyDevice device) => _u2a = device;
 
@@ -17,9 +19,9 @@ namespace PGA305OWICalibration.PGA305
             _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_LOW);
         }
 
-        public bool Initialize()
+        public bool SetUSB2ANYOWIMode()
         {
-            Debug.WriteLine("Initialise() called");
+            Debug.WriteLine("SetUSB2ANYOWIMode() called");
 
             int result = _u2a.OneWire_SetMode(USB2AnyConfig.OW_MODE);
             
@@ -51,7 +53,6 @@ namespace PGA305OWICalibration.PGA305
 
             _u2a.GPIO_WritePort(USB2AnyConfig.GPIO11, USB2AnyConfig.STATE_HIGH);
 
-            // I do not think this is needed, but it is the unlock bytes
             _u2a.UART_Write(new byte[] {
                 USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE0, EEPROMRegister.COM_DIF_TO_MCU_B1, USB2AnyConfig.SYNC_BYTE,
                 USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE0, EEPROMRegister.COM_DIF_TO_MCU_B2, USB2AnyConfig.SYNC_BYTE
@@ -95,10 +96,15 @@ namespace PGA305OWICalibration.PGA305
             byte[] response = new byte[54];
             
             _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_INIT_PAGE5, registerAddress, USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_RESPONSE }, 5);
-            
-            int count = _u2a.UART_Read(response, 54);                        
-            
-            //this works as long as UART.SET_MODE is set to 2 (RecvAfterXmit)
+
+            int count = _u2a.UART_Read(response, 54);
+
+            if (count <= 0)
+            {
+                Debug.WriteLine($"ERROR: no response reading 0x{registerAddress:X2}");
+                return -1;
+            }
+
             return response[0];
         }
 
@@ -121,7 +127,7 @@ namespace PGA305OWICalibration.PGA305
             return pressureCode;
         }
 
-        public string ReadSerialNumber()
+        public string ReadSensorSerialNumber()
         {
             int lsb = ReadRegister(EEPROMRegister.SENSOR_SN_B0);
             int mid = ReadRegister(EEPROMRegister.SENSOR_SN_B1);
@@ -138,7 +144,7 @@ namespace PGA305OWICalibration.PGA305
             return serialNumber;
         }
 
-        public int ReadInternalSerialNumber()
+        public int ReadSerialNumber()
         {
             // maybe use the cache to read the internal serial number and ignore the 0-3 bytes instead
             // also there my need to be a wait or something so that this comes back clean, becuase right now when I read everything it is messy.
@@ -161,52 +167,39 @@ namespace PGA305OWICalibration.PGA305
             return serialNumber;
         }
 
-        public bool WriteRegister(byte registerAddress, byte value)
-        {
-            int response = _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE5, registerAddress, value }, 4);
-            if (response == 0)
-            {
-                Debug.WriteLine($"Write reg 0x{registerAddress:X2} = 0x{value:X2}");
-                return true;
-            }
-            
-            return false;
-        }
-
-        public bool ProgramDevice(
-            Dictionary<string, string> coefficients,
-            Dictionary<byte, byte> analogRegisters)
+        public bool WriteFinalCalibration(Dictionary<string, string> coefficients, Dictionary<byte, byte> settings)
         {
             if (!WriteCoefficients(coefficients))
             {
                 Debug.WriteLine("ERROR: coefficient write failed.");
                 return false;
             }
-            if (analogRegisters.Count > 0 && !BatchWriteRegisters(analogRegisters))
+
+            if (settings.Count > 0 && !WriteSettings(settings))
             {
-                Debug.WriteLine("ERROR: analog register write failed.");
+                Debug.WriteLine("ERROR: settings write failed.");
                 return false;
             }
-            
-            byte crc = GetCRCValue();
-            
-            if (!BatchWriteRegisters(new Dictionary<byte, byte>
-            { { (byte)EEPROMRegister.PAGE_F_CRC, crc } }))
+
+            int crc = CalculateCRC();
+
+            if (crc < 0)
+                return false;
+
+            if (!WriteCRC((byte)crc))
             {
                 Debug.WriteLine("ERROR: CRC write failed.");
                 return false;
             }
-            
-            Debug.WriteLine($"Device programmed. CRC = 0x{crc:X2}");
+
+            Debug.WriteLine($"Final calibration written. CRC = 0x{crc:X2}");
             return true;
         }
 
         public bool WriteCoefficients(Dictionary<string, string> coefficients)
-        {
-            const int pageSize = EEPROMRegister.EEPROM_PAGE_SIZE;
-            
+        {            
             var targetUpdates = new Dictionary<byte, byte>();
-            
+
             foreach (var coefficient in coefficients)
             {
                 if (!EEPROMRegister.COEFFICIENT_ADDRESSES.TryGetValue(
@@ -217,7 +210,7 @@ namespace PGA305OWICalibration.PGA305
                 }
 
                 string hex = coefficient.Value;
-                
+
                 if (hex.Length != 6)
                 {
                     Debug.WriteLine($"ERROR: Coefficient {coefficient.Key} has invalid value '{hex}'.");
@@ -227,57 +220,71 @@ namespace PGA305OWICalibration.PGA305
                 byte msb = Convert.ToByte(hex.Substring(0, 2), 16);
                 byte mid = Convert.ToByte(hex.Substring(2, 2), 16);
                 byte lsb = Convert.ToByte(hex.Substring(4, 2), 16);
-                
+
                 targetUpdates[addresses[0]] = lsb;
                 targetUpdates[addresses[1]] = mid;
                 targetUpdates[addresses[2]] = msb;
-                
+
                 Debug.WriteLine(
                     $"{coefficient.Key}: {hex} -> " +
                     $"LSB=0x{lsb:X2}, MID=0x{mid:X2}, MSB=0x{msb:X2}");
             }
 
+            return UpdateEEPROM(targetUpdates, preserveExisting: false);
+        }
+
+        public bool WriteSettings(Dictionary<byte, byte> settings) => UpdateEEPROM(settings);
+
+        public bool WriteCRC(byte crc) => UpdateEEPROM(new Dictionary<byte, byte> { { (byte)EEPROMRegister.PAGE_F_CRC, crc } });
+
+        private bool UpdateEEPROM(Dictionary<byte, byte> targetUpdates, bool preserveExisting = true)
+        {
             var pages = targetUpdates.Keys
-                .Select(address => address / pageSize)
+                .Select(address => address / PageSize)
                 .Distinct()
                 .OrderBy(page => page);
-            
+
             foreach (int page in pages)
             {
-                int pageStart = page * pageSize;
-                
-                Debug.WriteLine(
-                    $"Writing coefficient Page 0x{page:X2} " +
-                    $"(0x{pageStart:X2}-0x{pageStart + 7:X2})...");
-                
-                byte[] pageData = new byte[pageSize];
-                
-                foreach (var update in targetUpdates)
+                int pageStart = page * PageSize;
+
+                Debug.WriteLine($"Writing Page 0x{page:X2} (0x{pageStart:X2}-0x{pageStart + PageSize - 1:X2})...");
+
+                byte[] pageData = new byte[PageSize];
+
+                if (preserveExisting)
                 {
-                    if (update.Key >= pageStart &&
-                        update.Key < pageStart + pageSize)
+                    FlushUartRx();
+
+                    for (int i = 0; i < PageSize; i++)
                     {
-                        pageData[update.Key - pageStart] = update.Value;
+                        byte address = (byte)(pageStart + i);
+                        int current = ReadRegister(address);
+
+                        if (current < 0)
+                        {
+                            Debug.WriteLine($"ERROR: back-read failed at 0x{address:X2}");
+                            return false;
+                        }
+
+                        pageData[i] = (byte)current;
                     }
                 }
-                if (!WriteEEPROMpage((byte)page, pageData))
+
+                foreach (var update in targetUpdates)
                 {
-                    Debug.WriteLine(
-                        $"ERROR: Failed to write coefficient page 0x{page:X2}.");
-                    return false;
+                    if (update.Key >= pageStart && update.Key < pageStart + PageSize)
+                        pageData[update.Key - pageStart] = update.Value;
                 }
+
+                if (!WriteEEPROMPage((byte)page, pageData))
+                    return false;
             }
+
             return true;
         }
 
-        public byte GetCRCValue()
-        {
-            WriteRegister(EEPROMRegister.EEPROM_CRC_TRIG, 0x01);
-            byte newCRC = (byte)ReadRegister(EEPROMRegister.EEPROM_CRC_VAL);
-            return newCRC;
-        }
-
-        private bool WriteEEPROMpage(byte page, byte[] pageData)
+        private bool WriteEEPROMPage(byte page, byte[] pageData)
         {
             const int pageSize = EEPROMRegister.EEPROM_PAGE_SIZE;
             if (pageData.Length != pageSize)
@@ -303,7 +310,7 @@ namespace PGA305OWICalibration.PGA305
             _u2a.UART_Write(cmd, (byte)cmd.Length);
             Debug.WriteLine($"Page 0x{page:X2} cache: {string.Join(" ", pageData.Select(b => $"0x{b:X2}"))}");
             
-            //I ccan probably remove this
+            //I can probably remove this
             Thread.Sleep(15);
             byte[] discard = new byte[54];
             int junk = _u2a.UART_Read(discard, 54);
@@ -330,8 +337,34 @@ namespace PGA305OWICalibration.PGA305
             return true;
         }
 
-        //This needs to be optimized because it builds the list of updates
-        // the throws it out then updates it again
+        public bool WriteRegister(byte registerAddress, byte value)
+        {
+            int response = _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE5, registerAddress, value }, 4);
+            if (response == 0)
+            {
+                Debug.WriteLine($"Write reg 0x{registerAddress:X2} = 0x{value:X2}");
+                return true;
+            }
+
+            return false;
+        }
+
+        public int CalculateCRC()
+        {
+            if (!WriteRegister(EEPROMRegister.EEPROM_CRC, EEPROMRegister.EEPROM_CALCULATE_CRC))
+            {
+                Debug.WriteLine("ERROR: CRC trigger write failed.");
+                return -1;
+            }
+
+            int crc = ReadRegister(EEPROMRegister.EEPROM_CRC_VAL);
+
+            if (crc < 0)
+                Debug.WriteLine("ERROR: CRC read failed.");
+
+            return crc;
+        }
+        // These methods below are old and will need to be romved
         public bool BatchWriteRegisters(Dictionary<byte, byte> targetUpdates)
         {
             const int pageSize = EEPROMRegister.EEPROM_PAGE_SIZE;
@@ -364,7 +397,7 @@ namespace PGA305OWICalibration.PGA305
                     if (kv.Key >= pageStart && kv.Key < pageStart + pageSize)
                         pageData[kv.Key - pageStart] = kv.Value;
                 }
-                if (!WriteEEPROMpage((byte)page, pageData))
+                if (!WriteEEPROMPage((byte)page, pageData))
                 {
                     Debug.WriteLine($"CRITICAL: Failed to write page 0x{page:X2}");
                     return false;

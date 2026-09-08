@@ -271,8 +271,8 @@ namespace PGA305OWICalibration
 
             _outputconfig.StockCode = spec.stock_code;
             _outputconfig.PressureUnit = spec.pressure_units;
-            _outputconfig.pMin = (int)spec.pressure_min;
-            _outputconfig.pMax = (int)spec.pressure_max;
+            _outputconfig.PressureMin = (int)spec.pressure_min;
+            _outputconfig.PressureMax = (int)spec.pressure_max;
 
             if (!SetPotsForSignalType(_outputconfig.SignalType))
                 return false;
@@ -283,7 +283,7 @@ namespace PGA305OWICalibration
             UpdateVisibility();
 
             listBoxDebug.Items.Add($"{spec.stock_code}: {_outputconfig.SignalType}, " +
-                                   $"{_outputconfig.pMin}-{_outputconfig.pMax} {_outputconfig.PressureUnit}");
+                                   $"{_outputconfig.PressureMin}-{_outputconfig.PressureMax} {_outputconfig.PressureUnit}");
             return true;
         }
 
@@ -342,7 +342,7 @@ namespace PGA305OWICalibration
                 {
                     if (!_outputconfig.PressureRangeIsValid)
                     {
-                        listBoxDebug.Items.Add($"MISMATCH: {_outputconfig.pMax} {_outputconfig.PressureUnit} " +
+                        listBoxDebug.Items.Add($"MISMATCH: {_outputconfig.PressureMax} {_outputconfig.PressureUnit} " +
                                                $"exceeds device code {_outputconfig.PressureCode}.");
                         SetDisconnected();
                         return;
@@ -394,8 +394,8 @@ namespace PGA305OWICalibration
         private void btnNoPChange_Click(object sender, EventArgs e)
         {
             _outputconfig.SetPressureRangeFromCode();
-            numMinPressure.Value = _outputconfig.pMin;
-            numMaxPressure.Value = _outputconfig.maxPSI;
+            numMinPressure.Value = _outputconfig.PressureMin;
+            numMaxPressure.Value = _outputconfig.MaxPsi;
             UpdateOutputConfigSummary();
         }
 
@@ -404,20 +404,20 @@ namespace PGA305OWICalibration
             lsbOutputConfig.Items.Clear();
             lsbOutputConfig.Items.Add($"Output Configuration: {_outputconfig.SignalType}");
             lsbOutputConfig.Items.Add($"Electrical Output: {_outputconfig.ElectricalOutput}");
-            lsbOutputConfig.Items.Add($"Pressure Range: {_outputconfig.pMin}-{_outputconfig.pMax} {_outputconfig.PressureUnit.ToUpper()}");
+            lsbOutputConfig.Items.Add($"Pressure Range: {_outputconfig.PressureMin}-{_outputconfig.PressureMax} {_outputconfig.PressureUnit.ToUpper()}");
         }
 
         private void btnUnitBar_Click(object sender, EventArgs e)
         {
             _outputconfig.SetPressureUnit("bar");
             numMinPressure.Minimum = 0;
-            numMinPressure.Maximum = _outputconfig.maxBar;
+            numMinPressure.Maximum = _outputconfig.MaxBar;
             numMaxPressure.Minimum = 0;
-            numMaxPressure.Maximum = _outputconfig.maxBar;
+            numMaxPressure.Maximum = _outputconfig.MaxBar;
             numMinPressure.Value = 0;
-            numMaxPressure.Value = _outputconfig.maxBar;
-            _outputconfig.pMin = 0;
-            _outputconfig.pMax = _outputconfig.maxBar;
+            numMaxPressure.Value = _outputconfig.MaxBar;
+            _outputconfig.PressureMin = 0;
+            _outputconfig.PressureMax = _outputconfig.MaxBar;
             UpdateOutputConfigSummary();
         }
 
@@ -425,13 +425,13 @@ namespace PGA305OWICalibration
         {
             _outputconfig.SetPressureUnit("psi");
             numMinPressure.Minimum = 0;
-            numMinPressure.Maximum = _outputconfig.maxPSI;
+            numMinPressure.Maximum = _outputconfig.MaxPsi;
             numMaxPressure.Minimum = 0;
-            numMaxPressure.Maximum = _outputconfig.maxPSI;
+            numMaxPressure.Maximum = _outputconfig.MaxPsi;
             numMinPressure.Value = 0;
-            numMaxPressure.Value = _outputconfig.maxPSI;
-            _outputconfig.pMin = 0;
-            _outputconfig.pMax = _outputconfig.maxPSI;
+            numMaxPressure.Value = _outputconfig.MaxPsi;
+            _outputconfig.PressureMin = 0;
+            _outputconfig.PressureMax = _outputconfig.MaxPsi;
             UpdateOutputConfigSummary();
         }
 
@@ -454,12 +454,12 @@ namespace PGA305OWICalibration
 
         private void numMinPressure_ValueChanged(object sender, EventArgs e)
         {
-            _outputconfig.pMin = (int)numMinPressure.Value;
+            _outputconfig.PressureMin = (int)numMinPressure.Value;
         }
 
         private void numMaxPressure_ValueChanged(object sender, EventArgs e)
         {
-            _outputconfig.pMax = (int)numMaxPressure.Value;
+            _outputconfig.PressureMax = (int)numMaxPressure.Value;
         }
 
         private void txtJobCode_TextChanged(object sender, EventArgs e)
@@ -475,10 +475,10 @@ namespace PGA305OWICalibration
             Debug.WriteLine($"Stock Code: {_outputconfig.StockCode}");
             Debug.WriteLine($"Signal Type: {_outputconfig.SignalType}");
             Debug.WriteLine($"Electrical Output: {_outputconfig.ElectricalOutput}");
-            Debug.WriteLine($"V Min: {_outputconfig.outputMin}");
-            Debug.WriteLine($"V Max: {_outputconfig.outputMax}");
-            Debug.WriteLine($"P Min: {_outputconfig.pMin}");
-            Debug.WriteLine($"P Max: {_outputconfig.pMax}");
+            Debug.WriteLine($"V Min: {_outputconfig.OutputMin}");
+            Debug.WriteLine($"V Max: {_outputconfig.OutputMax}");
+            Debug.WriteLine($"P Min: {_outputconfig.PressureMin}");
+            Debug.WriteLine($"P Max: {_outputconfig.PressureMax}");
             Debug.WriteLine($"Pressure Unit: {_outputconfig.PressureUnit}");
         }
 
@@ -511,8 +511,8 @@ namespace PGA305OWICalibration
                 LogOutputConfig();
 
                 var result = await _api.ConvertOutput(
-                    _outputconfig.SerialNumber, _outputconfig.SignalType, _outputconfig.outputMin, _outputconfig.outputMax,
-                    _outputconfig.pMin, _outputconfig.pMax, _outputconfig.PressureUnit);
+                    _outputconfig.SerialNumber, _outputconfig.SignalType, _outputconfig.OutputMin, _outputconfig.OutputMax,
+                    _outputconfig.PressureMin, _outputconfig.PressureMax, _outputconfig.PressureUnit);
 
                 if (result == null)
                 {
@@ -540,8 +540,9 @@ namespace PGA305OWICalibration
                         dbCode,
                         result.serial_number,
                         _outputconfig.ElectricalOutput,
-                        $"{_outputconfig.pMin}-{_outputconfig.pMax} {_outputconfig.PressureUnit}",
-                        _outputconfig.SignalType);
+                        $"{_outputconfig.PressureMin}-{_outputconfig.PressureMax} {_outputconfig.PressureUnit}",
+                        _outputconfig.SignalType,
+                        jobCode: _outputconfig.JobCode);
 
                 if (!createTransducer)
                 {
@@ -580,20 +581,20 @@ namespace PGA305OWICalibration
             if (_outputconfig.PressureUnit == "psiG")
             {
                 numMinPressure.Minimum = 0;
-                numMinPressure.Maximum = _outputconfig.maxPSI;
+                numMinPressure.Maximum = _outputconfig.MaxPsi;
                 numMaxPressure.Minimum = 0;
-                numMaxPressure.Maximum = _outputconfig.maxPSI;
+                numMaxPressure.Maximum = _outputconfig.MaxPsi;
                 numMinPressure.Value = 0;
-                numMaxPressure.Value = _outputconfig.maxPSI;
+                numMaxPressure.Value = _outputconfig.MaxPsi;
             }
             else if (_outputconfig.PressureUnit == "bar")
             {
                 numMinPressure.Minimum = 0;
-                numMinPressure.Maximum = _outputconfig.maxBar;
+                numMinPressure.Maximum = _outputconfig.MaxBar;
                 numMaxPressure.Minimum = 0;
-                numMaxPressure.Maximum = _outputconfig.maxBar;
+                numMaxPressure.Maximum = _outputconfig.MaxBar;
                 numMinPressure.Value = 0;
-                numMaxPressure.Value = _outputconfig.maxBar;
+                numMaxPressure.Value = _outputconfig.MaxBar;
             }
         }
 

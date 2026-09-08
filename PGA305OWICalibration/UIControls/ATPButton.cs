@@ -87,6 +87,7 @@ namespace PGA305OWICalibration.UIControls
         protected override void OnEnabledChanged(EventArgs e)
         {
             base.OnEnabledChanged(e);
+            Cursor = Enabled ? Cursors.Hand : Cursors.Default;
             Invalidate();
         }
 

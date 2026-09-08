@@ -13,10 +13,8 @@ namespace PGA305OWICalibration.UIControls
         protected bool _deviceConnected;
         protected bool _interactive = true;
         protected bool _updating;
-
         private int _channel;
         private Color _borderColor = Color.Gainsboro;
-
         private Panel? _overlay;
         private Label? _overlayText;
         private ATPButton? _overlayButton;
@@ -44,6 +42,10 @@ namespace PGA305OWICalibration.UIControls
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public PGAOutputConfig OutputConfig => _outputconfig;
+
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public virtual string CurrentJobCode => _outputconfig.JobCode;
 
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -264,7 +266,7 @@ namespace PGA305OWICalibration.UIControls
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             var rect = new Rectangle(0, 0, Width - 1, Height - 1);
-            rect.Inflate(-(CardBorderSize / 2) - 1, -(CardBorderSize / 2) - 1);
+            rect.Inflate(-(CardBorderSize / 2) - 1, - (CardBorderSize / 2) - 1);
 
             using (var path = RoundedRect(rect, CornerRadius))
             using (var bg = new SolidBrush(CardBackColor))

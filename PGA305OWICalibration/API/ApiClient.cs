@@ -117,12 +117,13 @@ namespace PGA305OWICalibration.API
 
             var response = await _client.PostAsync($"{AppConfig.API_URL}/final-coefficients", content);
             Debug.WriteLine(response);
+            
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> CreateTransducer(
             string stockCode, int serialNumber, string electricalOutput,
-            string pressureRange, string outputConfiguration)
+            string pressureRange, string outputConfiguration, string jobCode)
         {
             var payload = new
             {
@@ -131,6 +132,7 @@ namespace PGA305OWICalibration.API
                 electrical_output = electricalOutput,
                 pressure_range = pressureRange,
                 output_configuration = outputConfiguration,
+                job_final = jobCode,
                 final_cal_timestamp = DateTime.UtcNow,
                 model_number = ""
             };
@@ -140,6 +142,7 @@ namespace PGA305OWICalibration.API
 
             var response = await _client.PostAsync($"{AppConfig.API_URL}/transducer", content);
             Debug.WriteLine(response);
+            
             return response.IsSuccessStatusCode;
         }
 
@@ -182,7 +185,6 @@ namespace PGA305OWICalibration.API
             return JsonSerializer.Deserialize<StockCode>(resultJson);
         }
 
-        //Production I will remove this. This was just for a test
         public async Task<InitialCoefficients?> GetInitialCoefficients(
         int sessionId,
         int serialNumber)

@@ -147,8 +147,8 @@ namespace PGA305OWICalibration.Tabs
 
             config.StockCode = spec.stock_code;
             config.PressureUnit = spec.pressure_units;
-            config.pMin = (int)spec.pressure_min;
-            config.pMax = (int)spec.pressure_max;
+            config.PressureMin = (int)spec.pressure_min;
+            config.PressureMax = (int)spec.pressure_max;
 
             Debug.WriteLine($"{config.StockCode}");
 
@@ -160,6 +160,15 @@ namespace PGA305OWICalibration.Tabs
         {
             if (card is StockCodeCard stockCard)
             {
+                if (stockCard.JobCodeText.Length == 0)
+                {
+                    stockCard.BorderColor = Color.Red;
+                    stockCard.ShowMessage("Enter a job code before connecting.");
+                    return false;
+                }
+
+                card.OutputConfig.JobCode = stockCard.JobCodeText;
+
                 if (!await LoadStockCode(stockCard))
                     return false;
 
@@ -212,7 +221,7 @@ namespace PGA305OWICalibration.Tabs
 
                 Thread.Sleep(MuxSTM32Config.ChannelSettleMs);
 
-                if (!_pga305.Initialize())
+                if (!_pga305.SetUSB2ANYOWIMode())
                 {
                     Debug.WriteLine($"Channel {channel}: PGA305 init failed");
                     return false;
@@ -224,7 +233,7 @@ namespace PGA305OWICalibration.Tabs
                     return false;
                 }
 
-                config.SerialNumber = _pga305.ReadInternalSerialNumber();
+                config.SerialNumber = _pga305.ReadSerialNumber();
 
                 if (config.SerialNumber <= 0)
                 {
@@ -240,7 +249,7 @@ namespace PGA305OWICalibration.Tabs
                     return false;
                 }
 
-                config.SensorSerialNumber = _pga305.ReadSerialNumber();
+                config.SensorSerialNumber = _pga305.ReadSensorSerialNumber();
                 config.SetPressureRangeFromCode();
 
                 Debug.WriteLine($"Channel {channel}: SN={config.SerialNumber} sensor={config.SensorSerialNumber} code={config.PressureCode}");
@@ -263,8 +272,14 @@ namespace PGA305OWICalibration.Tabs
             if (!config.PressureRangeIsValid)
             {
                 card.BorderColor = Color.Red;
-                Debug.WriteLine($"Channel {card.Channel}: {config.pMax} {config.PressureUnit} exceeds code {config.PressureCode}");
+                Debug.WriteLine($"Channel {card.Channel}: {config.PressureMax} {config.PressureUnit} exceeds code {config.PressureCode}");
                 return false;
+            }
+
+            if (config.JobCode.Length == 0)
+            {
+                card.ShowProgress("No job code, nothing written to database");
+                return Fail(card, "job code missing");
             }
 
             _cardBusy = true;
@@ -276,8 +291,8 @@ namespace PGA305OWICalibration.Tabs
             try
             {
                 var result = await _api.ConvertOutput(
-                    config.SerialNumber, config.SignalType, config.outputMin, config.outputMax,
-                    config.pMin, config.pMax, config.PressureUnit);
+                    config.SerialNumber, config.SignalType, config.OutputMin, config.OutputMax,
+                    config.PressureMin, config.PressureMax, config.PressureUnit);
 
                 if (result == null)
                 {
@@ -294,7 +309,7 @@ namespace PGA305OWICalibration.Tabs
                 card.ShowProgress("Coefficients received");
                 card.ShowProgress("Writing EEPROM...");
 
-                bool programmed = await Task.Run(() => _pga305.ProgramDevice(result.coefficients, config.SelectedRegisters));
+                bool programmed = await Task.Run(() => _pga305.WriteFinalCalibration(result.coefficients, config.SelectedRegisters));
 
                 if (!programmed)
                 {
@@ -309,8 +324,9 @@ namespace PGA305OWICalibration.Tabs
                     config.StockCode,
                     result.serial_number,
                     config.ElectricalOutput,
-                    $"{config.pMin}-{config.pMax} {config.PressureUnit}",
-                    config.SignalType);
+                    $"{config.PressureMin}-{config.PressureMax} {config.PressureUnit}",
+                    config.SignalType,
+                    config.JobCode);
 
                 if (!transducer)
                 {
@@ -355,11 +371,18 @@ namespace PGA305OWICalibration.Tabs
         private async void btnConfigureAll_Click(object? sender, EventArgs e)
         {
             string code = txtBatchStockCode.Text.Trim();
+            string jobCode = txtJobCode.Text.Trim();
 
             var targets = _cards
-                .OfType<StockCodeCard>()
-                .Where(c => c.Included)
-                .ToList();
+               .OfType<StockCodeCard>()
+               .Where(c => c.Included)
+               .ToList();
+
+            if (jobCode.Length == 0)
+            {
+                Debug.WriteLine("Batch aborted: no job code entered");
+                return;
+            }                  
 
             if (code.Length == 0)
             {
@@ -381,6 +404,7 @@ namespace PGA305OWICalibration.Tabs
 
             _batchRunning = true;
             btnConfigureAll.Enabled = false;
+            txtJobCode.Enabled = false;
 
             foreach (var c in _cards)
                 c.SetInteractive(false);
@@ -395,6 +419,7 @@ namespace PGA305OWICalibration.Tabs
 
                     try
                     {
+                        card.SetStockCode(code);
                         card.SetStockCode(code);
 
                         if (await ConnectChannel(card))
@@ -417,12 +442,12 @@ namespace PGA305OWICalibration.Tabs
             finally
             {
                 _batchRunning = false;
-                btnConfigureAll.Enabled = true;
                 ClearActiveCard();
-
+                
                 foreach (var card in targets)
                     card.ClearSelection();
-
+                BatchMode_CheckedChanged(this, EventArgs.Empty);
+                
                 Debug.WriteLine("Batch: complete");
             }
         }
@@ -443,7 +468,8 @@ namespace PGA305OWICalibration.Tabs
                 card.SelectionMode = batch;
 
             txtBatchStockCode.Enabled = batch;
-            btnConfigureAll.Enabled = batch;
+            txtJobCode.Enabled = batch;
+            btnConfigureAll.Enabled = batch && txtJobCode.Text.Trim().Length > 0;
         }
 
         private void rbnBatchConfigure_CheckedChanged(object sender, EventArgs e)
@@ -461,7 +487,7 @@ namespace PGA305OWICalibration.Tabs
                 maRelayClosed: false,
                 voRelayClosed: false);
 
-            card.ResetConfig(string.Empty);
+            card.ResetConfig(card is StockCodeCard sc ? sc.JobCodeText : string.Empty);
             ClearActiveCard();
         }
 
@@ -473,8 +499,8 @@ namespace PGA305OWICalibration.Tabs
                voRelayClosed: false);
 
             foreach (var card in _cards)
-                card.ResetConfig(string.Empty);
-
+                card.ResetConfig(card is StockCodeCard sc ? sc.JobCodeText : string.Empty);
+           
             ClearActiveCard();
         }
 
@@ -485,6 +511,12 @@ namespace PGA305OWICalibration.Tabs
 
             using var form = new StockCodeForm(_api);
             form.ShowDialog(this);
+        }
+
+        private void txtJobCode_TextChanged(object sender, EventArgs e)
+        {
+            if (_batchRunning) return;
+            btnConfigureAll.Enabled = rbnBatchConfigure.Checked && txtJobCode.Text.Trim().Length > 0;
         }
     }
 }
