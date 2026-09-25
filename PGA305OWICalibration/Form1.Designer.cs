@@ -23,12 +23,10 @@ namespace PGA305OWICalibration
             TabMainPage = new TabPage();
             label2 = new Label();
             btnStart = new ATPButton();
-            btnConfigI2C = new ATPButton();
             btnSettings = new ATPButton();
             btnDebug = new ATPButton();
             hardwareTab = new TabPage();
             deviceTab = new TabPage();
-            tabPage4 = new TabPage();
             tabControl1.SuspendLayout();
             TabMainPage.SuspendLayout();
             SuspendLayout();
@@ -38,7 +36,6 @@ namespace PGA305OWICalibration
             tabControl1.Controls.Add(TabMainPage);
             tabControl1.Controls.Add(hardwareTab);
             tabControl1.Controls.Add(deviceTab);
-            tabControl1.Controls.Add(tabPage4);
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 0);
             tabControl1.Name = "tabControl1";
@@ -50,7 +47,6 @@ namespace PGA305OWICalibration
             // 
             TabMainPage.Controls.Add(label2);
             TabMainPage.Controls.Add(btnStart);
-            TabMainPage.Controls.Add(btnConfigI2C);
             TabMainPage.Controls.Add(btnSettings);
             TabMainPage.Controls.Add(btnDebug);
             TabMainPage.ForeColor = SystemColors.ControlText;
@@ -75,11 +71,12 @@ namespace PGA305OWICalibration
             // 
             btnStart.BackColor = Color.White;
             btnStart.BorderColor = Color.Black;
+            btnStart.BorderSize = 2;
             btnStart.CornerRadius = 10;
             btnStart.FlatStyle = FlatStyle.Flat;
             btnStart.Font = new Font("Segoe UI", 10F);
             btnStart.ForeColor = Color.Black;
-            btnStart.Location = new Point(1142, 500);
+            btnStart.Location = new Point(1142, 548);
             btnStart.Name = "btnStart";
             btnStart.Size = new Size(150, 50);
             btnStart.TabIndex = 43;
@@ -87,31 +84,16 @@ namespace PGA305OWICalibration
             btnStart.UseVisualStyleBackColor = true;
             btnStart.Click += btnStart_Click;
             // 
-            // btnConfigI2C
-            // 
-            btnConfigI2C.BackColor = Color.White;
-            btnConfigI2C.BorderColor = Color.Black;
-            btnConfigI2C.CornerRadius = 10;
-            btnConfigI2C.FlatStyle = FlatStyle.Flat;
-            btnConfigI2C.Font = new Font("Segoe UI", 10F);
-            btnConfigI2C.ForeColor = Color.Black;
-            btnConfigI2C.Location = new Point(1142, 561);
-            btnConfigI2C.Name = "btnConfigI2C";
-            btnConfigI2C.Size = new Size(150, 50);
-            btnConfigI2C.TabIndex = 42;
-            btnConfigI2C.Text = "Configure using I2C";
-            btnConfigI2C.UseVisualStyleBackColor = true;
-            btnConfigI2C.Click += btnConfigI2C_Click;
-            // 
             // btnSettings
             // 
             btnSettings.BackColor = Color.White;
             btnSettings.BorderColor = Color.Black;
+            btnSettings.BorderSize = 2;
             btnSettings.CornerRadius = 10;
             btnSettings.FlatStyle = FlatStyle.Flat;
             btnSettings.Font = new Font("Segoe UI", 10F);
             btnSettings.ForeColor = Color.Black;
-            btnSettings.Location = new Point(1142, 702);
+            btnSettings.Location = new Point(1142, 691);
             btnSettings.Name = "btnSettings";
             btnSettings.Size = new Size(150, 50);
             btnSettings.TabIndex = 41;
@@ -123,11 +105,12 @@ namespace PGA305OWICalibration
             // 
             btnDebug.BackColor = Color.White;
             btnDebug.BorderColor = Color.Black;
+            btnDebug.BorderSize = 2;
             btnDebug.CornerRadius = 10;
             btnDebug.FlatStyle = FlatStyle.Flat;
             btnDebug.Font = new Font("Segoe UI", 10F);
             btnDebug.ForeColor = Color.Black;
-            btnDebug.Location = new Point(1142, 635);
+            btnDebug.Location = new Point(1142, 620);
             btnDebug.Name = "btnDebug";
             btnDebug.Size = new Size(150, 50);
             btnDebug.TabIndex = 40;
@@ -155,16 +138,6 @@ namespace PGA305OWICalibration
             deviceTab.Text = "Device";
             deviceTab.UseVisualStyleBackColor = true;
             // 
-            // tabPage4
-            // 
-            tabPage4.Location = new Point(4, 24);
-            tabPage4.Name = "tabPage4";
-            tabPage4.Padding = new Padding(3);
-            tabPage4.Size = new Size(1531, 867);
-            tabPage4.TabIndex = 3;
-            tabPage4.Text = "tabPage4";
-            tabPage4.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -184,10 +157,8 @@ namespace PGA305OWICalibration
         private TabPage TabMainPage;
         private TabPage hardwareTab;
         private TabPage deviceTab;
-        private TabPage tabPage4;
         private ATPButton btnDebug;
         private ATPButton btnSettings;
-        private ATPButton btnConfigI2C;
         private ATPButton btnStart;
         private Label label2;
     }

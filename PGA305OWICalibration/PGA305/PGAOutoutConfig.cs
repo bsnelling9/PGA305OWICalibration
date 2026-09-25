@@ -1,5 +1,4 @@
 ﻿using PGA305OWICalibration.Config;
-using System.Globalization;
 
 namespace PGA305OWICalibration.PGA305
 {
@@ -17,11 +16,9 @@ namespace PGA305OWICalibration.PGA305
 
         private sealed record OutputConfiguration(double Min, double Max, byte DacConfig, byte OpStageCtrl);
 
-        private static readonly OutputConfiguration RatiometricSpec =
-            new(0.5, 4.5, EEPROMRegister.DAC_MODE_RATIOMETRIC, EEPROMRegister.DAC_GAIN_4V);
+        private static readonly OutputConfiguration RatiometricSpec = new (0.5, 4.5, EEPROMRegister.DAC_MODE_RATIOMETRIC, EEPROMRegister.DAC_GAIN_4V);
 
-        private static readonly OutputConfiguration CurrentSpec =
-            new(4, 20, EEPROMRegister.DAC_MODE_ABSOLUTE, EEPROMRegister.CURRENT_MODE);
+        private static readonly OutputConfiguration CurrentSpec = new (4, 20, EEPROMRegister.DAC_MODE_ABSOLUTE, EEPROMRegister.CURRENT_MODE);
 
         private static readonly Dictionary<string, OutputConfiguration> VoltageSpecs = new()
         {
@@ -64,7 +61,19 @@ namespace PGA305OWICalibration.PGA305
             && PressureMin < PressureMax
             && (MaxPressure == 0 || PressureMax <= MaxPressure);
 
-        public void SelectRatiometric() => SetOutputConfiguration(Ratiometric, RatiometricOutput, RatiometricSpec);
+        public void SelectRatiometric()
+        {
+            SetOutputConfiguration(Ratiometric, RatiometricOutput, RatiometricSpec);
+
+            SelectedRegisters[EEPROMRegister.NORMAL_LOW_LSB_ADD] = OutputConfig.RATIO_NORMAL_LOW_LSB;
+            SelectedRegisters[EEPROMRegister.NORMAL_LOW_MSB_ADD] = OutputConfig.RATIO_NORMAL_LOW_MSB;
+            SelectedRegisters[EEPROMRegister.NORMAL_HIGH_LSB_ADD] = OutputConfig.RATIO_NORMAL_HIGH_LSB;
+            SelectedRegisters[EEPROMRegister.NORMAL_HIGH_MSB_ADD] = OutputConfig.RATIO_NORMAL_HIGH_MSB;
+            SelectedRegisters[EEPROMRegister.LOW_CLAMP_LSB_ADD] = OutputConfig.RATIO_LOW_CLAMP_LSB;
+            SelectedRegisters[EEPROMRegister.LOW_CLAMP_MSB_ADD] = OutputConfig.RATIO_LOW_CLAMP_MSB;
+            SelectedRegisters[EEPROMRegister.HIGH_CLAMP_LSB_ADD] = OutputConfig.RATIO_HIGH_CLAMP_LSB;
+            SelectedRegisters[EEPROMRegister.HIGH_CLAMP_MSB_ADD] = OutputConfig.RATIO_HIGH_CLAMP_MSB;
+        }        
 
         public void SelectCurrent() => SetOutputConfiguration(Current, CurrentOutput, CurrentSpec);
 

@@ -15,18 +15,32 @@
         public const byte COM_DIF_TO_MCU_B1 = 0x08;
         public const byte COM_DIF_TO_MCU_B2 = 0x09;
 
-        public const byte COMPENSATION_CONTROL = 0x0C;   // address
+        // Compensation Control Register (0x0C)
+        public const byte COMPENSATION_CNTRL_ADD = 0x0C; 
         public const byte IF_SEL_BIT = 0x01; // 1 = digital interface 
         public const byte COMPENSATION_RESET_BIT = 0x02; // 1 = compensation engine in reset
 
         //Both set (0x03) means that the device is in command mode
         public const byte COMMAND_MODE = IF_SEL_BIT | COMPENSATION_RESET_BIT;
 
-        //EEPROM OP_STAGE_CTRL DAC Gain Settings
+        // Clamping and Normal Operating output
+        // Addresses for the Normal and Clamping output values
+        public const byte NORMAL_LOW_LSB_ADD = 0x3C;
+        public const byte NORMAL_LOW_MSB_ADD = 0x3D;
+        public const byte NORMAL_HIGH_LSB_ADD = 0x3E;
+        public const byte NORMAL_HIGH_MSB_ADD = 0x3F;
+
+        public const byte LOW_CLAMP_LSB_ADD = 0x40;
+        public const byte LOW_CLAMP_MSB_ADD = 0x41;
+        public const byte HIGH_CLAMP_LSB_ADD = 0x42;
+        public const byte HIGH_CLAMP_MSB_ADD = 0x43;
+
+
+        // OP_STAGE_CTRL Register Bits
+        // DAC Gain Settings
         public const byte DAC_GAIN_10V = 0x11;
         public const byte DAC_GAIN_4V = 0x12;
         public const byte DAC_GAIN_667V = 0x16;
-
         //Current Mode for OP_STAGE_CTRL
         public const byte CURRENT_MODE = 0x08;
 
@@ -55,11 +69,11 @@
         public const int INTERNAL_SN_B3 = 0x67;
 
         // Pressure Range (0x70-0x71)
-        public const int PRANGE_LSB = 0x70;
-        public const int PRANGE_MSB = 0x71;
+        public const int PRANGE_LSB_ADD = 0x70;
+        public const int PRANGE_MSB_ADD = 0x71;
 
         // Accuracy byte (0x72) ie G or +/- 0.2%
-        public const int ACCURACY = 0x72;
+        public const int ACCURACY_ADD = 0x72;
 
         // Sensor Serial Number (0x73-0x75)
         public const int SENSOR_SN_B0 = 0x73;

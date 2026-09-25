@@ -60,7 +60,7 @@ namespace PGA305OWICalibration.PGA305EVM
             _u2a.UART_Write(new byte[] {
                 USB2AnyConfig.SYNC_BYTE,
                 USB2AnyConfig.CMD_READ_PAGE0,
-                EEPROMRegister.COMPENSATION_CONTROL,
+                EEPROMRegister.COMPENSATION_CNTRL_ADD,
                 USB2AnyConfig.SYNC_BYTE,
                 USB2AnyConfig.CMD_READ_RESPONSE }, 5);
 
@@ -110,9 +110,9 @@ namespace PGA305OWICalibration.PGA305EVM
 
         public string ReadPressureCode()
         {
-            int lsb = ReadRegister(EEPROMRegister.PRANGE_LSB);
-            int msb = ReadRegister(EEPROMRegister.PRANGE_MSB);
-            int accuracyByte = ReadRegister(EEPROMRegister.ACCURACY);
+            int lsb = ReadRegister(EEPROMRegister.PRANGE_LSB_ADD);
+            int msb = ReadRegister(EEPROMRegister.PRANGE_MSB_ADD);
+            int accuracyByte = ReadRegister(EEPROMRegister.ACCURACY_ADD);
 
             Debug.WriteLine($"Pressure code: lsb:0x{lsb:X2} msb:0x{msb:X2} accuracy:0x{accuracyByte:X2}");
 

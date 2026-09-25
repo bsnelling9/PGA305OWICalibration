@@ -58,8 +58,8 @@ namespace PGA305OWICalibration.PGA305
         {
             for (int attempt = 0; attempt < 3; attempt++)
             {
-                int? lsb = _stm32.ReadRegister(EEPROMRegister.PRANGE_LSB, EEPROMRegister.I2C_EEPROM_ADDR);
-                int? msb = _stm32.ReadRegister(EEPROMRegister.PRANGE_MSB, EEPROMRegister.I2C_EEPROM_ADDR);
+                int? lsb = _stm32.ReadRegister(EEPROMRegister.PRANGE_LSB_ADD, EEPROMRegister.I2C_EEPROM_ADDR);
+                int? msb = _stm32.ReadRegister(EEPROMRegister.PRANGE_MSB_ADD, EEPROMRegister.I2C_EEPROM_ADDR);
 
                 if (lsb == null || msb == null) continue;
 

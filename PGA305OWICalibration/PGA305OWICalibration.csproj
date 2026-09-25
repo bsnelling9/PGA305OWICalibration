@@ -13,6 +13,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="I2COutputConfigForm.cs" />
+	  <Compile Remove="I2COutputConfigForm.Designer.cs" />
+	  <Compile Remove="UIControls\STM32ModeButton.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="I2COutputConfigForm.resx" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Folder Include="Data\" />
 	</ItemGroup>
 

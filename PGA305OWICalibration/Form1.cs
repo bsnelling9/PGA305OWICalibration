@@ -40,12 +40,6 @@ namespace PGA305OWICalibration
             settingsForm.Show();
         }
 
-        private void btnConfigI2C_Click(object sender, EventArgs e)
-        {
-            I2COutputConfigForm outputForm = new I2COutputConfigForm();
-            outputForm.Show();
-        }
-
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             try

@@ -7,7 +7,6 @@ namespace PGA305OWICalibration.PGA305
     public class PGA305Device
     {
         private const int PageSize = EEPROMRegister.EEPROM_PAGE_SIZE;
-
         private readonly USB2AnyDevice _u2a;
         public PGA305Device(USB2AnyDevice device) => _u2a = device;
 
@@ -61,13 +60,16 @@ namespace PGA305OWICalibration.PGA305
             _u2a.UART_Write(new byte[] { 
                 USB2AnyConfig.SYNC_BYTE, 
                 USB2AnyConfig.CMD_READ_PAGE0, 
-                EEPROMRegister.COMPENSATION_CONTROL, 
+                EEPROMRegister.COMPENSATION_CNTRL_ADD, 
                 USB2AnyConfig.SYNC_BYTE, 
                 USB2AnyConfig.CMD_READ_RESPONSE }, 5);
 
             int count = _u2a.UART_Read(response, 54);
 
-            Debug.WriteLine($"Activate: got {count} bytes");            
+            Debug.WriteLine($"Activate: got {count} bytes");
+
+            for (int i = 0; i < 54; i += 8)
+                Debug.WriteLine($"  [{i:D2}] {string.Join(" ", response.Skip(i).Take(8).Select(b => $"0x{b:X2}"))}");
 
             if (count > 0 && response[count - 1] == EEPROMRegister.COMMAND_MODE)
             {
@@ -110,9 +112,9 @@ namespace PGA305OWICalibration.PGA305
 
         public string ReadPressureCode()
         {
-            int lsb = ReadRegister(EEPROMRegister.PRANGE_LSB);
-            int msb = ReadRegister(EEPROMRegister.PRANGE_MSB);
-            int accuracyByte = ReadRegister(EEPROMRegister.ACCURACY);
+            int lsb = ReadRegister(EEPROMRegister.PRANGE_LSB_ADD);
+            int msb = ReadRegister(EEPROMRegister.PRANGE_MSB_ADD);
+            int accuracyByte = ReadRegister(EEPROMRegister.ACCURACY_ADD);
             
             Debug.WriteLine($"Pressure code: lsb:0x{lsb:X2} msb:0x{msb:X2} accuracy:0x{accuracyByte:X2}");
             
@@ -287,6 +289,7 @@ namespace PGA305OWICalibration.PGA305
         private bool WriteEEPROMPage(byte page, byte[] pageData)
         {
             const int pageSize = EEPROMRegister.EEPROM_PAGE_SIZE;
+            
             if (pageData.Length != pageSize)
             {
                 Debug.WriteLine($"ERROR: EEPROM page must contain exactly {pageSize} bytes.");
@@ -310,12 +313,13 @@ namespace PGA305OWICalibration.PGA305
             _u2a.UART_Write(cmd, (byte)cmd.Length);
             Debug.WriteLine($"Page 0x{page:X2} cache: {string.Join(" ", pageData.Select(b => $"0x{b:X2}"))}");
             
-            //I can probably remove this
+            //I can probably remove this entire part actually
             Thread.Sleep(15);
             byte[] discard = new byte[54];
             int junk = _u2a.UART_Read(discard, 54);
             
             if (junk > 0) Debug.WriteLine($"Discarded {junk} program-cycle byte(s)");
+            
             int pageStart = page * pageSize;
             
             for (int i = 0; i < pageSize; i++)
@@ -340,6 +344,7 @@ namespace PGA305OWICalibration.PGA305
         public bool WriteRegister(byte registerAddress, byte value)
         {
             int response = _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_WRITE_PAGE5, registerAddress, value }, 4);
+            
             if (response == 0)
             {
                 Debug.WriteLine($"Write reg 0x{registerAddress:X2} = 0x{value:X2}");
@@ -412,7 +417,7 @@ namespace PGA305OWICalibration.PGA305
             byte[] flush = new byte[54];
             byte[] data = new byte[54];
 
-            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_INIT_PAGE5, EEPROMRegister.PRANGE_LSB }, 3);
+            _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_INIT_PAGE5, EEPROMRegister.PRANGE_LSB_ADD }, 3);
             _u2a.UART_Read(flush, 54);
 
             _u2a.UART_Write(new byte[] { USB2AnyConfig.SYNC_BYTE, USB2AnyConfig.CMD_READ_RESPONSE }, 2);

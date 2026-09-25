@@ -109,7 +109,7 @@ namespace PGA305OWICalibration.Forms
 
         private void btnVoltage_Click(object sender, EventArgs e)
         {
-            lstVoltageRangeVisible(false);
+            lstVoltageRangeVisible(true);
             HandleVoltageVisible(true);
             SetOutputType("voltage");
         }
@@ -147,6 +147,7 @@ namespace PGA305OWICalibration.Forms
         private void lstVoltageRange_SelectedIndexChanged(object sender, EventArgs e)
         {
             int i = lstVoltageRange.SelectedIndex;
+            
             if (i < 0) return;
 
             if (i == VoltageRanges.Length)      

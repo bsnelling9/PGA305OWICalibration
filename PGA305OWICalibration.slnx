@@ -1,9 +1,11 @@
 <Solution>
   <Configurations>
     <Platform Name="Any CPU" />
+    <Platform Name="ARM32" />
     <Platform Name="x86" />
   </Configurations>
   <Project Path="PGA305OWICalibration/PGA305OWICalibration.csproj">
+    <Platform Solution="*|ARM32" Project="ARM32" />
     <Platform Solution="*|x86" Project="x86" />
   </Project>
 </Solution>

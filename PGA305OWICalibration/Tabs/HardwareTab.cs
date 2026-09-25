@@ -11,11 +11,11 @@ namespace PGA305OWICalibration.Tabs
         private STM32Controller _stm32;
         private USB2AnyDevice _u2a;
         private PGA305Device _pga305;
-
         public event EventHandler? HardwareReady;
         private const int RowStm32 = 0;
         private const int RowUsb2Any = 1;
         private int channel = 0;
+        private bool isDebugMode = false;
 
         public HardwareTab(STM32Controller stm32, USB2AnyDevice u2a, PGA305Device pga305)
         {
@@ -23,6 +23,29 @@ namespace PGA305OWICalibration.Tabs
             _stm32 = stm32;
             _u2a = u2a;
             _pga305 = pga305;
+            InDebugMode(isDebugMode);
+        }
+
+        private void InDebugMode(bool visible)
+        {
+            lblHardware.Visible = visible;
+            numericUpDown1.Visible = visible;
+            lblChannel.Visible = visible;
+            btnSetChannel.Visible = visible;
+            btnSETOWI.Visible = visible;
+            btnCompA.Visible = visible;
+            btnCompV.Visible = visible;
+            btnCompR.Visible = visible;
+            btnSETMA.Visible = visible;
+            btnSETVO.Visible = visible;
+            btnInit.Visible = visible;
+            btnActivate.Visible = visible;
+            btnGPIOTXLow.Visible = visible;
+            btnGPIOTXHigh.Visible = visible;
+            btnActivateLow.Visible = visible;
+            btnActivatehigh.Visible = visible;
+            btnOWITXHigh.Visible = visible;
+            btnOWI_TXLow.Visible = visible;
         }
 
         private void BtnScanHardware_Click(object sender, EventArgs e)
@@ -71,8 +94,8 @@ namespace PGA305OWICalibration.Tabs
             bool stm32Ok = ConnectStm32();
             bool usbOk = ConnectUsb2Any();
 
-            /*if (stm32Ok && usbOk)
-                HardwareReady?.Invoke(this, EventArgs.Empty);*/
+            if (stm32Ok && usbOk)
+                HardwareReady?.Invoke(this, EventArgs.Empty);
         }
 
         private bool ConnectStm32()

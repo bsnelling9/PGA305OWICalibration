@@ -420,9 +420,10 @@ namespace PGA305OWICalibration.Tabs
                     try
                     {
                         card.SetStockCode(code);
-                        card.SetStockCode(code);
 
-                        if (await ConnectChannel(card))
+                        bool connected = await ConnectChannel(card);
+
+                        if (connected)
                             await ConfigureChannel(card);
                     }
                     catch (Exception ex)
